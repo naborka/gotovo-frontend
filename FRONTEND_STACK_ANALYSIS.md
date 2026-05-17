@@ -17,7 +17,7 @@ Reading the prototype critically:
 | `localStorage.setItem('gotovo-theme', …)` runs unguarded | Will throw during SSR; needs cookie or Next.js theme primitive |
 | `document.body.classList.toggle('dark')` in effect | Causes hydration flash on first paint |
 | No images, no `<picture>`, no `next/image` usage | Layout will fail the moment events have hero images |
-| Serbian diacritics in mock data ("Fruška Gora") | i18n / locale-aware sort and format is real, not theoretical |
+| Russian Cyrillic content (e.g. `Белград`, `Нови-Сад`) is the production reality (~99% of ingest); mock data is in Latin / English only | i18n / locale-aware sort and format is real, not theoretical. Primary content language is `ru` (Decision 0005) |
 | `scrollbar-hidden` rows of 23+ tag chips | Filter UX won't scale past v1 — needs search/typeahead |
 
 **Conclusion**: the current prototype is a good *visual* spec but a poor *production* skeleton. The stack must close those gaps without inflating bundle size or complexity.
@@ -72,8 +72,8 @@ Reading the prototype critically:
 
 ### i18n
 
-- **`next-intl`** — file-based message catalogs, RSC-compatible. Set up the scaffolding now even if shipping English-only — the cost of retrofitting i18n later is 10× the cost of installing it on day one. Two locales: `en`, `sr`.
-- Use `Intl.DateTimeFormat` for dates instead of the current `WEEK_DAYS`/`MONTHS` arrays. Replaces a custom formatter with the platform's correct one for free.
+- **`next-intl`** — file-based message catalogs, RSC-compatible. Two locales for v1: `['ru', 'en']`. `ru` is the default at `/`; English lives at `/en/...` via `localePrefix: 'as-needed'`. Content stays in `ru`; UI chrome is translated. Decision 0005 recorded the rationale (~99% Russian ingest, Russian-speaking diaspora audience). `sr-Latn` deferred to v1.x; the scaffold makes adding a third catalogue cheap.
+- Use `Intl.DateTimeFormat(locale, { timeZone: 'Europe/Belgrade' })` for dates instead of the current `WEEK_DAYS`/`MONTHS` arrays. Replaces a custom formatter with the platform's correct one for free. Pass the timezone explicitly — browser-local timezone is wrong for every visitor outside Belgrade.
 
 ### Forms (when they exist — newsletter, submit-event, save)
 
@@ -122,16 +122,16 @@ Reading the prototype critically:
 
 If taking ownership of this codebase tomorrow:
 
-1. **Replace `lib/data.ts` with a real fetcher.** Server component reads from backend with `revalidate: 600`. Zod-validate the response. *This is the single highest-leverage change.*
-2. **Move filters to `nuqs`.** Delete `useState` for `activeCategory` / `activeCity` / `activeTags`. Filtered URLs become shareable for free.
-3. **Make detail a route + intercepted modal.** `/event/[uid]` with `@modal/(.)event/[uid]`. Same UX, real URLs.
-4. **Wire up `next-themes`.** Kill the hydration flash and the unsafe `localStorage` access.
-5. **Swap fonts to `next/font/google`.** Zero CLS.
-6. **Replace hand-rolled icons with `lucide-react`.** Smaller bundle, less maintenance.
-7. **Add `next-intl`** scaffolding (even if only `en` for now).
+1. **Replace `lib/data.ts` with a real fetcher.** Server component reads from backend with `revalidate: 600`. Zod-validate the response. *This is the single highest-leverage change.* (Blocked on backend Phase 0.5 shipping `/v1/*`.)
+2. **Add `next-intl` scaffolding** with `['ru', 'en']`, `localePrefix: 'as-needed'`. Reason for promoting this from step 7: message-key extraction touches every component; doing it last forces a re-edit pass over everything built in steps 3-6. (Decision 0005.)
+3. **Move filters to `nuqs`.** Delete `useState` for `activeCategory` / `activeCity` / `activeTags`. Filtered URLs become shareable for free.
+4. **Make detail a route + intercepted modal.** `/event/[uid]` with `@modal/(.)event/[uid]`. Same UX, real URLs.
+5. **Wire up `next-themes`.** Kill the hydration flash and the unsafe `localStorage` access.
+6. **Swap fonts to `next/font/google`.** Zero CLS.
+7. **Replace hand-rolled icons with `lucide-react`.** Smaller bundle, less maintenance.
 8. **Set up Vitest** and port the existing pure-function logic to tests *before* refactoring it further.
 9. **Add Sentry + Vercel Analytics.**
-10. **Add PWA manifest + Serwist.** Last, because shipping value beats installability.
+10. **Add PWA manifest + Serwist.** Last, because shipping value beats installability — and Serwist v9 + Next 16 compatibility must be verified before relying on it.
 
 Each step ships independently, none requires backend changes, all are reversible.
 
@@ -143,7 +143,7 @@ Each step ships independently, none requires backend changes, all are reversible
 2. **The "New" badge will lie** the moment `REFERENCE_TIME` ships to prod. Compute freshness on the server, send a boolean, or compute on the client with a `useEffect` that updates after mount (accept the flicker).
 3. **Filter chip overflow** on mobile — 23 tags scrolls horizontally now, but at 80+ tags users will never find a specific one. Plan a `<TagPicker>` with search before tag count grows.
 4. **Image-less cards look great until they have images** — the current layout doesn't reserve space. Decide now whether cards are text-only forever, or design the image slot before backend starts attaching them.
-5. **Serbian sort order** — `'Žabac' < 'Apple'` in default `localeCompare` unless `'sr'` is passed. The current `ALL_CITIES.sort()` is already wrong for Serbian city names. Fix at the source.
+5. **Locale-aware sort order** — Russian-primary content with mixed Cyrillic + Latin city display names. Sort with `Intl.Collator(locale, { sensitivity: 'base' })` where `locale` is the active UI locale (`ru` or `en`, Decision 0005). Default `Array.prototype.sort()` is wrong for any non-ASCII locale. The current `ALL_CITIES.sort()` is already wrong; replace with `lib/sort.ts` helpers in Phase 0.
 6. **Bundle creep** — set a CI budget. `@next/bundle-analyzer` in CI, fail the build if first-load JS exceeds, say, 120KB. Discipline prevents drift.
 
 ---
@@ -152,7 +152,7 @@ Each step ships independently, none requires backend changes, all are reversible
 
 - **ISR + on-demand revalidation.** Backend can `POST /api/revalidate` (with a secret) when new events land, triggering an instant re-render of affected pages. Combine with `revalidate: 600` as a safety net.
 - **Edge runtime is *not* a default.** Use it only for read-only endpoints with no Node-specific deps. The feed RSC stays Node — full ecosystem, no surprises.
-- **Image optimization is metered.** Cache aggressively (`minimumCacheTTL: 86400`), pick `formats: ['image/avif', 'image/webp']`, set `deviceSizes` to match real breakpoints (don't ship the default array — it's wider than needed).
+- **Image optimization is metered.** Cache aggressively (`minimumCacheTTL: 86400`), pick `formats: ['image/avif', 'image/webp']`, set `deviceSizes` to match real breakpoints (don't ship the default array — it's wider than needed). _(v1 ships no images per Decision 0004; this guidance applies when images land in v1.x. The v1.x reference plan picks a backend CDN with on-the-fly resize over the Vercel optimiser.)_
 - **`output: 'standalone'` is irrelevant on Vercel** — that's for self-hosting. Don't enable it.
 - **Preview deployments per PR** — turn this into a review tool. Comment the URL on PRs automatically (built into Vercel's GitHub app).
 - **Environment variables**: `NEXT_PUBLIC_*` for anything the browser needs (analytics keys, API base URL); everything else stays server-only and is leak-proof.
