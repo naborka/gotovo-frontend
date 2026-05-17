@@ -30,7 +30,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# v0.app scaffold (move to repo root in Phase 0 cleanup)
+# v0.app scaffold dump locations.
+# Cleanup landed in #11 (2026-05-17): scaffold relocated to repo root,
+# duplicates deleted, original directories removed from disk.
+# Kept defensively against future v0.app exports landing in the same paths.
 uploads/
 export/
 
