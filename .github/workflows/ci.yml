@@ -1,0 +1,121 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: typecheck / lint / test / build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - run: corepack enable
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.local/share/pnpm/store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-${{ runner.os }}-
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm tsc --noEmit
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Test (Vitest)
+        run: pnpm test
+
+      - name: Build (Next)
+        run: pnpm build
+
+      - name: Bundle-size gate
+        run: |
+          set -euo pipefail
+          BUDGET_KB=160
+          SIZE_KB=$(node -e "
+            const fs = require('node:fs');
+            const zlib = require('node:zlib');
+            try {
+              const stats = JSON.parse(fs.readFileSync('.next/diagnostics/route-bundle-stats.json', 'utf8'));
+              const home = stats.find(s => s.route === '/');
+              if (!home) { console.error('no / route in bundle-stats'); process.exit(2); }
+              let gzipped = 0;
+              for (const chunk of home.firstLoadChunkPaths) {
+                const p = chunk.startsWith('.next/') ? chunk : '.next/' + chunk;
+                if (fs.existsSync(p)) gzipped += zlib.gzipSync(fs.readFileSync(p)).length;
+              }
+              console.log(Math.round(gzipped / 1024));
+            } catch (e) {
+              console.error('bundle-size-gate error:', e.message);
+              process.exit(2);
+            }
+          ")
+          echo "First-load JS (home, gzipped) ≈ ${SIZE_KB} KB; budget ${BUDGET_KB} KB"
+          if [ "$SIZE_KB" -gt "$BUDGET_KB" ]; then
+            echo "::error::First-load JS exceeded budget (${SIZE_KB} KB > ${BUDGET_KB} KB)"
+            exit 1
+          fi
+
+  e2e:
+    name: e2e (Playwright)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - run: corepack enable
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.local/share/pnpm/store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-${{ runner.os }}-
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install Chromium
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Install OS deps (cache hit path)
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: pnpm exec playwright install-deps chromium
+
+      - name: Run Playwright tests
+        run: pnpm e2e
+
+      - name: Upload report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
