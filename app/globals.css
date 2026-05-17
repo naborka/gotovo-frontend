@@ -1,0 +1,260 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+/* ═══════════════════════════════════════════════════════════
+   GOTOVO DESIGN TOKENS
+   A sophisticated event discovery app color system
+═══════════════════════════════════════════════════════════ */
+
+:root {
+  /* Surfaces */
+  --background: #f4f2ff;
+  --foreground: #1a1730;
+  --card: #ffffff;
+  --card-foreground: #1a1730;
+  --popover: #ffffff;
+  --popover-foreground: #1a1730;
+  --surface: #ffffff;
+  --surface-2: #faf9ff;
+  --offset: #ede9fe;
+  --dynamic: #ddd6fe;
+  --divider: #cdc8e8;
+  
+  /* Primary - Violet */
+  --primary: #6d28d9;
+  --primary-foreground: #ffffff;
+  --primary-highlight: rgba(109, 40, 217, 0.08);
+  --primary-border: rgba(109, 40, 217, 0.22);
+  
+  /* Secondary */
+  --secondary: #ede9fe;
+  --secondary-foreground: #1a1730;
+  
+  /* Muted */
+  --muted: #a09cbc;
+  --muted-foreground: #6b6888;
+  --faint: #a09cbc;
+  
+  /* Accent */
+  --accent: #ede9fe;
+  --accent-foreground: #1a1730;
+  
+  /* Semantic Colors */
+  --amber: #b45309;
+  --amber-highlight: rgba(180, 83, 9, 0.08);
+  --amber-border: rgba(180, 83, 9, 0.2);
+  
+  --teal: #0d9488;
+  --teal-highlight: rgba(13, 148, 136, 0.09);
+  --teal-border: rgba(13, 148, 136, 0.22);
+  
+  --green: #22863a;
+  --green-highlight: rgba(34, 134, 58, 0.09);
+  --green-border: rgba(34, 134, 58, 0.22);
+  
+  --rose: #be123c;
+  --rose-highlight: rgba(190, 18, 60, 0.09);
+  --rose-border: rgba(190, 18, 60, 0.22);
+  
+  --blue: #1d4ed8;
+  --blue-highlight: rgba(29, 78, 216, 0.09);
+  --blue-border: rgba(29, 78, 216, 0.22);
+  
+  --new-badge: #4338ca;
+  --new-highlight: rgba(67, 56, 202, 0.09);
+  --new-border: rgba(67, 56, 202, 0.22);
+  
+  /* Destructive */
+  --destructive: #be123c;
+  --destructive-foreground: #ffffff;
+  
+  /* Border & Input */
+  --border: #bdb8d8;
+  --input: #bdb8d8;
+  --ring: #6d28d9;
+  
+  /* Radius */
+  --radius: 0.5rem;
+  
+  /* Sidebar */
+  --sidebar: #faf9ff;
+  --sidebar-foreground: #1a1730;
+  --sidebar-primary: #6d28d9;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #ede9fe;
+  --sidebar-accent-foreground: #1a1730;
+  --sidebar-border: #cdc8e8;
+  --sidebar-ring: #6d28d9;
+}
+
+.dark {
+  /* Surfaces */
+  --background: #0d0c12;
+  --foreground: #eae8f4;
+  --card: #131220;
+  --card-foreground: #eae8f4;
+  --popover: #131220;
+  --popover-foreground: #eae8f4;
+  --surface: #131220;
+  --surface-2: #19172a;
+  --offset: #201e30;
+  --dynamic: #28263a;
+  --divider: #2e2b42;
+  
+  /* Primary - Violet */
+  --primary: #9d7ff4;
+  --primary-foreground: #ffffff;
+  --primary-highlight: rgba(157, 127, 244, 0.13);
+  --primary-border: rgba(157, 127, 244, 0.28);
+  
+  /* Secondary */
+  --secondary: #201e30;
+  --secondary-foreground: #eae8f4;
+  
+  /* Muted */
+  --muted: #4a4762;
+  --muted-foreground: #8a87a8;
+  --faint: #4a4762;
+  
+  /* Accent */
+  --accent: #201e30;
+  --accent-foreground: #eae8f4;
+  
+  /* Semantic Colors */
+  --amber: #f5a623;
+  --amber-highlight: rgba(245, 166, 35, 0.12);
+  --amber-border: rgba(245, 166, 35, 0.25);
+  
+  --teal: #2ec4b6;
+  --teal-highlight: rgba(46, 196, 182, 0.11);
+  --teal-border: rgba(46, 196, 182, 0.25);
+  
+  --green: #4caf7d;
+  --green-highlight: rgba(76, 175, 125, 0.11);
+  --green-border: rgba(76, 175, 125, 0.25);
+  
+  --rose: #e8607a;
+  --rose-highlight: rgba(232, 96, 122, 0.11);
+  --rose-border: rgba(232, 96, 122, 0.25);
+  
+  --blue: #5b9cf6;
+  --blue-highlight: rgba(91, 156, 246, 0.11);
+  --blue-border: rgba(91, 156, 246, 0.22);
+  
+  --new-badge: #818cf8;
+  --new-highlight: rgba(129, 140, 248, 0.13);
+  --new-border: rgba(129, 140, 248, 0.28);
+  
+  /* Destructive */
+  --destructive: #e8607a;
+  --destructive-foreground: #ffffff;
+  
+  /* Border & Input */
+  --border: #383550;
+  --input: #383550;
+  --ring: #9d7ff4;
+  
+  /* Sidebar */
+  --sidebar: #131220;
+  --sidebar-foreground: #eae8f4;
+  --sidebar-primary: #9d7ff4;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #201e30;
+  --sidebar-accent-foreground: #eae8f4;
+  --sidebar-border: #2e2b42;
+  --sidebar-ring: #9d7ff4;
+}
+
+@theme inline {
+  --font-sans: var(--font-dm-sans), 'DM Sans', system-ui, sans-serif;
+  --font-mono: var(--font-dm-mono), 'DM Mono', ui-monospace, monospace;
+  --font-heading: var(--font-syne), 'Syne', system-ui, sans-serif;
+  
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  
+  /* Semantic colors for Tailwind */
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-offset: var(--offset);
+  --color-dynamic: var(--dynamic);
+  --color-divider: var(--divider);
+  --color-faint: var(--faint);
+  
+  --color-amber: var(--amber);
+  --color-teal: var(--teal);
+  --color-green: var(--green);
+  --color-rose: var(--rose);
+  --color-blue: var(--blue);
+  --color-new-badge: var(--new-badge);
+  
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Custom scrollbar */
+@layer utilities {
+  .scrollbar-hidden {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  
+  .scrollbar-hidden::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Pulse animation for new badge dot */
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+  }
+  
+  .animate-pulse-dot {
+    animation: pulse-dot 2.5s ease-in-out infinite;
+  }
+}

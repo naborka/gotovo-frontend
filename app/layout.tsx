@@ -1,0 +1,81 @@
+import type { Metadata, Viewport } from 'next';
+import { DM_Sans, DM_Mono, Syne } from 'next/font/google';
+import { Analytics } from '@vercel/analytics/next';
+import './globals.css';
+
+const dmSans = DM_Sans({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-dm-sans',
+  display: 'swap',
+});
+
+const dmMono = DM_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500'],
+  variable: '--font-dm-mono',
+  display: 'swap',
+});
+
+const syne = Syne({
+  subsets: ['latin'],
+  weight: ['700', '800'],
+  variable: '--font-syne',
+  display: 'swap',
+});
+
+export const metadata: Metadata = {
+  title: 'Gotovo - Event Discovery',
+  description:
+    'Discover events in Novi Sad and Belgrade. Music, art, food, adventure, and more.',
+  generator: 'v0.app',
+  keywords: ['events', 'Novi Sad', 'Belgrade', 'Serbia', 'music', 'art', 'food'],
+  authors: [{ name: 'Gotovo' }],
+  icons: {
+    icon: [
+      {
+        url: '/icon-light-32x32.png',
+        media: '(prefers-color-scheme: light)',
+      },
+      {
+        url: '/icon-dark-32x32.png',
+        media: '(prefers-color-scheme: dark)',
+      },
+      {
+        url: '/icon.svg',
+        type: 'image/svg+xml',
+      },
+    ],
+    apple: '/apple-icon.png',
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#f4f2ff' },
+    { media: '(prefers-color-scheme: dark)', color: '#0d0c12' },
+  ],
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html
+      lang="en"
+      className={`dark ${dmSans.variable} ${dmMono.variable} ${syne.variable}`}
+      suppressHydrationWarning
+    >
+      <body className="font-sans antialiased bg-background">
+        {children}
+        {process.env.NODE_ENV === 'production' && <Analytics />}
+      </body>
+    </html>
+  );
+}
