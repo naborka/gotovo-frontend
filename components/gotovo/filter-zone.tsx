@@ -1,10 +1,10 @@
 'use client';
 
-import { Chip } from './chip';
 import { IconPin, IconTag } from '@/components/icons';
+import { ALL_CATEGORIES, ALL_CITIES, ALL_FILTER, ALL_TAGS } from '@/lib/data';
 import { getCategoryStyle } from '@/lib/event-utils';
-import { ALL_CATEGORIES, ALL_CITIES, ALL_TAGS, ALL_FILTER } from '@/lib/data';
 import type { EventCategory } from '@/lib/types';
+import { Chip } from './chip';
 
 /**
  * Filter zone component containing category, city, and tag filters.
@@ -69,9 +69,7 @@ export function FilterZone({
             active={activeCategory === cat}
             dotColor={getCategoryStyle(cat).color}
             activeStyle={getCatActiveStyle(cat)}
-            onClick={() =>
-              setActiveCategory(activeCategory === cat ? ALL_FILTER : cat)
-            }
+            onClick={() => setActiveCategory(activeCategory === cat ? ALL_FILTER : cat)}
           />
         ))}
       </div>

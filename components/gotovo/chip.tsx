@@ -1,7 +1,7 @@
 'use client';
 
-import { cn } from '@/lib/utils';
 import type { CSSProperties, ReactNode } from 'react';
+import { cn } from '@/lib/utils';
 
 /**
  * Chip filter button component.
@@ -37,7 +37,7 @@ export function Chip({
         'transition-all duration-150 ease-out',
         'hover:border-primary hover:text-primary',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-        className
+        className,
       )}
       onClick={onClick}
       aria-pressed={active}

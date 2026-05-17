@@ -1,4 +1,4 @@
-import type { GotovoEvent, EventCategory } from './types';
+import type { EventCategory, GotovoEvent } from './types';
 
 /**
  * Mock event data for Gotovo.
@@ -234,9 +234,7 @@ export const ALL_CITIES: string[] = [
 ].sort() as string[];
 
 /** All unique tags from events */
-export const ALL_TAGS: string[] = [
-  ...new Set(EVENTS.flatMap((e) => e.tags)),
-].sort();
+export const ALL_TAGS: string[] = [...new Set(EVENTS.flatMap((e) => e.tags))].sort();
 
 /** Sentinel value for "no filter active" */
 export const ALL_FILTER = 'all';

@@ -1,15 +1,10 @@
 'use client';
 
-import { Pill } from './pill';
 import { IconPin } from '@/components/icons';
-import {
-  getCategoryStyle,
-  getPriceStyle,
-  isNewEvent,
-  daysBetween,
-} from '@/lib/event-utils';
+import { daysBetween, getCategoryStyle, getPriceStyle, isNewEvent } from '@/lib/event-utils';
 import type { GotovoEvent } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import { Pill } from './pill';
 
 /**
  * Event card component for displaying event summary in the feed.
@@ -22,8 +17,7 @@ interface EventCardProps {
 }
 
 export function EventCard({ event, onOpen }: EventCardProps) {
-  const { title, description, startTime, cat, city, price, tags, startDate, endDate } =
-    event;
+  const { title, description, startTime, cat, city, price, tags, startDate, endDate } = event;
 
   const catStyle = getCategoryStyle(cat);
   const priceStyle = getPriceStyle(price);
@@ -46,12 +40,10 @@ export function EventCard({ event, onOpen }: EventCardProps) {
         'active:translate-y-0 active:shadow-none',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
         'md:mx-4',
-        isNew && 'border-l-[3px] border-l-primary'
+        isNew && 'border-l-[3px] border-l-primary',
       )}
       onClick={() => onOpen(event)}
       onKeyDown={handleKeyDown}
-      role="button"
-      tabIndex={0}
       aria-label={title}
     >
       {/* Badges row */}
@@ -108,9 +100,7 @@ export function EventCard({ event, onOpen }: EventCardProps) {
               {city}
             </span>
           )}
-          {city && tags.length > 0 && (
-            <span className="text-[10px] text-faint">·</span>
-          )}
+          {city && tags.length > 0 && <span className="text-[10px] text-faint">·</span>}
           {tags.length > 0 && (
             <span className="text-[10px] text-faint overflow-hidden whitespace-nowrap text-ellipsis">
               {tags.map((t) => `#${t}`).join(' ')}

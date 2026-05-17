@@ -14,11 +14,7 @@ interface TabBarProps {
 
 export function TabBar({ activeTab, onTabChange }: TabBarProps) {
   return (
-    <nav
-      className="flex border-b border-divider flex-shrink-0"
-      role="tablist"
-      aria-label="Feed view"
-    >
+    <nav className="flex border-b border-divider flex-shrink-0" aria-label="Feed view">
       <TabButton
         label="Timeline"
         active={activeTab === 'timeline'}
@@ -48,6 +44,7 @@ function TabButton({
 }) {
   return (
     <button
+      type="button"
       className={cn(
         'px-4 py-2 text-xs font-normal text-muted-foreground',
         'border-b-2 border-transparent -mb-px',
@@ -55,7 +52,7 @@ function TabButton({
         'transition-colors',
         'hover:text-foreground',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset',
-        active && 'text-foreground font-semibold border-b-primary'
+        active && 'text-foreground font-semibold border-b-primary',
       )}
       role="tab"
       aria-selected={active}

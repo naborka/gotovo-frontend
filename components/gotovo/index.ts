@@ -3,12 +3,12 @@
  * Barrel file for clean imports.
  */
 
-export { Header } from './header';
-export { TabBar } from './tab-bar';
-export { FilterZone } from './filter-zone';
-export { Feed } from './feed';
-export { EventCard } from './event-card';
+export { Chip } from './chip';
 export { DetailPage } from './detail-page';
 export { EmptyState } from './empty-state';
+export { EventCard } from './event-card';
+export { Feed } from './feed';
+export { FilterZone } from './filter-zone';
+export { Header } from './header';
 export { Pill } from './pill';
-export { Chip } from './chip';
+export { TabBar } from './tab-bar';

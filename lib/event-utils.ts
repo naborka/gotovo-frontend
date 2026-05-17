@@ -1,10 +1,4 @@
-import type {
-  GotovoEvent,
-  EventCategory,
-  CategoryStyle,
-  PriceStyle,
-  DateGroup,
-} from './types';
+import type { CategoryStyle, DateGroup, EventCategory, GotovoEvent, PriceStyle } from './types';
 
 /**
  * Event utility functions.
@@ -138,13 +132,15 @@ export const groupEventsByDate = (events: GotovoEvent[]): DateGroup[] => {
   });
 
   const grouped = new Map<string, DateGroup>();
-  
+
   for (const event of sorted) {
     const key = event.startDate.toDateString();
-    if (!grouped.has(key)) {
-      grouped.set(key, { date: event.startDate, events: [] });
+    let group = grouped.get(key);
+    if (!group) {
+      group = { date: event.startDate, events: [] };
+      grouped.set(key, group);
     }
-    grouped.get(key)!.events.push(event);
+    group.events.push(event);
   }
 
   return [...grouped.values()];
@@ -152,18 +148,18 @@ export const groupEventsByDate = (events: GotovoEvent[]): DateGroup[] => {
 
 /** Group events by recency for Recently Added view */
 export const groupEventsByRecency = (events: GotovoEvent[]): DateGroup[] => {
-  const sorted = [...events].sort(
-    (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
-  );
+  const sorted = [...events].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
   const grouped = new Map<string, DateGroup>();
-  
+
   for (const event of sorted) {
     const key = event.startDate.toDateString();
-    if (!grouped.has(key)) {
-      grouped.set(key, { date: event.startDate, events: [] });
+    let group = grouped.get(key);
+    if (!group) {
+      group = { date: event.startDate, events: [] };
+      grouped.set(key, group);
     }
-    grouped.get(key)!.events.push(event);
+    group.events.push(event);
   }
 
   return [...grouped.values()];
@@ -175,7 +171,7 @@ export const filterEvents = (
   category: string,
   city: string,
   tags: Set<string>,
-  allValue: string
+  allValue: string,
 ): GotovoEvent[] => {
   return events.filter((event) => {
     if (category !== allValue && event.cat !== category) return false;

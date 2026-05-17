@@ -10,9 +10,7 @@ export function EmptyState() {
       <div className="text-4xl text-faint mb-1">
         <IconSearch size={48} />
       </div>
-      <p className="font-heading text-lg font-bold text-foreground">
-        No events match
-      </p>
+      <p className="font-heading text-lg font-bold text-foreground">No events match</p>
       <p className="text-xs text-muted-foreground leading-relaxed max-w-[26ch]">
         Try adjusting your filters — new events drop throughout the day.
       </p>

@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useCallback, useMemo } from 'react';
-import { Header, TabBar, FilterZone, Feed, DetailPage } from '@/components/gotovo';
-import { EVENTS, ALL_FILTER } from '@/lib/data';
+import { useCallback, useMemo, useState } from 'react';
+import { DetailPage, Feed, FilterZone, Header, TabBar } from '@/components/gotovo';
+import { ALL_FILTER, EVENTS } from '@/lib/data';
 import { filterEvents } from '@/lib/event-utils';
 import type { GotovoEvent, TabType } from '@/lib/types';
 
@@ -28,14 +28,12 @@ export default function GotovoApp() {
 
   // Derived state
   const hasFilters =
-    activeCategory !== ALL_FILTER ||
-    activeCity !== ALL_FILTER ||
-    activeTags.size > 0;
+    activeCategory !== ALL_FILTER || activeCity !== ALL_FILTER || activeTags.size > 0;
 
   // Filtered events - memoized to prevent unnecessary recalculation
   const filteredEvents = useMemo(
     () => filterEvents(EVENTS, activeCategory, activeCity, activeTags, ALL_FILTER),
-    [activeCategory, activeCity, activeTags]
+    [activeCategory, activeCity, activeTags],
   );
 
   // Callbacks
