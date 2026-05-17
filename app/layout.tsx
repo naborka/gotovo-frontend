@@ -1,6 +1,8 @@
 import { Analytics } from '@vercel/analytics/next';
 import type { Metadata, Viewport } from 'next';
 import { DM_Mono, DM_Sans, Syne } from 'next/font/google';
+import type { ReactNode } from 'react';
+import { ThemeProvider } from '@/components/theme-provider';
 import './globals.css';
 
 const dmSans = DM_Sans({
@@ -63,16 +65,23 @@ export const viewport: Viewport = {
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: ReactNode;
 }>) {
   return (
     <html
-      lang="en"
-      className={`dark ${dmSans.variable} ${dmMono.variable} ${syne.variable}`}
+      lang="ru"
+      className={`${dmSans.variable} ${dmMono.variable} ${syne.variable}`}
       suppressHydrationWarning
     >
       <body className="font-sans antialiased bg-background">
-        {children}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>

@@ -14,9 +14,6 @@ import type { GotovoEvent, TabType } from '@/lib/types';
  */
 
 export default function GotovoApp() {
-  // Theme state
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
-
   // Navigation state
   const [activeTab, setActiveTab] = useState<TabType>('timeline');
   const [detailEvent, setDetailEvent] = useState<GotovoEvent | null>(null);
@@ -63,23 +60,10 @@ export default function GotovoApp() {
     setDetailEvent(null);
   }, []);
 
-  const toggleTheme = useCallback(() => {
-    setTheme((t) => {
-      const next = t === 'dark' ? 'light' : 'dark';
-      document.documentElement.classList.toggle('dark', next === 'dark');
-      return next;
-    });
-  }, []);
-
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
-      <Header
-        hasFilters={hasFilters}
-        onClearFilters={clearFilters}
-        theme={theme}
-        onToggleTheme={toggleTheme}
-      />
+      <Header hasFilters={hasFilters} onClearFilters={clearFilters} />
 
       {/* Tab navigation */}
       <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
