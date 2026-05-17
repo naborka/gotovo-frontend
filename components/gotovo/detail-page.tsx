@@ -1,22 +1,17 @@
 'use client';
 
-import { useEffect, useCallback } from 'react';
-import { Pill } from './pill';
+import { useEffect } from 'react';
+import { IconBack, IconDirections, IconExternal, IconShare } from '@/components/icons';
 import {
-  IconBack,
-  IconShare,
-  IconDirections,
-  IconExternal,
-} from '@/components/icons';
-import {
+  daysBetween,
+  formatDateLong,
   getCategoryStyle,
   getPriceStyle,
   isNewEvent,
-  daysBetween,
-  formatDateLong,
 } from '@/lib/event-utils';
 import type { GotovoEvent } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import { Pill } from './pill';
 
 /**
  * Event detail page component.
@@ -61,7 +56,7 @@ export function DetailPage({ event, onClose }: DetailPageProps) {
       <div
         className={cn(
           'fixed inset-0 bg-background/80 backdrop-blur-sm z-40 transition-opacity duration-300',
-          isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none',
         )}
         onClick={onClose}
         aria-hidden="true"
@@ -73,7 +68,7 @@ export function DetailPage({ event, onClose }: DetailPageProps) {
           'fixed inset-y-0 right-0 w-full max-w-lg bg-background z-50',
           'flex flex-col shadow-2xl',
           'transition-transform duration-300 ease-out',
-          isOpen ? 'translate-x-0' : 'translate-x-full'
+          isOpen ? 'translate-x-0' : 'translate-x-full',
         )}
         role="dialog"
         aria-modal="true"
@@ -82,6 +77,7 @@ export function DetailPage({ event, onClose }: DetailPageProps) {
         {/* Header */}
         <header className="h-14 px-4 flex items-center gap-3 bg-background border-b border-divider flex-shrink-0">
           <button
+            type="button"
             className="w-9 h-9 rounded-lg flex items-center justify-center text-primary hover:bg-primary-highlight transition-colors"
             onClick={onClose}
             aria-label="Back to feed"
@@ -117,7 +113,7 @@ export function DetailPage({ event, onClose }: DetailPageProps) {
                   'flex-1 bg-primary text-primary-foreground rounded-xl',
                   'px-4 py-3.5 text-sm font-bold',
                   'flex items-center justify-center gap-2',
-                  'transition-colors hover:bg-new-badge'
+                  'transition-colors hover:bg-new-badge',
                 )}
               >
                 <IconExternal size={15} />
@@ -143,11 +139,12 @@ function ActionButton({
 }) {
   return (
     <button
+      type="button"
       className={cn(
         'w-12 h-12 flex-shrink-0 rounded-xl',
         'border border-border bg-offset',
         'flex items-center justify-center text-muted-foreground',
-        'transition-all hover:bg-dynamic hover:text-foreground hover:border-primary-border'
+        'transition-all hover:bg-dynamic hover:text-foreground hover:border-primary-border',
       )}
       onClick={onClick}
       aria-label={label}
@@ -162,9 +159,7 @@ function EventDetailContent({ event }: { event: GotovoEvent }) {
   const catStyle = getCategoryStyle(event.cat);
   const priceStyle = getPriceStyle(event.price);
   const isNew = isNewEvent(event);
-  const multiDaySpan = event.endDate
-    ? daysBetween(event.startDate, event.endDate)
-    : 0;
+  const multiDaySpan = event.endDate ? daysBetween(event.startDate, event.endDate) : 0;
 
   return (
     <>
@@ -219,9 +214,7 @@ function EventDetailContent({ event }: { event: GotovoEvent }) {
             <p className="cell-value">
               {event.city}
               {event.loc && (
-                <span className="block text-[11px] text-muted-foreground mt-0.5">
-                  {event.loc}
-                </span>
+                <span className="block text-[11px] text-muted-foreground mt-0.5">{event.loc}</span>
               )}
             </p>
           ) : event.loc ? (
@@ -249,11 +242,11 @@ function EventDetailContent({ event }: { event: GotovoEvent }) {
           <div className="flex items-center gap-1.5 mt-1">
             {Array.from({ length: Math.min(event.sourceCount, 5) }).map((_, i) => (
               <div
+                // biome-ignore lint/suspicious/noArrayIndexKey: confidence-dot count is stable per render
                 key={i}
                 className="w-1.5 h-1.5 rounded-full"
                 style={{
-                  backgroundColor:
-                    i < event.sourceCount ? 'var(--green)' : 'var(--divider)',
+                  backgroundColor: i < event.sourceCount ? 'var(--green)' : 'var(--divider)',
                 }}
               />
             ))}
@@ -292,9 +285,7 @@ function DateTimeSection({ event }: { event: GotovoEvent }) {
   const isMultiDay = !!endDate;
 
   if (isMultiDay) {
-    const startLabel = [formatDateLong(startDate), startTime]
-      .filter(Boolean)
-      .join(' · ');
+    const startLabel = [formatDateLong(startDate), startTime].filter(Boolean).join(' · ');
     const endLabel = [formatDateLong(endDate), endTime].filter(Boolean).join(' · ');
 
     return (
@@ -344,17 +335,12 @@ function InfoCell({
 }) {
   return (
     <div
-      className={cn(
-        'bg-offset border border-divider rounded-lg p-3',
-        fullWidth && 'col-span-2'
-      )}
+      className={cn('bg-offset border border-divider rounded-lg p-3', fullWidth && 'col-span-2')}
     >
       <p className="font-mono text-[9px] font-medium text-muted-foreground uppercase tracking-widest mb-1">
         {label}
       </p>
-      <div className="text-[13px] font-semibold text-foreground leading-snug">
-        {children}
-      </div>
+      <div className="text-[13px] font-semibold text-foreground leading-snug">{children}</div>
     </div>
   );
 }

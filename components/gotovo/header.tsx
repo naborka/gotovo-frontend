@@ -1,6 +1,6 @@
 'use client';
 
-import { LogoMark, IconClose, IconSun, IconMoon } from '@/components/icons';
+import { IconClose, IconMoon, IconSun, LogoMark } from '@/components/icons';
 import { cn } from '@/lib/utils';
 
 /**
@@ -14,12 +14,7 @@ interface HeaderProps {
   onToggleTheme: () => void;
 }
 
-export function Header({
-  hasFilters,
-  onClearFilters,
-  theme,
-  onToggleTheme,
-}: HeaderProps) {
+export function Header({ hasFilters, onClearFilters, theme, onToggleTheme }: HeaderProps) {
   return (
     <header className="h-14 px-4 flex items-center bg-background border-b border-divider flex-shrink-0 md:px-6">
       {/* Logo */}
@@ -61,12 +56,13 @@ function IconButton({
 }) {
   return (
     <button
+      type="button"
       className={cn(
         'w-9 h-9 rounded-lg',
         'flex items-center justify-center',
         'text-muted-foreground',
         'transition-colors hover:bg-offset hover:text-foreground',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
       )}
       onClick={onClick}
       title={label}

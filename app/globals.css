@@ -1,5 +1,5 @@
-@import 'tailwindcss';
-@import 'tw-animate-css';
+@import "tailwindcss";
+@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -21,63 +21,63 @@
   --offset: #ede9fe;
   --dynamic: #ddd6fe;
   --divider: #cdc8e8;
-  
+
   /* Primary - Violet */
   --primary: #6d28d9;
   --primary-foreground: #ffffff;
   --primary-highlight: rgba(109, 40, 217, 0.08);
   --primary-border: rgba(109, 40, 217, 0.22);
-  
+
   /* Secondary */
   --secondary: #ede9fe;
   --secondary-foreground: #1a1730;
-  
+
   /* Muted */
   --muted: #a09cbc;
   --muted-foreground: #6b6888;
   --faint: #a09cbc;
-  
+
   /* Accent */
   --accent: #ede9fe;
   --accent-foreground: #1a1730;
-  
+
   /* Semantic Colors */
   --amber: #b45309;
   --amber-highlight: rgba(180, 83, 9, 0.08);
   --amber-border: rgba(180, 83, 9, 0.2);
-  
+
   --teal: #0d9488;
   --teal-highlight: rgba(13, 148, 136, 0.09);
   --teal-border: rgba(13, 148, 136, 0.22);
-  
+
   --green: #22863a;
   --green-highlight: rgba(34, 134, 58, 0.09);
   --green-border: rgba(34, 134, 58, 0.22);
-  
+
   --rose: #be123c;
   --rose-highlight: rgba(190, 18, 60, 0.09);
   --rose-border: rgba(190, 18, 60, 0.22);
-  
+
   --blue: #1d4ed8;
   --blue-highlight: rgba(29, 78, 216, 0.09);
   --blue-border: rgba(29, 78, 216, 0.22);
-  
+
   --new-badge: #4338ca;
   --new-highlight: rgba(67, 56, 202, 0.09);
   --new-border: rgba(67, 56, 202, 0.22);
-  
+
   /* Destructive */
   --destructive: #be123c;
   --destructive-foreground: #ffffff;
-  
+
   /* Border & Input */
   --border: #bdb8d8;
   --input: #bdb8d8;
   --ring: #6d28d9;
-  
+
   /* Radius */
   --radius: 0.5rem;
-  
+
   /* Sidebar */
   --sidebar: #faf9ff;
   --sidebar-foreground: #1a1730;
@@ -102,60 +102,60 @@
   --offset: #201e30;
   --dynamic: #28263a;
   --divider: #2e2b42;
-  
+
   /* Primary - Violet */
   --primary: #9d7ff4;
   --primary-foreground: #ffffff;
   --primary-highlight: rgba(157, 127, 244, 0.13);
   --primary-border: rgba(157, 127, 244, 0.28);
-  
+
   /* Secondary */
   --secondary: #201e30;
   --secondary-foreground: #eae8f4;
-  
+
   /* Muted */
   --muted: #4a4762;
   --muted-foreground: #8a87a8;
   --faint: #4a4762;
-  
+
   /* Accent */
   --accent: #201e30;
   --accent-foreground: #eae8f4;
-  
+
   /* Semantic Colors */
   --amber: #f5a623;
   --amber-highlight: rgba(245, 166, 35, 0.12);
   --amber-border: rgba(245, 166, 35, 0.25);
-  
+
   --teal: #2ec4b6;
   --teal-highlight: rgba(46, 196, 182, 0.11);
   --teal-border: rgba(46, 196, 182, 0.25);
-  
+
   --green: #4caf7d;
   --green-highlight: rgba(76, 175, 125, 0.11);
   --green-border: rgba(76, 175, 125, 0.25);
-  
+
   --rose: #e8607a;
   --rose-highlight: rgba(232, 96, 122, 0.11);
   --rose-border: rgba(232, 96, 122, 0.25);
-  
+
   --blue: #5b9cf6;
   --blue-highlight: rgba(91, 156, 246, 0.11);
   --blue-border: rgba(91, 156, 246, 0.22);
-  
+
   --new-badge: #818cf8;
   --new-highlight: rgba(129, 140, 248, 0.13);
   --new-border: rgba(129, 140, 248, 0.28);
-  
+
   /* Destructive */
   --destructive: #e8607a;
   --destructive-foreground: #ffffff;
-  
+
   /* Border & Input */
   --border: #383550;
   --input: #383550;
   --ring: #9d7ff4;
-  
+
   /* Sidebar */
   --sidebar: #131220;
   --sidebar-foreground: #eae8f4;
@@ -226,12 +226,12 @@
   * {
     @apply border-border outline-ring/50;
   }
-  
+
   html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
-  
+
   body {
     @apply bg-background text-foreground;
   }
@@ -243,17 +243,22 @@
     scrollbar-width: none;
     -ms-overflow-style: none;
   }
-  
+
   .scrollbar-hidden::-webkit-scrollbar {
     display: none;
   }
-  
+
   /* Pulse animation for new badge dot */
   @keyframes pulse-dot {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.35; }
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.35;
+    }
   }
-  
+
   .animate-pulse-dot {
     animation: pulse-dot 2.5s ease-in-out infinite;
   }

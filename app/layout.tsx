@@ -1,6 +1,6 @@
-import type { Metadata, Viewport } from 'next';
-import { DM_Sans, DM_Mono, Syne } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
+import type { Metadata, Viewport } from 'next';
+import { DM_Mono, DM_Sans, Syne } from 'next/font/google';
 import './globals.css';
 
 const dmSans = DM_Sans({
@@ -26,8 +26,7 @@ const syne = Syne({
 
 export const metadata: Metadata = {
   title: 'Gotovo - Event Discovery',
-  description:
-    'Discover events in Novi Sad and Belgrade. Music, art, food, adventure, and more.',
+  description: 'Discover events in Novi Sad and Belgrade. Music, art, food, adventure, and more.',
   generator: 'v0.app',
   keywords: ['events', 'Novi Sad', 'Belgrade', 'Serbia', 'music', 'art', 'food'],
   authors: [{ name: 'Gotovo' }],

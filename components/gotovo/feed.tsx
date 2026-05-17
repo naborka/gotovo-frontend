@@ -1,13 +1,9 @@
 'use client';
 
-import { EventCard } from './event-card';
-import { EmptyState } from './empty-state';
-import {
-  groupEventsByDate,
-  groupEventsByRecency,
-  formatDateLong,
-} from '@/lib/event-utils';
+import { formatDateLong, groupEventsByDate, groupEventsByRecency } from '@/lib/event-utils';
 import type { GotovoEvent, TabType } from '@/lib/types';
+import { EmptyState } from './empty-state';
+import { EventCard } from './event-card';
 
 /**
  * Event feed component displaying grouped event cards.
@@ -25,8 +21,7 @@ export function Feed({ events, tab, onOpenEvent }: FeedProps) {
     return <EmptyState />;
   }
 
-  const groups =
-    tab === 'recent' ? groupEventsByRecency(events) : groupEventsByDate(events);
+  const groups = tab === 'recent' ? groupEventsByRecency(events) : groupEventsByDate(events);
   const total = events.length;
 
   return (
@@ -38,8 +33,8 @@ export function Feed({ events, tab, onOpenEvent }: FeedProps) {
       </p>
 
       {/* Date groups */}
-      {groups.map((group, index) => (
-        <div key={index} className="mt-2.5">
+      {groups.map((group) => (
+        <div key={group.date.toISOString()} className="mt-2.5">
           {/* Date header */}
           <div className="flex items-baseline gap-2 px-3 py-1.5 border-b border-divider md:px-6">
             <span className="font-heading text-base font-extrabold text-foreground tracking-tight leading-none">
@@ -56,8 +51,6 @@ export function Feed({ events, tab, onOpenEvent }: FeedProps) {
           ))}
         </div>
       ))}
-
-
     </div>
   );
 }
