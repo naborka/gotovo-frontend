@@ -1,23 +1,28 @@
 'use client';
 
+import { useTheme } from 'next-themes';
+import { useEffect, useState } from 'react';
 import { IconClose, IconMoon, IconSun, LogoMark } from '@/components/icons';
 import { cn } from '@/lib/utils';
-
-/**
- * App header with logo, clear filters, and theme toggle.
- */
 
 interface HeaderProps {
   hasFilters: boolean;
   onClearFilters: () => void;
-  theme: 'light' | 'dark';
-  onToggleTheme: () => void;
 }
 
-export function Header({ hasFilters, onClearFilters, theme, onToggleTheme }: HeaderProps) {
+export function Header({ hasFilters, onClearFilters }: HeaderProps) {
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const current = mounted ? (resolvedTheme ?? theme) : null;
+  const toggle = () => setTheme(current === 'dark' ? 'light' : 'dark');
+
   return (
     <header className="h-14 px-4 flex items-center bg-background border-b border-divider flex-shrink-0 md:px-6">
-      {/* Logo */}
       <div className="flex items-center gap-2">
         <LogoMark size={22} />
         <span className="font-heading text-lg font-extrabold text-foreground tracking-tight">
@@ -25,7 +30,6 @@ export function Header({ hasFilters, onClearFilters, theme, onToggleTheme }: Hea
         </span>
       </div>
 
-      {/* Right actions */}
       <div className="ml-auto flex items-center gap-1">
         {hasFilters && (
           <IconButton
@@ -35,16 +39,21 @@ export function Header({ hasFilters, onClearFilters, theme, onToggleTheme }: Hea
           />
         )}
         <IconButton
-          icon={theme === 'dark' ? <IconSun size={14} /> : <IconMoon size={14} />}
-          label="Toggle theme"
-          onClick={onToggleTheme}
+          icon={
+            current === 'dark' ? (
+              <IconSun size={14} />
+            ) : current === 'light' ? (
+              <IconMoon size={14} />
+            ) : null
+          }
+          label={current === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
+          onClick={toggle}
         />
       </div>
     </header>
   );
 }
 
-/** Icon button for header */
 function IconButton({
   icon,
   label,
