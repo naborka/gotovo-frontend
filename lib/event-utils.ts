@@ -42,7 +42,7 @@ export const formatDateLong = (date: Date): string =>
 
 /** Format date as "29 Apr" */
 export const formatDateShort = (date: Date): string =>
-  `${date.getDate()} ${MONTHS[date.getMonth()].slice(0, 3)}`;
+  `${date.getDate()} ${(MONTHS[date.getMonth()] ?? '').slice(0, 3)}`;
 
 /** Calculate days between two dates */
 export const daysBetween = (start: Date, end: Date): number =>

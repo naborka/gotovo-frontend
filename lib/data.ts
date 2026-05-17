@@ -27,9 +27,7 @@ export const EVENTS: GotovoEvent[] = [
     description:
       'A guided climb up the rocky ridge of Fruska Gora starting at dawn. All gear provided. Moderate fitness required — no prior climbing experience needed. Groups capped at 12.',
     startDate: mkDate(0),
-    endDate: undefined,
     startTime: '06:30',
-    endTime: undefined,
     cat: 'Adventure',
     loc: 'Fruska Gora National Park',
     city: 'Novi Sad',
@@ -45,9 +43,7 @@ export const EVENTS: GotovoEvent[] = [
     description:
       'Three local projects performing uncompromising electronic and noise sets. Expect feedback loops, tape manipulation, and field recordings pressed into uncomfortable shapes. Bar open from 21:00.',
     startDate: mkDate(0),
-    endDate: undefined,
     startTime: '22:00',
-    endTime: undefined,
     cat: 'Music',
     loc: 'Fabrika, Liman',
     city: 'Novi Sad',
@@ -63,7 +59,6 @@ export const EVENTS: GotovoEvent[] = [
     description:
       "A curated selection of low-intervention wines from small Serbian and regional producers. The exact address is shared 24 hours before via the organiser's Telegram channel.",
     startDate: mkDate(1),
-    endDate: undefined,
     startTime: '17:00',
     endTime: '21:00',
     cat: 'Food & Drink',
@@ -81,7 +76,6 @@ export const EVENTS: GotovoEvent[] = [
     description:
       'A hands-on Saturday session for children aged 6–12. Each child leaves with a finished piece. All materials included. Parents are welcome to stay and watch.',
     startDate: mkDate(1),
-    endDate: undefined,
     startTime: '10:00',
     endTime: '12:30',
     cat: 'Education',
@@ -99,7 +93,6 @@ export const EVENTS: GotovoEvent[] = [
     description:
       'A slow two-hour riverside walk with botanist Jelena Maric. Learn to identify edible and medicinal plants growing along the Sodros waterfront. Bring a bag and sturdy shoes.',
     startDate: mkDate(2),
-    endDate: undefined,
     startTime: '09:00',
     endTime: '11:00',
     cat: 'Adventure',
@@ -117,7 +110,6 @@ export const EVENTS: GotovoEvent[] = [
     description:
       'An unannounced ambient performance on the rooftop terrace. One artist, two hours, no setlist. Entry is first-come, limited to 40 people. BYO patience.',
     startDate: mkDate(2),
-    endDate: undefined,
     startTime: '19:30',
     endTime: '21:30',
     cat: 'Music',
@@ -154,12 +146,8 @@ export const EVENTS: GotovoEvent[] = [
       "Over 30 vendors across three days: grilled meats, vegan bowls, craft drinks, live cooking demos, and a kids' zone. Location TBA — follow the organiser's Instagram for updates.",
     startDate: mkDate(4),
     endDate: mkDate(6),
-    startTime: undefined,
-    endTime: undefined,
     cat: 'Food & Drink',
-    loc: undefined,
     city: 'Belgrade',
-    price: undefined,
     tags: ['Street Food', 'Family', 'Outdoor', 'Multi-day'],
     createdAt: mkDate(-1, 16, 10),
     sourceCount: 2,
@@ -171,7 +159,6 @@ export const EVENTS: GotovoEvent[] = [
     description:
       'A full-day workshop covering composition, light reading, and post-processing in Lightroom. Suitable for DSLR and mirrorless users. Participants receive a reviewed portfolio at the end.',
     startDate: mkDate(5),
-    endDate: undefined,
     startTime: '11:00',
     endTime: '17:00',
     cat: 'Education',
@@ -189,7 +176,6 @@ export const EVENTS: GotovoEvent[] = [
     description:
       'Sign up on the door from 19:00. Five minutes per act — poetry, music, stand-up, spoken word. No auditions, no judgment. House band available for accompaniment.',
     startDate: mkDate(2),
-    endDate: undefined,
     startTime: '20:00',
     endTime: '23:00',
     cat: 'Music',
@@ -207,7 +193,6 @@ export const EVENTS: GotovoEvent[] = [
     description:
       'A beginner-friendly outdoor yoga session led by certified instructor Ana Popovic. Bring your own mat. Runs rain or shine — in heavy rain moves to the nearby covered pavilion.',
     startDate: mkDate(1),
-    endDate: undefined,
     startTime: '08:00',
     endTime: '09:15',
     cat: 'Wellness',
