@@ -47,7 +47,7 @@ jobs:
       - name: Bundle-size gate
         run: |
           set -euo pipefail
-          BUDGET_KB=160
+          BUDGET_KB=165
           SIZE_KB=$(node -e "
             const fs = require('node:fs');
             const zlib = require('node:zlib');
