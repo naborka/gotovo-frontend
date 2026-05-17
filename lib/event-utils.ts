@@ -42,15 +42,17 @@ export const formatDateShort = (date: Date): string =>
 export const daysBetween = (start: Date, end: Date): number =>
   Math.round((end.getTime() - start.getTime()) / 86_400_000);
 
-/**
- * Check if event was created within the last 24 hours.
- * Uses a fixed reference time for SSR consistency.
- * In production, this would be computed on the client only or passed from server.
- */
-const REFERENCE_TIME = new Date('2026-04-29T12:00:00').getTime();
+const ONE_DAY_MS = 86_400_000;
 
-export const isNewEvent = (event: GotovoEvent): boolean =>
-  REFERENCE_TIME - event.createdAt.getTime() < 86_400_000;
+/**
+ * Returns true if the event was created within the last 24 hours
+ * relative to `now`. Pure: callers control time.
+ */
+export const isNewEvent = (event: GotovoEvent, now: Date | number = Date.now()): boolean => {
+  const reference = typeof now === 'number' ? now : now.getTime();
+  const diff = reference - event.createdAt.getTime();
+  return diff >= 0 && diff < ONE_DAY_MS;
+};
 
 /** Category to style mapping */
 const CATEGORY_STYLES: Record<EventCategory, CategoryStyle> = {

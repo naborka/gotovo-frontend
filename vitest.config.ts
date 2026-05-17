@@ -17,8 +17,14 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'lcov'],
       include: ['lib/**/*.{ts,tsx}', 'app/**/*.{ts,tsx}', 'components/**/*.{ts,tsx}'],
-      exclude: ['**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}'],
+      exclude: ['**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}', 'lib/data.ts'],
       thresholds: {
+        'lib/event-utils.ts': {
+          lines: 95,
+          functions: 95,
+          branches: 95,
+          statements: 95,
+        },
         lines: 0,
         functions: 0,
         branches: 0,
