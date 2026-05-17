@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gotovo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+/* ─────────────────────────────────────────────────────────
+   RESET + BASE
+───────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-font-smoothing: antialiased; height: 100%; }
+body {
+  height: 100%; min-height: 100dvh;
+  font-family: 'DM Sans', sans-serif;
+  display: flex; align-items: center; justify-content: center;
+  background: #07060d;
+}
+button { font: inherit; cursor: pointer; background: none; border: none; }
+:focus-visible { outline: 2px solid var(--pri); outline-offset: 2px; border-radius: 4px; }
+
+/* ─────────────────────────────────────────────────────────
+   DESIGN TOKENS
+───────────────────────────────────────────────────────── */
+:root {
+  /* surfaces */
+  --bg:        #0d0c12;
+  --surface:   #131220;
+  --surf2:     #19172a;
+  --offset:    #201e30;
+  --dyn:       #28263a;
+  --div:       #2e2b42;
+  --border:    #383550;
+  /* text */
+  --text:      #eae8f4;
+  --muted:     #8a87a8;
+  --faint:     #4a4762;
+  /* accent */
+  --pri:       #9d7ff4;
+  --pri-hi:    rgba(157,127,244,.13);
+  --pri-b:     rgba(157,127,244,.28);
+  /* semantic */
+  --amber:     #f5a623;
+  --amber-hi:  rgba(245,166,35,.12);
+  --amber-b:   rgba(245,166,35,.25);
+  --teal:      #2ec4b6;
+  --teal-hi:   rgba(46,196,182,.11);
+  --teal-b:    rgba(46,196,182,.25);
+  --green:     #4caf7d;
+  --green-hi:  rgba(76,175,125,.11);
+  --green-b:   rgba(76,175,125,.25);
+  --rose:      #e8607a;
+  --rose-hi:   rgba(232,96,122,.11);
+  --rose-b:    rgba(232,96,122,.25);
+  --blue:      #5b9cf6;
+  --blue-hi:   rgba(91,156,246,.11);
+  --blue-b:    rgba(91,156,246,.22);
+  --newc:      #818cf8;
+  --new-hi:    rgba(129,140,248,.13);
+  --new-b:     rgba(129,140,248,.28);
+  /* typography */
+  --font-d: 'Syne', sans-serif;
+  --font-b: 'DM Sans', sans-serif;
+  --font-m: 'DM Mono', monospace;
+  /* motion */
+  --ease:   cubic-bezier(0.16, 1, 0.3, 1);
+  --tr:     160ms var(--ease);
+  --tr-nav: 320ms var(--ease);
+}
+
+[data-theme="light"] {
+  --bg:       #f4f2ff; --surface:  #ffffff; --surf2:   #faf9ff;
+  --offset:   #ede9fe; --dyn:      #ddd6fe; --div:     #cdc8e8;
+  --border:   #bdb8d8; --text:     #1a1730; --muted:   #6b6888;
+  --faint:    #a09cbc;
+  --pri:      #6d28d9; --pri-hi:   rgba(109,40,217,.08);  --pri-b:    rgba(109,40,217,.22);
+  --amber:    #b45309; --amber-hi: rgba(180,83,9,.08);    --amber-b:  rgba(180,83,9,.2);
+  --teal:     #0d9488; --teal-hi:  rgba(13,148,136,.09);  --teal-b:   rgba(13,148,136,.22);
+  --green:    #22863a; --green-hi: rgba(34,134,58,.09);   --green-b:  rgba(34,134,58,.22);
+  --rose:     #be123c; --rose-hi:  rgba(190,18,60,.09);   --rose-b:   rgba(190,18,60,.22);
+  --blue:     #1d4ed8; --blue-hi:  rgba(29,78,216,.09);   --blue-b:   rgba(29,78,216,.22);
+  --newc:     #4338ca; --new-hi:   rgba(67,56,202,.09);   --new-b:    rgba(67,56,202,.22);
+}
+
+/* ─────────────────────────────────────────────────────────
+   PHONE SHELL
+───────────────────────────────────────────────────────── */
+.shell {
+  width: 390px; height: 844px;
+  background: var(--bg);
+  border-radius: 50px;
+  border: 2px solid #282540;
+  box-shadow: 0 0 0 8px #07060d, 0 40px 100px rgba(0,0,0,.85),
+              inset 0 1px 0 rgba(255,255,255,.05);
+  display: flex; flex-direction: column;
+  overflow: hidden; position: relative; flex-shrink: 0;
+}
+.notch-bar {
+  height: 36px; background: #07060d;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.notch-pill {
+  width: 110px; height: 26px;
+  background: #07060d; border: 2px solid #1a1828; border-radius: 99px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.status-bar {
+  height: 20px; padding: 0 22px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--bg); flex-shrink: 0;
+  font-family: var(--font-m); font-size: 10px; color: var(--faint);
+}
+.home-bar {
+  height: 34px; background: var(--bg);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.home-pill { width: 120px; height: 5px; background: var(--border); border-radius: 99px; }
+
+/* ─────────────────────────────────────────────────────────
+   APP BAR + TABS
+───────────────────────────────────────────────────────── */
+.app-bar {
+  height: 48px; padding: 0 14px;
+  display: flex; align-items: center;
+  background: var(--bg); border-bottom: 1px solid var(--div);
+  flex-shrink: 0;
+}
+.logo { display: flex; align-items: center; gap: 7px; }
+.logo-text {
+  font-family: var(--font-d); font-size: 16px; font-weight: 800;
+  color: var(--text); letter-spacing: -.02em;
+}
+.bar-right { margin-left: auto; display: flex; align-items: center; gap: 2px; }
+.icon-btn {
+  width: 34px; height: 34px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--muted); transition: background var(--tr), color var(--tr);
+}
+.icon-btn:hover { background: var(--offset); color: var(--text); }
+
+.tab-bar { display: flex; border-bottom: 1px solid var(--div); flex-shrink: 0; }
+.tab {
+  padding: 8px 16px; font-size: 12.5px; color: var(--muted); font-weight: 400;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+  display: flex; align-items: center; gap: 5px;
+  transition: color var(--tr);
+}
+.tab.active { color: var(--text); font-weight: 600; border-bottom-color: var(--pri); }
+.new-dot {
+  width: 5px; height: 5px; border-radius: 50%; background: var(--newc); display: inline-block;
+  animation: blink 2.5s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+/* ─────────────────────────────────────────────────────────
+   FILTER ZONE
+───────────────────────────────────────────────────────── */
+.filter-zone { background: var(--bg); border-bottom: 1px solid var(--div); flex-shrink: 0; }
+.filter-row {
+  display: flex; align-items: center;
+  padding: 5px 14px 4px;
+  overflow-x: auto; scrollbar-width: none; gap: 0;
+}
+.filter-row::-webkit-scrollbar { display: none; }
+.filter-sep { height: 1px; background: var(--div); margin: 0 14px; }
+.filter-icon { flex-shrink: 0; color: var(--faint); margin-right: 6px; display: flex; }
+
+.chip {
+  flex-shrink: 0; display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: 99px; margin-right: 5px;
+  border: 1px solid var(--border);
+  background: var(--surface); color: var(--muted);
+  font-size: 11px; font-weight: 400; white-space: nowrap;
+  transition: all var(--tr);
+}
+.chip:hover { border-color: var(--pri); color: var(--pri); }
+.chip-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+/* active state is set inline so it respects per-category color */
+
+/* ─────────────────────────────────────────────────────────
+   FEED
+───────────────────────────────────────────────────────── */
+.feed { flex: 1; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
+.feed::-webkit-scrollbar { display: none; }
+.result-label { padding: 6px 14px 2px; font-family: var(--font-m); font-size: 10px; color: var(--faint); }
+
+.date-group { margin-top: 10px; }
+.date-header {
+  display: flex; align-items: baseline; gap: 8px;
+  padding: 7px 14px 5px; border-bottom: 1px solid var(--div);
+}
+.date-label { font-family: var(--font-d); font-size: 17px; font-weight: 800; color: var(--text); letter-spacing: -.025em; line-height: 1; }
+.date-count { margin-left: auto; font-family: var(--font-m); font-size: 10px; color: var(--faint); }
+
+/* ─────────────────────────────────────────────────────────
+   EVENT CARD
+───────────────────────────────────────────────────────── */
+.card {
+  margin: 8px 12px 0;
+  padding: 11px 12px 10px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; cursor: pointer;
+  transition: background var(--tr), border-color var(--tr),
+              box-shadow var(--tr), transform var(--tr);
+}
+.card:hover { background: var(--surf2); border-color: var(--pri-b); box-shadow: 0 4px 18px rgba(0,0,0,.4); transform: translateY(-1px); }
+.card:active { transform: translateY(0); box-shadow: none; }
+.card.is-new { border-left: 3px solid var(--pri); }
+
+.card-badges { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; margin-bottom: 5px; }
+.card-time { margin-left: auto; font-family: var(--font-m); font-size: 12px; font-weight: 500; color: var(--amber); flex-shrink: 0; }
+.card-time-faint { margin-left: auto; font-size: 10px; color: var(--faint); font-style: italic; }
+.card-title { display: block; font-family: var(--font-d); font-size: 14.5px; font-weight: 700; color: var(--text); line-height: 1.2; letter-spacing: -.015em; margin-bottom: 4px; }
+.card-desc {
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden; font-size: 11.5px; color: var(--muted); line-height: 1.55;
+  margin-bottom: 7px;
+}
+.card-footer { display: flex; align-items: center; gap: 5px; }
+.card-loc { display: flex; align-items: center; gap: 4px; flex: 1; min-width: 0; overflow: hidden; }
+.card-city { font-size: 10px; color: var(--muted); font-weight: 500; white-space: nowrap; }
+.card-sep  { font-size: 10px; color: var(--faint); }
+.card-tags { font-size: 10px; color: var(--faint); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+
+/* ─────────────────────────────────────────────────────────
+   PILL
+───────────────────────────────────────────────────────── */
+.pill {
+  display: inline-flex; align-items: center;
+  padding: 2px 8px; border-radius: 99px;
+  font-size: 10px; font-weight: 700; line-height: 1.5; white-space: nowrap; flex-shrink: 0;
+}
+
+/* ─────────────────────────────────────────────────────────
+   EMPTY STATE
+───────────────────────────────────────────────────────── */
+.empty {
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center; padding: 60px 32px; gap: 10px;
+}
+.empty-icon { font-size: 36px; display: block; margin-bottom: 4px; }
+.empty-title { font-family: var(--font-d); font-size: 17px; font-weight: 700; color: var(--text); }
+.empty-body { font-size: 12px; color: var(--muted); line-height: 1.6; max-width: 26ch; }
+
+/* ─────────────────────────────────────────────────────────
+   DETAIL PAGE — full-screen push navigation
+───────────────────────────────────────────────────────── */
+.detail-page {
+  position: absolute; inset: 0; z-index: 300;
+  background: var(--bg);
+  display: flex; flex-direction: column;
+  transform: translateX(100%);
+  transition: transform var(--tr-nav);
+  will-change: transform;
+}
+.detail-page.open { transform: translateX(0); }
+
+.detail-bar {
+  height: 48px; padding: 0 14px;
+  display: flex; align-items: center; gap: 10px;
+  background: var(--bg); border-bottom: 1px solid var(--div);
+  flex-shrink: 0;
+}
+.detail-bar-title {
+  font-family: var(--font-d); font-size: 14px; font-weight: 700;
+  color: var(--text); letter-spacing: -.015em;
+  overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+}
+.back-btn {
+  width: 34px; height: 34px; border-radius: 8px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--pri); transition: background var(--tr);
+}
+.back-btn:hover { background: var(--pri-hi); }
+
+.detail-scroll { flex: 1; overflow-y: auto; scrollbar-width: none; }
+.detail-scroll::-webkit-scrollbar { display: none; }
+.detail-body { padding: 20px 18px 48px; }
+
+.detail-badges { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.detail-title {
+  font-family: var(--font-d); font-size: 24px; font-weight: 800;
+  letter-spacing: -.03em; line-height: 1.15; color: var(--text);
+  margin-bottom: 12px;
+}
+.detail-desc { font-size: 13px; color: var(--muted); line-height: 1.7; margin-bottom: 20px; }
+
+/* Info grid */
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 18px; }
+.detail-cell {
+  background: var(--offset); border: 1px solid var(--div);
+  border-radius: 8px; padding: 10px 12px;
+}
+.detail-cell.full { grid-column: 1 / -1; }
+.cell-label {
+  font-family: var(--font-m); font-size: 9px; font-weight: 500;
+  color: var(--muted); text-transform: uppercase; letter-spacing: .09em;
+  margin-bottom: 5px;
+}
+.cell-value { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.35; }
+.cell-value.amber { color: var(--amber); font-family: var(--font-d); font-size: 15px; }
+.cell-value.dim { color: var(--faint); font-style: italic; font-weight: 400; }
+.cell-sub { font-size: 11px; color: var(--muted); margin-top: 3px; font-weight: 400; }
+
+/* Source trust */
+.source-row { display: flex; align-items: center; gap: 5px; margin-bottom: 18px; }
+.source-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--green); }
+
+/* Tags section */
+.detail-tags-label {
+  font-family: var(--font-m); font-size: 9px; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .09em; font-weight: 500;
+  margin-bottom: 8px;
+}
+.detail-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 24px; }
+.detail-tag {
+  padding: 3px 10px; border: 1px solid var(--div); border-radius: 99px;
+  font-family: var(--font-m); font-size: 10.5px; color: var(--faint);
+}
+
+/* Actions */
+.detail-actions { display: none; }
+.detail-bottom-bar {
+  flex-shrink: 0;
+  padding: 10px 14px 10px;
+  background: var(--bg);
+  border-top: 1px solid var(--div);
+  display: flex; gap: 8px; align-items: center;
+}
+.btn-source {
+  flex: 1;
+  background: var(--pri); color: #fff;
+  border: none; border-radius: 12px;
+  padding: 13px 16px;
+  font-size: 14px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  transition: all var(--tr);
+}
+.btn-source:hover { background: var(--newc); }
+.btn-icon {
+  width: 46px; height: 46px; flex-shrink: 0;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--offset);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--muted);
+  transition: all var(--tr);
+}
+.btn-icon:hover { background: var(--dyn); color: var(--text); border-color: var(--pri-b); }
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 11px 16px; border-radius: 10px;
+  font-size: 13px; font-weight: 600;
+  transition: all var(--tr); cursor: pointer;
+}
+.btn-ghost {
+  background: var(--offset); color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover { background: var(--dyn); border-color: var(--pri-b); }
+
+/* ─────────────────────────────────────────────────────────
+   TWEAK: CARD STYLE
+───────────────────────────────────────────────────────── */
+[data-cards="bold"] .card {
+  border-left: 3px solid var(--tw-accent, var(--pri));
+  background: var(--surf2);
+}
+[data-cards="bold"] .card:hover { background: var(--offset); }
+
+[data-cards="ghost"] .card {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--div);
+  border-radius: 0;
+  margin: 0 0 0 0;
+  padding: 11px 14px 10px;
+}
+[data-cards="ghost"] .card:hover {
+  background: var(--surface);
+  box-shadow: none;
+  transform: none;
+  border-bottom-color: var(--tw-accent, var(--pri));
+}
+
+/* ─────────────────────────────────────────────────────────
+   TWEAK: TYPOGRAPHY
+───────────────────────────────────────────────────────── */
+[data-type="sans"] {
+  --font-d: 'DM Sans', sans-serif;
+}
+[data-type="sans"] .logo-text,
+[data-type="sans"] .date-label,
+[data-type="sans"] .card-title,
+[data-type="sans"] .detail-title {
+  font-weight: 700; letter-spacing: -.01em;
+}
+
+[data-type="mono"] {
+  --font-d: 'DM Mono', monospace;
+}
+[data-type="mono"] .logo-text,
+[data-type="mono"] .date-label,
+[data-type="mono"] .card-title,
+[data-type="mono"] .detail-title {
+  font-weight: 500; letter-spacing: -.02em;
+  text-transform: uppercase; font-size: 90%;
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel">
+const { useState, useCallback, useEffect, useMemo } = React;
+
+/* ═══════════════════════════════════════════════════════════
+   § 1  CONSTANTS
+══════════════════════════════════════════════════════════ */
+const TAB = Object.freeze({ TIMELINE: 'timeline', RECENT: 'recent' });
+const ALL  = 'all'; // sentinel for "no filter active"
+
+/* ═══════════════════════════════════════════════════════════
+   § 2  DATA MODEL + MOCK DATA
+   Schema (all nullable fields marked ?):
+     uid          string
+     title        string
+     description? string
+     startDate    Date
+     endDate?     Date
+     startTime?   string  "HH:MM"
+     endTime?     string  "HH:MM"
+     cat          string
+     loc?         string
+     city?        string
+     price?       string  null = unknown, 'Free' = free
+     tags         string[]
+     createdAt    Date
+     sourceCount  number
+══════════════════════════════════════════════════════════ */
+const NOW = new Date('2026-04-29T10:00:00');
+
+/* ─── Tweaks defaults ─── */
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "palette": "Violet",
+  "cards": "Default",
+  "type": "Display"
+}/*EDITMODE-END*/;
+
+const PALETTE_VARS = {
+  Violet: { '--tw-accent':'#9d7ff4', '--pri':'#9d7ff4', '--pri-hi':'rgba(157,127,244,.13)', '--pri-b':'rgba(157,127,244,.28)', '--newc':'#818cf8', '--new-hi':'rgba(129,140,248,.13)', '--new-b':'rgba(129,140,248,.28)' },
+  Ember:  { '--tw-accent':'#f5793a', '--pri':'#f5793a', '--pri-hi':'rgba(245,121,58,.13)',  '--pri-b':'rgba(245,121,58,.28)',  '--newc':'#e8607a', '--new-hi':'rgba(232,96,122,.13)',  '--new-b':'rgba(232,96,122,.28)'  },
+  Neon:   { '--tw-accent':'#2ec4b6', '--pri':'#2ec4b6', '--pri-hi':'rgba(46,196,182,.13)',  '--pri-b':'rgba(46,196,182,.28)',  '--newc':'#4caf7d', '--new-hi':'rgba(76,175,125,.13)',  '--new-b':'rgba(76,175,125,.28)'  },
+  Slate:  { '--tw-accent':'#5b9cf6', '--pri':'#5b9cf6', '--pri-hi':'rgba(91,156,246,.13)',  '--pri-b':'rgba(91,156,246,.28)',  '--newc':'#818cf8', '--new-hi':'rgba(129,140,248,.13)', '--new-b':'rgba(129,140,248,.28)' },
+};
+
+const mkDate = (offsetDays, h = 0, m = 0) => {
+  const d = new Date(NOW);
+  d.setDate(d.getDate() + offsetDays);
+  d.setHours(h, m, 0, 0);
+  return d;
+};
+
+const EVENTS = [
+  {
+    uid: '1',
+    sourceUrl: 'https://www.fruskagora.rs/events',
+    title: 'Sunrise Via Ferrata',
+    description: 'A guided climb up the rocky ridge of Fruška Gora starting at dawn. All gear provided. Moderate fitness required — no prior climbing experience needed. Groups capped at 12.',
+    startDate: mkDate(0), endDate: null,
+    startTime: '06:30', endTime: null,
+    cat: 'Adventure', loc: 'Fruška Gora National Park', city: 'Novi Sad',
+    price: 'Free', tags: ['Via Ferrata', 'Nature', 'Guided', 'Morning'],
+    createdAt: mkDate(-1, 14, 20), sourceCount: 3,
+  },
+  {
+    uid: '2',
+    sourceUrl: 'https://www.facebook.com/events/fabrika-novi-sad',
+    title: 'Experimental Noise Night',
+    description: 'Three local projects performing uncompromising electronic and noise sets. Expect feedback loops, tape manipulation, and field recordings pressed into uncomfortable shapes. Bar open from 21:00.',
+    startDate: mkDate(0), endDate: null,
+    startTime: '22:00', endTime: null,
+    cat: 'Music', loc: 'Fabrika, Liman', city: 'Novi Sad',
+    price: '500 RSD', tags: ['Electronic', 'Live', 'Experimental', 'Late Night'],
+    createdAt: mkDate(0, 8, 5), sourceCount: 2,
+  },
+  {
+    uid: '3',
+    sourceUrl: 'https://t.me/naturalwinesns',
+    title: 'Natural Wine Pop-Up',
+    description: 'A curated selection of low-intervention wines from small Serbian and regional producers. The exact address is shared 24 hours before via the organiser\'s Telegram channel.',
+    startDate: mkDate(1), endDate: null,
+    startTime: '17:00', endTime: '21:00',
+    cat: 'Food & Drink', loc: 'Dunavski Kej — confirm via Telegram', city: 'Novi Sad',
+    price: '1200 RSD', tags: ['Wine', 'Pop-up', 'Tasting'],
+    createdAt: mkDate(0, 10, 30), sourceCount: 1,
+  },
+  {
+    uid: '4',
+    sourceUrl: 'https://www.studioglina.rs/radionice',
+    title: 'Kids Ceramics Masterclass',
+    description: 'A hands-on Saturday session for children aged 6–12. Each child leaves with a finished piece. All materials included. Parents are welcome to stay and watch.',
+    startDate: mkDate(1), endDate: null,
+    startTime: '10:00', endTime: '12:30',
+    cat: 'Education', loc: 'Studio Glina, Stari Grad', city: 'Novi Sad',
+    price: '800 RSD', tags: ['Kids', 'Craft', 'Workshop'],
+    createdAt: mkDate(-2, 9, 0), sourceCount: 2,
+  },
+  {
+    uid: '5',
+    sourceUrl: 'https://www.eventbrite.com/e/foraging-walk',
+    title: 'Foraging Walk — Vojvodina Plants',
+    description: 'A slow two-hour riverside walk with botanist Jelena Marić. Learn to identify edible and medicinal plants growing along the Šodroš waterfront. Bring a bag and sturdy shoes.',
+    startDate: mkDate(2), endDate: null,
+    startTime: '09:00', endTime: '11:00',
+    cat: 'Adventure', loc: 'Šodroš, riverside entrance', city: 'Novi Sad',
+    price: 'Free', tags: ['Nature', 'Foraging', 'Guided'],
+    createdAt: mkDate(-1, 18, 45), sourceCount: 1,
+  },
+  {
+    uid: '6',
+    sourceUrl: 'https://www.instagram.com/rooftopbarx',
+    title: 'Ambient Dusk Set',
+    description: 'An unannounced ambient performance on the rooftop terrace. One artist, two hours, no setlist. Entry is first-come, limited to 40 people. BYO patience.',
+    startDate: mkDate(2), endDate: null,
+    startTime: '19:30', endTime: '21:30',
+    cat: 'Music', loc: 'Rooftop Bar X, Centar', city: 'Novi Sad',
+    price: '300 RSD', tags: ['Ambient', 'Outdoors', 'Limited Spots'],
+    createdAt: mkDate(0, 9, 55), sourceCount: 2,
+  },
+  {
+    uid: '7',
+    sourceUrl: 'https://www.petrovaradinjazz.rs',
+    title: 'Petrovaradin Jazz Weekend',
+    description: 'Three evenings of jazz across the Petrovaradin Fortress courtyard. Lineup spans local big bands, visiting trios from Vienna and Bratislava, and a late-night jam session open to all musicians on Sunday.',
+    startDate: mkDate(3), endDate: mkDate(5),
+    startTime: '18:00', endTime: '23:30',
+    cat: 'Music', loc: 'Petrovaradin Fortress', city: 'Novi Sad',
+    price: '1500 RSD', tags: ['Jazz', 'Festival', 'Outdoor', 'Multi-day'],
+    createdAt: mkDate(-3, 11, 0), sourceCount: 4,
+  },
+  {
+    uid: '8',
+    sourceUrl: 'https://www.instagram.com/streetfoodbgd',
+    title: 'Street Food Festival',
+    description: 'Over 30 vendors across three days: grilled meats, vegan bowls, craft drinks, live cooking demos, and a kids\' zone. Location TBA — follow the organiser\'s Instagram for updates.',
+    startDate: mkDate(4), endDate: mkDate(6),
+    startTime: null, endTime: null,
+    cat: 'Food & Drink', loc: null, city: 'Belgrade',
+    price: null, tags: ['Street Food', 'Family', 'Outdoor', 'Multi-day'],
+    createdAt: mkDate(-1, 16, 10), sourceCount: 2,
+  },
+  {
+    uid: '9',
+    sourceUrl: 'https://www.culturalcentrebeograd.rs/workshops',
+    title: 'Photography Masterclass',
+    description: 'A full-day workshop covering composition, light reading, and post-processing in Lightroom. Suitable for DSLR and mirrorless users. Participants receive a reviewed portfolio at the end.',
+    startDate: mkDate(5), endDate: null,
+    startTime: '11:00', endTime: '17:00',
+    cat: 'Education', loc: 'Cultural Centre Beograd', city: 'Belgrade',
+    price: '2000 RSD', tags: ['Photography', 'Workshop'],
+    createdAt: mkDate(0, 7, 22), sourceCount: 1,
+  },
+  {
+    uid: '10',
+    sourceUrl: 'https://www.facebook.com/kafebasta',
+    title: 'Open Mic Night',
+    description: 'Sign up on the door from 19:00. Five minutes per act — poetry, music, stand-up, spoken word. No auditions, no judgment. House band available for accompaniment.',
+    startDate: mkDate(2), endDate: null,
+    startTime: '20:00', endTime: '23:00',
+    cat: 'Music', loc: 'Kafe Bašta, Centar', city: 'Novi Sad',
+    price: 'Free', tags: ['Live', 'Open Mic', 'Comedy'],
+    createdAt: mkDate(0, 11, 5), sourceCount: 1,
+  },
+  {
+    uid: '11',
+    sourceUrl: 'https://www.instagram.com/yogadunavskipark',
+    title: 'Yoga in the Park',
+    description: 'A beginner-friendly outdoor yoga session led by certified instructor Ana Popović. Bring your own mat. Runs rain or shine — in heavy rain moves to the nearby covered pavilion.',
+    startDate: mkDate(1), endDate: null,
+    startTime: '08:00', endTime: '09:15',
+    cat: 'Wellness', loc: 'Dunavski Park', city: 'Novi Sad',
+    price: 'Free', tags: ['Yoga', 'Outdoor', 'Morning'],
+    createdAt: mkDate(-1, 7, 0), sourceCount: 1,
+  },
+  {
+    uid: '12',
+    sourceUrl: 'https://www.belgradedw.com',
+    title: 'Belgrade Design Week',
+    description: 'Five days of exhibitions, talks, and workshops spanning graphic, product, and architectural design. The opening night features a curated group show from emerging Serbian designers.',
+    startDate: mkDate(3), endDate: mkDate(7),
+    startTime: '17:00', endTime: '22:00',
+    cat: 'Art', loc: 'Dom Omladine', city: 'Belgrade',
+    price: 'Free', tags: ['Design', 'Exhibition', 'Opening', 'Multi-day'],
+    createdAt: mkDate(0, 12, 0), sourceCount: 3,
+  },
+];
+
+/* ═══════════════════════════════════════════════════════════
+   § 3  PURE UTILITIES
+══════════════════════════════════════════════════════════ */
+const WEEK  = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MONTH = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+const dateFmt = {
+  long:  d => `${WEEK[d.getDay()]}, ${d.getDate()} ${MONTH[d.getMonth()]}`,
+  short: d => `${d.getDate()} ${MONTH[d.getMonth()].slice(0, 3)}`,
+  daysBetween: (a, b) => Math.round((b - a) / 86_400_000),
+};
+
+const isNew = e => (NOW - e.createdAt) < 86_400_000;
+
+/** Returns CSS custom-property strings for a category badge */
+const catStyle = (() => {
+  const map = {
+    'Music':       { c:'var(--pri)',   hi:'var(--pri-hi)',   b:'var(--pri-b)'   },
+    'Adventure':   { c:'var(--teal)',  hi:'var(--teal-hi)',  b:'var(--teal-b)'  },
+    'Food & Drink':{ c:'var(--green)', hi:'var(--green-hi)', b:'var(--green-b)' },
+    'Education':   { c:'var(--blue)',  hi:'var(--blue-hi)',  b:'var(--blue-b)'  },
+    'Art':         { c:'var(--rose)',  hi:'var(--rose-hi)',  b:'var(--rose-b)'  },
+    'Wellness':    { c:'var(--teal)',  hi:'var(--teal-hi)',  b:'var(--teal-b)'  },
+  };
+  return k => map[k] ?? { c:'var(--muted)', hi:'var(--offset)', b:'var(--border)' };
+})();
+
+/** Returns CSS custom-property strings for a price badge */
+const priceStyle = p =>
+  !p                             ? { c:'var(--faint)', hi:'transparent',      b:'var(--div)'     } :
+  p === 'Free'                   ? { c:'var(--green)', hi:'var(--green-hi)',   b:'var(--green-b)' } :
+                                   { c:'var(--muted)', hi:'var(--offset)',     b:'var(--border)'  };
+
+/* ═══════════════════════════════════════════════════════════
+   § 4  DERIVED LOOKUP DATA  (computed once at module level)
+══════════════════════════════════════════════════════════ */
+const ALL_CATS   = [...new Set(EVENTS.map(e => e.cat))].sort();
+const ALL_CITIES = [...new Set(EVENTS.map(e => e.city).filter(Boolean))].sort();
+const ALL_TAGS   = [...new Set(EVENTS.flatMap(e => e.tags))].sort();
+
+/* ═══════════════════════════════════════════════════════════
+   § 5  ICON REGISTRY  (hoisted — never recreated on render)
+══════════════════════════════════════════════════════════ */
+const ICON_PATHS = {
+  pin:    <><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></>,
+  tag:    <><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></>,
+  sun:    <><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></>,
+  moon:   <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>,
+  back:   <><polyline points="15 18 9 12 15 6"/></>,
+  close:  <><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>,
+  share:  <><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></>,
+  dir:    <polygon points="3 11 22 2 13 21 11 13 3 11"/>,
+  ext:    <><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></>,
+  clock:  <><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></>,
+  cal:    <><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></>,
+};
+
+const Icon = ({ name, size = 14, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
+    stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    {ICON_PATHS[name]}
+  </svg>
+);
+
+/* ═══════════════════════════════════════════════════════════
+   § 6  PRIMITIVE COMPONENTS
+══════════════════════════════════════════════════════════ */
+const LogoMark = () => (
+  <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
+    <circle cx="11" cy="11" r="9.5" stroke="var(--pri)" strokeWidth="1.4"/>
+    <circle cx="11" cy="11" r="3.5" fill="var(--pri)" opacity="0.3"/>
+    <circle cx="11" cy="11" r="1.5" fill="var(--pri)"/>
+    <ellipse cx="11" cy="11" rx="9.5" ry="3.5" stroke="var(--pri)" strokeWidth="1.1" strokeDasharray="2.2 1.8"/>
+  </svg>
+);
+
+const Pill = ({ label, c, hi, b, size = 10 }) => (
+  <span className="pill" style={{ background: hi, border: `1px solid ${b}`, color: c, fontSize: size }}>
+    {label}
+  </span>
+);
+
+/**
+ * Chip — filter button.
+ * activeStyle overrides border/bg/color when active,
+ * keeping colour logic outside the component (SOLID: OCP).
+ */
+const Chip = ({ label, dotColor, active, activeStyle, onClick }) => (
+  <button
+    className="chip"
+    onClick={onClick}
+    aria-pressed={active}
+    style={active ? activeStyle : undefined}
+  >
+    {dotColor && <span className="chip-dot" style={{ background: dotColor }}/>}
+    {label}
+  </button>
+);
+
+/* ═══════════════════════════════════════════════════════════
+   § 7  FILTER ZONE
+══════════════════════════════════════════════════════════ */
+const FilterZone = ({ activeCat, setActiveCat, activeCity, setActiveCity, activeTags, toggleTag }) => {
+  const catActive = c => ({ background: catStyle(c).hi, border: `1px solid ${catStyle(c).b}`, color: catStyle(c).c, fontWeight: 600 });
+  const cityActive = { background: 'var(--amber-hi)', border: 'var(--amber-b)', color: 'var(--amber)', fontWeight: 600 };
+
+  return (
+    <div className="filter-zone">
+      {/* Category */}
+      <div className="filter-row">
+        <Chip label="All" active={activeCat === ALL}
+          activeStyle={{ background:'var(--pri-hi)', border:'1px solid var(--pri-b)', color:'var(--pri)', fontWeight:600 }}
+          onClick={() => setActiveCat(ALL)}/>
+        {ALL_CATS.map(c => (
+          <Chip key={c} label={c} active={activeCat === c}
+            dotColor={catStyle(c).c}
+            activeStyle={catActive(c)}
+            onClick={() => setActiveCat(activeCat === c ? ALL : c)}/>
+        ))}
+      </div>
+
+      <div className="filter-sep"/>
+
+      {/* City */}
+      <div className="filter-row">
+        <span className="filter-icon"><Icon name="pin" size={11}/></span>
+        <Chip label="All cities" active={activeCity === ALL}
+          activeStyle={{ background:'var(--amber-hi)', border:'1px solid var(--amber-b)', color:'var(--amber)', fontWeight:600 }}
+          onClick={() => setActiveCity(ALL)}/>
+        {ALL_CITIES.map(city => (
+          <Chip key={city} label={city} active={activeCity === city}
+            activeStyle={{ background:'var(--amber-hi)', border:'1px solid var(--amber-b)', color:'var(--amber)', fontWeight:600 }}
+            onClick={() => setActiveCity(activeCity === city ? ALL : city)}/>
+        ))}
+      </div>
+
+      <div className="filter-sep"/>
+
+      {/* Tags — multi-select */}
+      <div className="filter-row" style={{ paddingBottom: 7 }}>
+        <span className="filter-icon"><Icon name="tag" size={11}/></span>
+        {ALL_TAGS.map(tag => {
+          const on = activeTags.has(tag);
+          return (
+            <button key={tag} className="chip"
+              aria-pressed={on}
+              onClick={() => toggleTag(tag)}
+              style={{
+                fontFamily:'var(--font-m)', fontSize:10,
+                ...(on ? { background:'var(--pri-hi)', border:'1px solid var(--pri-b)', color:'var(--pri)', fontWeight:600 } : {}),
+              }}>
+              #{tag}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+/* ═══════════════════════════════════════════════════════════
+   § 8  FEED COMPONENTS
+══════════════════════════════════════════════════════════ */
+
+/** Sort + group events for the Timeline tab (by date asc, by time within date). */
+const groupByDate = events => {
+  const sorted = [...events].sort((a, b) => {
+    const dd = a.startDate - b.startDate;
+    return dd !== 0 ? dd : (a.startTime ?? '99:99').localeCompare(b.startTime ?? '99:99');
+  });
+  const map = new Map();
+  sorted.forEach(e => {
+    const k = e.startDate.toDateString();
+    if (!map.has(k)) map.set(k, { date: e.startDate, events: [] });
+    map.get(k).events.push(e);
+  });
+  return [...map.values()];
+};
+
+/** Sort + group events for the Recently Added tab (by createdAt desc, then group by date). */
+const groupByRecency = events => {
+  const sorted = [...events].sort((a, b) => b.createdAt - a.createdAt);
+  const map = new Map();
+  sorted.forEach(e => {
+    const k = e.startDate.toDateString();
+    if (!map.has(k)) map.set(k, { date: e.startDate, events: [] });
+    map.get(k).events.push(e);
+  });
+  // Keep groups in recency order (first event seen in each group drives position)
+  return [...map.values()];
+};
+
+const EventCard = ({ event, onOpen }) => {
+  const { title, description, startTime, cat, loc, city, price, tags } = event;
+  const s    = catStyle(cat);
+  const ps   = priceStyle(price);
+  const span = event.endDate ? dateFmt.daysBetween(event.startDate, event.endDate) : 0;
+  const novel = isNew(event);
+
+  return (
+    <article
+      className={`card${novel ? ' is-new' : ''}`}
+      onClick={() => onOpen(event)}
+      role="button" tabIndex={0}
+      onKeyDown={ev => (ev.key === 'Enter' || ev.key === ' ') && onOpen(event)}
+      aria-label={title}
+    >
+      {/* Badges row */}
+      <div className="card-badges">
+        <Pill label={cat} c={s.c} hi={s.hi} b={s.b}/>
+        {novel  && <Pill label="✦ New"          c="var(--newc)"  hi="var(--new-hi)"   b="var(--new-b)"/>}
+        {span > 0 && <Pill label={`${span + 1}-day`} c="var(--amber)" hi="var(--amber-hi)" b="var(--amber-b)"/>}
+        {startTime
+          ? <span className="card-time">{startTime}</span>
+          : <span className="card-time-faint">all day</span>}
+      </div>
+
+      <span className="card-title">{title}</span>
+
+      {description && <p className="card-desc">{description}</p>}
+
+      {/* Footer: location + tags + price */}
+      <div className="card-footer">
+        <div className="card-loc">
+          <Icon name="pin" size={10} color="var(--faint)"/>
+          {city && <span className="card-city">{city}</span>}
+          {city && tags.length > 0 && <span className="card-sep">·</span>}
+          {tags.length > 0 && <span className="card-tags">{tags.map(t => '#' + t).join(' ')}</span>}
+        </div>
+        <Pill label={price ?? 'TBA'} c={ps.c} hi={ps.hi} b={ps.b}/>
+      </div>
+    </article>
+  );
+};
+
+const EmptyState = () => (
+  <div className="empty">
+    <span className="empty-icon">🔍</span>
+    <p className="empty-title">No events match</p>
+    <p className="empty-body">Try adjusting your filters — new events drop throughout the day.</p>
+  </div>
+);
+
+const Feed = ({ events, tab, onOpen }) => {
+  if (!events.length) return <EmptyState/>;
+
+  const groups = tab === TAB.RECENT ? groupByRecency(events) : groupByDate(events);
+  const total  = events.length;
+
+  return (
+    <>
+      <p className="result-label">
+        {total} event{total !== 1 ? 's' : ''} · {groups.length} day{groups.length !== 1 ? 's' : ''}
+      </p>
+      {groups.map((g, i) => (
+        <div key={i} className="date-group">
+          <div className="date-header">
+            <span className="date-label">{dateFmt.long(g.date)}</span>
+            <span className="date-count">{g.events.length} event{g.events.length !== 1 ? 's' : ''}</span>
+          </div>
+          {g.events.map(e => <EventCard key={e.uid} event={e} onOpen={onOpen}/>)}
+        </div>
+      ))}
+      <div style={{ height: 24 }}/>
+    </>
+  );
+};
+
+/* ═══════════════════════════════════════════════════════════
+   § 9  DETAIL PAGE
+══════════════════════════════════════════════════════════ */
+
+/**
+ * Renders the date/time section of the detail view.
+ * Single-day events: Date cell + Time cell.
+ * Multi-day events: Starts cell (full) + Ends cell (full) — each spanning the grid.
+ */
+const DateTimeSection = ({ event }) => {
+  const { startDate, endDate, startTime, endTime } = event;
+  const isMultiDay = !!endDate;
+
+  if (isMultiDay) {
+    const startLabel = [dateFmt.long(startDate), startTime].filter(Boolean).join(' · ');
+    const endLabel   = [dateFmt.long(endDate),   endTime  ].filter(Boolean).join(' · ');
+    return (
+      <>
+        <div className="detail-cell full">
+          <p className="cell-label">Starts</p>
+          <p className="cell-value amber">{startLabel}</p>
+        </div>
+        <div className="detail-cell full">
+          <p className="cell-label">Ends</p>
+          <p className="cell-value amber">{endLabel || <span className="cell-value dim">End time TBA</span>}</p>
+        </div>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <div className="detail-cell">
+        <p className="cell-label">Date</p>
+        <p className="cell-value">{dateFmt.long(startDate)}</p>
+      </div>
+      <div className="detail-cell">
+        <p className="cell-label">Time</p>
+        {startTime
+          ? <p className="cell-value amber">{startTime}{endTime ? ` – ${endTime}` : ''}</p>
+          : <p className="cell-value dim">All day</p>}
+      </div>
+    </>
+  );
+};
+
+const DetailPage = ({ event, onClose }) => {
+  const open = !!event;
+
+  // Keyboard: Escape = back
+  useEffect(() => {
+    if (!open) return;
+    const handler = e => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [open, onClose]);
+
+  // Render even when closed (so exit animation plays)
+  const e = event;
+
+  return (
+    <div className={`detail-page${open ? ' open' : ''}`} aria-hidden={!open} role="dialog" aria-modal="true">
+      {/* Detail app bar */}
+      <div className="detail-bar">
+        <button className="back-btn" onClick={onClose} aria-label="Back to feed">
+          <Icon name="back" size={18}/>
+        </button>
+        <span className="detail-bar-title">{e?.cat ?? ''}</span>
+      </div>
+
+      {e && (
+        <div className="detail-scroll">
+          <div className="detail-body">
+
+            {/* Badges */}
+            <div className="detail-badges">
+              {(() => {
+                const s    = catStyle(e.cat);
+                const span = e.endDate ? dateFmt.daysBetween(e.startDate, e.endDate) : 0;
+                const novel = isNew(e);
+                return (
+                  <>
+                    <Pill label={e.cat} c={s.c} hi={s.hi} b={s.b} size={11}/>
+                    {novel    && <Pill label="✦ Just Added"        c="var(--newc)"  hi="var(--new-hi)"   b="var(--new-b)"   size={11}/>}
+                    {span > 0 && <Pill label={`${span + 1}-day event`} c="var(--amber)" hi="var(--amber-hi)" b="var(--amber-b)" size={11}/>}
+                  </>
+                );
+              })()}
+            </div>
+
+            {/* Title */}
+            <h1 className="detail-title">{e.title}</h1>
+
+            {/* Description */}
+            {e.description && <p className="detail-desc">{e.description}</p>}
+
+            {/* Info grid */}
+            <div className="detail-grid">
+              <DateTimeSection event={e}/>
+
+              {/* Location */}
+              <div className="detail-cell full">
+                <p className="cell-label">Location</p>
+                {e.city
+                  ? <p className="cell-value">{e.city}{e.loc ? <span className="cell-sub"><br/>{e.loc}</span> : null}</p>
+                  : e.loc
+                    ? <p className="cell-value">{e.loc}</p>
+                    : <p className="cell-value dim">TBA</p>
+                }
+              </div>
+
+              {/* Price */}
+              <div className="detail-cell">
+                <p className="cell-label">Price</p>
+                <p className="cell-value" style={{ marginTop: 2 }}>
+                  {(() => { const ps = priceStyle(e.price); return <Pill label={e.price ?? 'TBA'} c={ps.c} hi={ps.hi} b={ps.b} size={12}/>; })()}
+                </p>
+              </div>
+
+              {/* Source trust */}
+              <div className="detail-cell">
+                <p className="cell-label">Confidence</p>
+                <div style={{ display:'flex', alignItems:'center', gap:5, marginTop:4 }}>
+                  {Array.from({ length: Math.min(e.sourceCount, 5) }, (_, i) => (
+                    <div key={i} style={{ width:6, height:6, borderRadius:'50%', background: i < e.sourceCount ? 'var(--green)' : 'var(--div)' }}/>
+                  ))}
+                  <span style={{ fontSize:10, color:'var(--muted)', fontFamily:'var(--font-m)', marginLeft:2 }}>
+                    {e.sourceCount} source{e.sourceCount !== 1 ? 's' : ''}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Tags */}
+            {e.tags.length > 0 && (
+              <>
+                <p className="detail-tags-label">Tags</p>
+                <div className="detail-tags">
+                  {e.tags.map(tag => <span key={tag} className="detail-tag">#{tag}</span>)}
+                </div>
+              </>
+            )}
+
+          </div>
+        </div>
+      )}
+
+      {/* Bottom action bar */}
+      {e && (
+        <div className="detail-bottom-bar">
+          <button className="btn-icon" onClick={onClose} aria-label="Back">
+            <Icon name="back" size={18}/>
+          </button>
+          <button className="btn-icon" aria-label="Directions">
+            <Icon name="dir" size={18}/>
+          </button>
+          <button className="btn-icon" aria-label="Share">
+            <Icon name="share" size={16}/>
+          </button>
+          {e.sourceUrl && (
+            <a className="btn-source" href={e.sourceUrl} target="_blank" rel="noopener noreferrer">
+              <Icon name="ext" size={15} color="#fff"/>
+              View Source
+            </a>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+/* ═══════════════════════════════════════════════════════════
+   § 10  APP  — state, filtering, navigation
+══════════════════════════════════════════════════════════ */
+function App() {
+  const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  const [tab,        setTab]        = useState(TAB.TIMELINE);
+  const [activeCat,  setActiveCat]  = useState(ALL);
+  const [activeCity, setActiveCity] = useState(ALL);
+  const [activeTags, setActiveTags] = useState(new Set());
+  const [detail,     setDetail]     = useState(null); // event object | null
+  const [theme,      setTheme]      = useState('dark');
+
+  const hasFilters = activeCat !== ALL || activeCity !== ALL || activeTags.size > 0;
+
+  const toggleTag = useCallback(tag => {
+    setActiveTags(prev => {
+      const next = new Set(prev);
+      next.has(tag) ? next.delete(tag) : next.add(tag);
+      return next;
+    });
+  }, []);
+
+  const clearFilters = useCallback(() => {
+    setActiveCat(ALL);
+    setActiveCity(ALL);
+    setActiveTags(new Set());
+  }, []);
+
+  const openDetail  = useCallback(event => setDetail(event), []);
+  const closeDetail = useCallback(() => setDetail(null), []);
+
+  const toggleTheme = useCallback(() => {
+    setTheme(t => {
+      const next = t === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      return next;
+    });
+  }, []);
+
+  /** Filtered event list — memoised to avoid redundant re-filtering on unrelated state changes */
+  const filtered = useMemo(() => EVENTS.filter(e => {
+    if (activeCat  !== ALL && e.cat  !== activeCat)  return false;
+    if (activeCity !== ALL && e.city !== activeCity)  return false;
+    if (activeTags.size > 0 && !e.tags.some(t => activeTags.has(t))) return false;
+    return true;
+  }), [activeCat, activeCity, activeTags]);
+
+  return (
+    <div className="shell"
+      data-cards={tweaks.cards.toLowerCase()}
+      data-type={tweaks.type.toLowerCase()}
+      style={Object.assign({}, PALETTE_VARS[tweaks.palette] ?? {})}>
+
+      {/* System chrome */}
+      <div className="notch-bar">
+        <div className="notch-pill">
+          <div style={{ width:9, height:9, borderRadius:'50%', background:'#201e30' }}/>
+          <div style={{ width:48, height:4, borderRadius:2,   background:'#201e30' }}/>
+        </div>
+      </div>
+      <div className="status-bar"><span>9:41</span><span>▪▪▪ ◈</span></div>
+
+      {/* App bar */}
+      <header className="app-bar">
+        <div className="logo">
+          <LogoMark/>
+          <span className="logo-text">Gotovo</span>
+        </div>
+        <div className="bar-right">
+          {hasFilters && (
+            <button className="icon-btn" onClick={clearFilters} title="Clear all filters" aria-label="Clear filters">
+              <Icon name="close" size={14}/>
+            </button>
+          )}
+          <button className="icon-btn" onClick={toggleTheme} title="Toggle theme" aria-label="Toggle theme">
+            <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={14}/>
+          </button>
+        </div>
+      </header>
+
+      {/* Tabs */}
+      <nav className="tab-bar" role="tablist" aria-label="Feed view">
+        <button className={`tab${tab === TAB.TIMELINE ? ' active' : ''}`}
+          role="tab" aria-selected={tab === TAB.TIMELINE}
+          onClick={() => setTab(TAB.TIMELINE)}>
+          Timeline
+        </button>
+        <button className={`tab${tab === TAB.RECENT ? ' active' : ''}`}
+          role="tab" aria-selected={tab === TAB.RECENT}
+          onClick={() => setTab(TAB.RECENT)}>
+          Recently Added <span className="new-dot" aria-hidden="true"/>
+        </button>
+      </nav>
+
+      {/* Filters */}
+      <FilterZone
+        activeCat={activeCat}   setActiveCat={setActiveCat}
+        activeCity={activeCity} setActiveCity={setActiveCity}
+        activeTags={activeTags} toggleTag={toggleTag}
+      />
+
+      {/* Feed */}
+      <main className="feed">
+        <Feed events={filtered} tab={tab} onOpen={openDetail}/>
+      </main>
+
+      {/* Detail — full-screen push page */}
+      <DetailPage event={detail} onClose={closeDetail}/>
+
+      {/* Tweaks panel */}
+      <TweaksPanel>
+        <TweakSection title="Palette">
+          <TweakRadio id="palette" options={["Violet","Ember","Neon","Slate"]}
+            value={tweaks.palette} onChange={v => setTweak('palette', v)}/>
+        </TweakSection>
+        <TweakSection title="Cards">
+          <TweakRadio id="cards" options={["Default","Bold","Ghost"]}
+            value={tweaks.cards} onChange={v => setTweak('cards', v)}/>
+        </TweakSection>
+        <TweakSection title="Type">
+          <TweakRadio id="type" options={["Display","Sans","Mono"]}
+            value={tweaks.type} onChange={v => setTweak('type', v)}/>
+        </TweakSection>
+      </TweaksPanel>
+
+      {/* Home indicator */}
+      <div className="home-bar"><div className="home-pill"/></div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

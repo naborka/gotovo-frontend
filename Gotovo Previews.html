@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gotovo — Direction Previews</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-font-smoothing: antialiased; }
+body { background: #0a0910; font-family: 'DM Sans', sans-serif; min-height: 100vh; }
+
+.canvas {
+  padding: 52px 36px 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 80px;
+}
+
+.page-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 28px; font-weight: 800;
+  color: #eae8f4; letter-spacing: -0.03em;
+}
+.page-sub { font-size: 13px; color: #5a576e; margin-top: 4px; }
+
+.dir-section { display: flex; flex-direction: column; gap: 20px; }
+
+.dir-head {
+  display: flex; align-items: center; gap: 14px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #1e1c2e;
+}
+.dir-badge {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: #9d7ff4;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 800;
+  color: #0d0c12; flex-shrink: 0;
+}
+.dir-name { font-family: 'Syne', sans-serif; font-size: 21px; font-weight: 800; color: #eae8f4; letter-spacing: -0.02em; }
+.dir-desc { font-size: 12px; color: #5a576e; margin-top: 3px; }
+
+.phones-row { display: flex; gap: 28px; flex-wrap: wrap; align-items: flex-start; }
+
+.phone-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.phone-caption { font-size: 10px; color: #3a3750; font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: 0.1em; }
+
+.phone {
+  width: 320px;
+  background: #131220;
+  border-radius: 40px;
+  border: 2px solid #282540;
+  overflow: hidden;
+  box-shadow: 0 0 0 7px #0a0910, 0 28px 70px rgba(0,0,0,0.75);
+  position: relative;
+  flex-shrink: 0;
+}
+.phone-inner { overflow: hidden; }
+.notch-bar {
+  height: 32px; background: #0a0910;
+  display: flex; align-items: center; justify-content: center;
+}
+.notch-pill {
+  width: 96px; height: 24px;
+  background: #0a0910; border: 2px solid #1a1828;
+  border-radius: 99px;
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+}
+.status-bar {
+  height: 18px; padding: 0 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: #0d0c12;
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+
+// ── DESIGN TOKENS ──────────────────────────────────────────────────────────
+const T = {
+  bg:      '#0d0c12',
+  surface: '#131220',
+  surf2:   '#19172a',
+  offset:  '#201e30',
+  dyn:     '#28263a',
+  div:     '#2e2b42',
+  border:  '#383550',
+  text:    '#eae8f4',
+  muted:   '#8a87a8',
+  faint:   '#4a4762',
+  inv:     '#0d0c12',
+
+  pri:     '#9d7ff4',
+  priHi:   'rgba(157,127,244,0.13)',
+  priB:    'rgba(157,127,244,0.28)',
+
+  amber:   '#f5a623',
+  amberHi: 'rgba(245,166,35,0.12)',
+  amberB:  'rgba(245,166,35,0.25)',
+
+  teal:    '#2ec4b6',
+  tealHi:  'rgba(46,196,182,0.11)',
+  tealB:   'rgba(46,196,182,0.25)',
+
+  green:   '#4caf7d',
+  greenHi: 'rgba(76,175,125,0.11)',
+  greenB:  'rgba(76,175,125,0.25)',
+
+  rose:    '#e8607a',
+  roseHi:  'rgba(232,96,122,0.11)',
+  roseB:   'rgba(232,96,122,0.25)',
+
+  blue:    '#5b9cf6',
+  blueHi:  'rgba(91,156,246,0.11)',
+  blueB:   'rgba(91,156,246,0.22)',
+
+  newc:    '#818cf8',
+  newHi:   'rgba(129,140,248,0.13)',
+  newB:    'rgba(129,140,248,0.28)',
+};
+
+const CATS = {
+  'Music':       { c: T.pri,   hi: T.priHi,   b: T.priB   },
+  'Adventure':   { c: T.teal,  hi: T.tealHi,  b: T.tealB  },
+  'Food & Drink':{ c: T.green, hi: T.greenHi, b: T.greenB },
+  'Education':   { c: T.blue,  hi: T.blueHi,  b: T.blueB  },
+  'Art':         { c: T.rose,  hi: T.roseHi,  b: T.roseB  },
+};
+const cs = k => CATS[k] || { c: T.muted, hi: T.offset, b: T.border };
+
+// ── MOCK DATA ──────────────────────────────────────────────────────────────
+// Only days with events are shown — empty days are skipped
+const EVENTS = [
+  { uid:'1', title:'Sunrise Via Ferrata',       startDate:'Mon 28',  time:'06:30', cat:'Adventure',    price:'Free',      city:'Novi Sad', tags:['Nature','Guided'],         isNew:true  },
+  { uid:'2', title:'Experimental Noise Night',  startDate:'Mon 28',  time:'22:00', cat:'Music',        price:'500 RSD',   city:'Novi Sad', tags:['Electronic','Live'],        isNew:true  },
+  { uid:'3', title:'Natural Wine Pop-Up',       startDate:'Tue 29',  time:'17:00', cat:'Food & Drink', price:'1200 RSD',  city:'Novi Sad', tags:['Wine','Tasting'],           isNew:false },
+  { uid:'4', title:'Kids Ceramics Masterclass', startDate:'Tue 29',  time:'10:00', cat:'Education',    price:'800 RSD',   city:'Novi Sad', tags:['Kids','Craft'],             isNew:false },
+  { uid:'5', title:'Foraging Walk',             startDate:'Wed 30',  time:'09:00', cat:'Adventure',    price:'Free',      city:'Novi Sad', tags:['Nature','Foraging'],        isNew:false },
+  { uid:'6', title:'Ambient Dusk Set',          startDate:'Wed 30',  time:'19:30', cat:'Music',        price:'300 RSD',   city:'Novi Sad', tags:['Ambient','Outdoors'],       isNew:false },
+  { uid:'7', title:'Jazz Weekend',              startDate:'Wed 30',  time:'18:00', cat:'Music',        price:'1500 RSD',  city:'Novi Sad', tags:['Jazz','Festival'],          isNew:false, multiday:3 },
+  // Thu skipped — no events
+  { uid:'8', title:'Street Food Festival',      startDate:'Fri 2',   time:null,    cat:'Food & Drink', price:null,        city:'Belgrade', tags:['Street Food','Family'],     isNew:false, multiday:3 },
+  { uid:'9', title:'Photography Masterclass',   startDate:'Sat 3',   time:'11:00', cat:'Education',    price:'2000 RSD',  city:'Belgrade', tags:['Photography','Workshop'],   isNew:false },
+];
+
+const groupByDay = (events) => {
+  const map = {};
+  events.forEach(e => {
+    if (!map[e.startDate]) map[e.startDate] = [];
+    map[e.startDate].push(e);
+  });
+  return Object.entries(map); // preserves insertion order
+};
+
+// ── PRIMITIVES ─────────────────────────────────────────────────────────────
+const Px = ({ size=13, weight=400, color, dim=false, mono=false, style:s={}, children }) => (
+  <span style={{
+    fontFamily: mono ? "'DM Mono',monospace" : "'DM Sans',sans-serif",
+    fontSize: size, fontWeight: weight,
+    color: color || (dim ? T.muted : T.text),
+    lineHeight: 1.45, ...s
+  }}>{children}</span>
+);
+
+const Disp = ({ size=15, children, style:s={} }) => (
+  <span style={{
+    fontFamily: "'Syne',sans-serif", fontSize: size,
+    fontWeight: 700, color: T.text,
+    letterSpacing: '-0.02em', lineHeight: 1.2, ...s
+  }}>{children}</span>
+);
+
+const Pill = ({ label, c, hi, b, size=10, style:s={} }) => (
+  <span style={{
+    display: 'inline-flex', alignItems: 'center',
+    padding: '2px 8px', borderRadius: 99,
+    background: hi, border: `1px solid ${b}`, color: c,
+    fontFamily: "'DM Sans',sans-serif", fontSize: size,
+    fontWeight: 700, lineHeight: 1.5, whiteSpace: 'nowrap', ...s
+  }}>{label}</span>
+);
+
+const Row = ({ children, gap=6, align='center', style:s={} }) => (
+  <div style={{ display:'flex', alignItems:align, gap, ...s }}>{children}</div>
+);
+
+const Stack = ({ children, gap=4, style:s={} }) => (
+  <div style={{ display:'flex', flexDirection:'column', gap, ...s }}>{children}</div>
+);
+
+// ── PHONE FRAME ────────────────────────────────────────────────────────────
+const Phone = ({ children }) => (
+  <div className="phone">
+    <div className="notch-bar">
+      <div className="notch-pill">
+        <div style={{ width:8, height:8, borderRadius:'50%', background:'#201e30' }}/>
+        <div style={{ width:44, height:4, borderRadius:2, background:'#201e30' }}/>
+      </div>
+    </div>
+    <div className="status-bar">
+      <Px size={9} color={T.faint} mono>9:41</Px>
+      <Px size={9} color={T.faint} mono>▪▪▪ ◈</Px>
+    </div>
+    <div className="phone-inner">{children}</div>
+  </div>
+);
+
+// ── SHARED CHROME ──────────────────────────────────────────────────────────
+const AppBar = ({ right }) => (
+  <div style={{
+    height:46, padding:'0 14px',
+    display:'flex', alignItems:'center',
+    background: T.bg, borderBottom:`1px solid ${T.div}`,
+  }}>
+    <Row gap={7}>
+      <svg width="18" height="18" viewBox="0 0 22 22" fill="none">
+        <circle cx="11" cy="11" r="9.5" stroke={T.pri} strokeWidth="1.4"/>
+        <circle cx="11" cy="11" r="3.5" fill={T.pri} opacity="0.3"/>
+        <circle cx="11" cy="11" r="1.5" fill={T.pri}/>
+        <ellipse cx="11" cy="11" rx="9.5" ry="3.5" stroke={T.pri} strokeWidth="1.1" strokeDasharray="2.2 1.8"/>
+      </svg>
+      <Disp size={15}>Gotovo</Disp>
+    </Row>
+    {right && <div style={{ marginLeft:'auto' }}>{right}</div>}
+  </div>
+);
+
+const TabRow = ({ tabs, active }) => (
+  <div style={{ display:'flex', borderBottom:`1px solid ${T.div}`, background:T.bg }}>
+    {tabs.map(t => (
+      <div key={t.id} style={{
+        padding:'7px 14px', fontSize:12, fontFamily:"'DM Sans',sans-serif",
+        color: t.id===active ? T.text : T.muted,
+        fontWeight: t.id===active ? 600 : 400,
+        borderBottom: t.id===active ? `2px solid ${T.pri}` : '2px solid transparent',
+        marginBottom:-1,
+        display:'flex', alignItems:'center', gap:5,
+      }}>
+        {t.label}
+        {t.dot && <span style={{ width:5, height:5, borderRadius:'50%', background:T.newc, display:'inline-block' }}/>}
+      </div>
+    ))}
+  </div>
+);
+
+// ── FILTER CHROME (new: category + city + tags) ────────────────────────────
+// Three filter rows:
+//   1. Category chips
+//   2. City chips
+//   3. Tag chips (scrollable)
+const FilterZone = ({ variant = 'full' }) => (
+  <div style={{ background:T.bg, borderBottom:`1px solid ${T.div}` }}>
+
+    {/* Row 1 — Category */}
+    <div style={{ display:'flex', gap:5, padding:'7px 12px 5px', overflowX:'hidden' }}>
+      {[
+        { id:'all',  label:'All',       active:true  },
+        { id:'mus',  label:'Music',     dot:T.pri    },
+        { id:'adv',  label:'Adventure', dot:T.teal   },
+        { id:'food', label:'Food',      dot:T.green  },
+        { id:'edu',  label:'Education', dot:T.blue   },
+      ].map(c => (
+        <div key={c.id} style={{
+          flexShrink:0, display:'inline-flex', alignItems:'center', gap:4,
+          padding:'3px 10px', borderRadius:99,
+          border:`1px solid ${c.active ? T.priB : T.border}`,
+          background: c.active ? T.priHi : T.surface,
+          color: c.active ? T.pri : T.muted,
+          fontFamily:"'DM Sans',sans-serif", fontSize:11, fontWeight: c.active ? 600 : 400,
+          whiteSpace:'nowrap',
+        }}>
+          {c.dot && <span style={{ width:5, height:5, borderRadius:'50%', background:c.dot, flexShrink:0 }}/>}
+          {c.label}
+        </div>
+      ))}
+    </div>
+
+    {/* Divider */}
+    <div style={{ height:1, background:T.div, margin:'0 12px' }}/>
+
+    {/* Row 2 — City */}
+    <div style={{ display:'flex', alignItems:'center', gap:0, padding:'5px 12px 4px', overflowX:'hidden' }}>
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={T.faint} strokeWidth="2" style={{ flexShrink:0, marginRight:5 }}>
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+      </svg>
+      {[
+        { id:'all', label:'All cities', active:true  },
+        { id:'ns',  label:'Novi Sad',   active:false },
+        { id:'bg',  label:'Belgrade',   active:false },
+      ].map(c => (
+        <div key={c.id} style={{
+          flexShrink:0, display:'inline-flex', alignItems:'center',
+          padding:'3px 9px', marginRight:5, borderRadius:99,
+          border:`1px solid ${c.active ? T.amberB : T.border}`,
+          background: c.active ? T.amberHi : T.surface,
+          color: c.active ? T.amber : T.muted,
+          fontFamily:"'DM Sans',sans-serif", fontSize:11, fontWeight: c.active ? 600 : 400,
+          whiteSpace:'nowrap',
+        }}>{c.label}</div>
+      ))}
+    </div>
+
+    {/* Row 3 — Tags */}
+    <div style={{ display:'flex', alignItems:'center', gap:0, padding:'4px 12px 6px', overflowX:'hidden' }}>
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={T.faint} strokeWidth="2" style={{ flexShrink:0, marginRight:5 }}>
+        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>
+      </svg>
+      {['#Guided','#Free','#Kids','#Outdoor','#Festival','#Workshop'].map((tag, i) => (
+        <div key={tag} style={{
+          flexShrink:0, display:'inline-flex',
+          padding:'2px 8px', marginRight:4, borderRadius:99,
+          border:`1px solid ${T.div}`,
+          background: 'transparent',
+          color: T.faint,
+          fontFamily:"'DM Mono',monospace", fontSize:10, fontWeight:400,
+          whiteSpace:'nowrap',
+        }}>{tag}</div>
+      ))}
+    </div>
+
+  </div>
+);
+
+// ── EVENT CARD (Dir A) ─────────────────────────────────────────────────────
+const EventCard = ({ e }) => {
+  const s = cs(e.cat);
+  return (
+    <div style={{
+      margin:'7px 10px 0',
+      padding:'10px 12px 9px',
+      background: T.surface,
+      border:`1px solid ${e.isNew ? s.b : T.border}`,
+      borderRadius:8,
+      borderLeft: e.isNew ? `3px solid ${T.pri}` : undefined,
+    }}>
+      <Row gap={5} style={{ marginBottom:5, flexWrap:'wrap' }}>
+        <Pill label={e.cat} c={s.c} hi={s.hi} b={s.b}/>
+        {e.isNew && <Pill label="✦ New" c={T.newc} hi={T.newHi} b={T.newB}/>}
+        {e.multiday && <Pill label={`${e.multiday}-day`} c={T.amber} hi={T.amberHi} b={T.amberB}/>}
+        <div style={{ marginLeft:'auto' }}>
+          {e.time
+            ? <Px size={12} color={T.amber} mono weight={500}>{e.time}</Px>
+            : <Px size={10} dim style={{ fontStyle:'italic' }}>all day</Px>}
+        </div>
+      </Row>
+      <Disp size={14} style={{ display:'block', marginBottom:5, lineHeight:1.2 }}>{e.title}</Disp>
+      <Row gap={5}>
+        <Row gap={4}>
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={T.faint} strokeWidth="2">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+          </svg>
+          <Px size={10} color={T.muted}>{e.city}</Px>
+          {e.city && <Px size={10} color={T.faint}>·</Px>}
+          <Px size={10} dim style={{ overflow:'hidden', whiteSpace:'nowrap', textOverflow:'ellipsis', maxWidth:80 }}>
+            {e.tags.map(t => '#'+t).join(' ')}
+          </Px>
+        </Row>
+        <div style={{ marginLeft:'auto', flexShrink:0 }}>
+          <Pill
+            label={e.price || 'TBA'}
+            c={!e.price ? T.faint : e.price==='Free' ? T.green : T.muted}
+            hi={!e.price ? 'transparent' : e.price==='Free' ? T.greenHi : T.offset}
+            b={!e.price ? T.div : e.price==='Free' ? T.greenB : T.border}
+          />
+        </div>
+      </Row>
+    </div>
+  );
+};
+
+const DayGroup = ({ label, count, children }) => (
+  <div style={{ marginTop:10 }}>
+    <div style={{
+      display:'flex', alignItems:'baseline', gap:8,
+      padding:'6px 12px 5px',
+      borderBottom:`1px solid ${T.div}`,
+    }}>
+      <Disp size={16}>{label}</Disp>
+      <Px size={10} dim style={{ marginLeft:'auto' }}>{count} event{count!==1?'s':''}</Px>
+    </div>
+    {children}
+  </div>
+);
+
+// ── DIRECTION A ────────────────────────────────────────────────────────────
+const DirA = () => {
+  const days = groupByDay(EVENTS);
+  return (
+    <Phone>
+      <AppBar right={<Px size={11} color={T.faint}>☀</Px>}/>
+      <TabRow tabs={[{id:'tl',label:'Timeline'},{id:'ra',label:'Recently Added',dot:true}]} active="tl"/>
+      <FilterZone/>
+      <div style={{ overflowY:'hidden', maxHeight:390 }}>
+        {days.map(([day, evts]) => (
+          <DayGroup key={day} label={day} count={evts.length}>
+            {evts.map(e => <EventCard key={e.uid} e={e}/>)}
+          </DayGroup>
+        ))}
+        <div style={{ height:14 }}/>
+      </div>
+    </Phone>
+  );
+};
+
+// ── DIRECTION B ────────────────────────────────────────────────────────────
+const HeroCard = ({ e }) => {
+  const s = cs(e.cat);
+  return (
+    <div style={{
+      margin:'10px 10px 0',
+      padding:'14px 14px 13px',
+      background: T.surf2,
+      border:`1.5px solid ${T.border}`,
+      borderRadius:10,
+      boxShadow:`0 4px 20px rgba(0,0,0,0.4)`,
+    }}>
+      <Row gap={6} style={{ marginBottom:9 }}>
+        <Pill label={e.cat} c={s.c} hi={s.hi} b={s.b}/>
+        {e.isNew && <Pill label="✦ New" c={T.newc} hi={T.newHi} b={T.newB}/>}
+        {e.multiday && <Pill label={`${e.multiday}-day event`} c={T.amber} hi={T.amberHi} b={T.amberB}/>}
+        {e.time && <Px size={13} color={T.amber} mono weight={500} style={{ marginLeft:'auto' }}>{e.time}</Px>}
+      </Row>
+      <Disp size={17} style={{ display:'block', marginBottom:7, lineHeight:1.15 }}>{e.title}</Disp>
+      <div style={{ height:1, background:T.div, margin:'7px 0' }}/>
+      <Row gap={8}>
+        <Px size={11} color={T.muted}>{e.city}</Px>
+        <Px size={10} color={T.faint}>{e.tags.map(t=>'#'+t).join(' ')}</Px>
+        <Pill
+          label={e.price||'TBA'} style={{ marginLeft:'auto' }}
+          c={!e.price?T.faint:e.price==='Free'?T.green:T.muted}
+          hi={!e.price?'transparent':e.price==='Free'?T.greenHi:T.offset}
+          b={!e.price?T.div:e.price==='Free'?T.greenB:T.border}
+        />
+      </Row>
+    </div>
+  );
+};
+
+const MiniRow = ({ e }) => {
+  const s = cs(e.cat);
+  return (
+    <div style={{
+      margin:'5px 10px 0',
+      padding:'7px 10px',
+      background: T.surface, border:`1px solid ${T.border}`, borderRadius:6,
+      display:'flex', alignItems:'center', gap:7,
+    }}>
+      <div style={{ width:3, alignSelf:'stretch', background:s.c, borderRadius:2, flexShrink:0 }}/>
+      <Pill label={e.cat} c={s.c} hi={s.hi} b={s.b} size={9}/>
+      <Px size={12} weight={500} style={{ flex:1, overflow:'hidden', whiteSpace:'nowrap', textOverflow:'ellipsis' }}>{e.title}</Px>
+      <Px size={10} color={T.faint} style={{ flexShrink:0 }}>{e.startDate.split(' ')[0]}</Px>
+      {e.time && <Px size={10} color={T.amber} mono weight={500} style={{ flexShrink:0 }}>{e.time}</Px>}
+    </div>
+  );
+};
+
+const DirB = () => {
+  const hero = EVENTS[6]; // Jazz Weekend — multi-day festival
+  const rest = EVENTS.filter(e => e.uid !== hero.uid);
+  return (
+    <Phone>
+      <AppBar right={
+        <Row gap={8}>
+          <Px size={11} color={T.faint}>☀</Px>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={T.muted} strokeWidth="2">
+            <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </Row>
+      }/>
+      <FilterZone/>
+      <div style={{ overflowY:'hidden', maxHeight:390 }}>
+        <HeroCard e={hero}/>
+        <div style={{ padding:'10px 12px 5px', display:'flex', alignItems:'center', gap:8 }}>
+          <Px size={11} weight={600} color={T.muted}>Also this week</Px>
+          <div style={{ flex:1, height:1, background:T.div }}/>
+        </div>
+        {rest.map(e => <MiniRow key={e.uid} e={e}/>)}
+        <div style={{ height:14 }}/>
+      </div>
+    </Phone>
+  );
+};
+
+// ── DIRECTION C ────────────────────────────────────────────────────────────
+const WeekStrip = () => {
+  const days = [
+    { label:'M', n:28, count:2, active:true  },
+    { label:'T', n:29, count:2, active:false },
+    { label:'W', n:30, count:3, active:false },
+    { label:'T', n:1,  count:0, active:false },
+    { label:'F', n:2,  count:1, active:false },
+    { label:'S', n:3,  count:1, active:false },
+    { label:'S', n:4,  count:0, active:false },
+  ];
+  return (
+    <div style={{ display:'flex', borderBottom:`1px solid ${T.div}`, background:T.bg }}>
+      {days.map((d, i) => (
+        <div key={i} style={{
+          flex:1, padding:'6px 0 7px',
+          display:'flex', flexDirection:'column', alignItems:'center', gap:3,
+          background: d.active ? T.priHi : 'transparent',
+          borderBottom: d.active ? `2px solid ${T.pri}` : '2px solid transparent',
+          marginBottom:-1,
+        }}>
+          <Px size={9} color={d.active ? T.pri : T.faint} weight={d.active?600:400} mono>{d.label}</Px>
+          {d.count > 0
+            ? <div style={{
+                width:18, height:18, borderRadius:'50%',
+                background: d.active ? T.pri : T.surf2,
+                border:`1px solid ${d.active ? T.priB : T.border}`,
+                display:'flex', alignItems:'center', justifyContent:'center',
+              }}>
+                <Px size={9} color={d.active ? T.inv : T.muted} weight={700}>{d.count}</Px>
+              </div>
+            : <div style={{ width:18, height:4, borderRadius:2, background:T.div }}/>
+          }
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const AgendaRow = ({ e }) => {
+  const s = cs(e.cat);
+  return (
+    <div style={{
+      display:'flex', alignItems:'center', gap:7,
+      padding:'6px 10px', marginBottom:3,
+      background:T.surface, border:`1px solid ${T.border}`, borderRadius:6,
+    }}>
+      <div style={{ width:3, alignSelf:'stretch', background:s.c, borderRadius:2, flexShrink:0 }}/>
+      <Pill label={e.cat} c={s.c} hi={s.hi} b={s.b} size={9}/>
+      <Px size={12} weight={500} style={{ flex:1, overflow:'hidden', whiteSpace:'nowrap', textOverflow:'ellipsis' }}>{e.title}</Px>
+      {e.time && <Px size={10} color={T.amber} mono weight={500} style={{ flexShrink:0 }}>{e.time}</Px>}
+    </div>
+  );
+};
+
+const DirC = () => {
+  const days = groupByDay(EVENTS);
+  return (
+    <Phone>
+      <AppBar right={<Px size={11} color={T.faint}>Apr 28</Px>}/>
+      <WeekStrip/>
+      <FilterZone/>
+      <div style={{ overflowY:'hidden', maxHeight:330 }}>
+        {days.map(([day, evts]) => (
+          <div key={day} style={{ margin:'7px 10px 0' }}>
+            <Px size={10} weight={600} color={T.muted} mono style={{ display:'block', marginBottom:4, textTransform:'uppercase', letterSpacing:'0.07em' }}>{day}</Px>
+            {evts.map(e => <AgendaRow key={e.uid} e={e}/>)}
+          </div>
+        ))}
+        <div style={{ height:14 }}/>
+      </div>
+    </Phone>
+  );
+};
+
+// ── DIRECTION D ────────────────────────────────────────────────────────────
+const TickerBand = ({ label }) => (
+  <div style={{
+    padding:'3px 12px',
+    background: T.offset,
+    borderTop:`1px solid ${T.div}`, borderBottom:`1px solid ${T.div}`,
+    marginTop:2,
+  }}>
+    <Px size={9} color={T.pri} weight={600} mono style={{ textTransform:'uppercase', letterSpacing:'0.09em' }}>{label}</Px>
+  </div>
+);
+
+const TickerItem = ({ e }) => {
+  const s = cs(e.cat);
+  return (
+    <div style={{
+      display:'flex', alignItems:'center', gap:7,
+      padding:'6px 12px',
+      borderBottom:`1px solid ${T.div}`,
+    }}>
+      <div style={{ width:3, alignSelf:'stretch', background:s.c, borderRadius:2, flexShrink:0 }}/>
+      <Px size={10} color={T.amber} mono weight={500} style={{ width:36, flexShrink:0 }}>{e.time||'—'}</Px>
+      <Stack gap={1} style={{ flex:1, minWidth:0 }}>
+        <Px size={12} weight={600} style={{ overflow:'hidden', whiteSpace:'nowrap', textOverflow:'ellipsis' }}>{e.title}</Px>
+        <Row gap={4}>
+          <Px size={9} color={T.faint}>{e.city}</Px>
+          <Px size={9} color={T.faint}>·</Px>
+          <Px size={9} color={T.faint} style={{ overflow:'hidden', whiteSpace:'nowrap', textOverflow:'ellipsis', maxWidth:80 }}>{e.tags.map(t=>'#'+t).join(' ')}</Px>
+        </Row>
+      </Stack>
+      {e.isNew && <span style={{ width:5, height:5, borderRadius:'50%', background:T.newc, flexShrink:0 }}/>}
+      <Pill
+        label={e.price||'TBA'} size={9}
+        c={!e.price?T.faint:e.price==='Free'?T.green:T.muted}
+        hi={!e.price?'transparent':e.price==='Free'?T.greenHi:T.offset}
+        b={!e.price?T.div:e.price==='Free'?T.greenB:T.border}
+      />
+    </div>
+  );
+};
+
+const DirD = () => {
+  const days = groupByDay(EVENTS);
+  return (
+    <Phone>
+      <AppBar right={
+        <Row gap={7}>
+          <Pill label="compact" c={T.pri} hi={T.priHi} b={T.priB} size={9}/>
+          <Px size={11} color={T.faint}>☀</Px>
+        </Row>
+      }/>
+      <TabRow tabs={[{id:'tl',label:'Timeline'},{id:'ra',label:'Recent',dot:true}]} active="tl"/>
+      <FilterZone/>
+      <div style={{ overflowY:'hidden', maxHeight:330 }}>
+        {days.map(([day, evts]) => (
+          <React.Fragment key={day}>
+            <TickerBand label={day}/>
+            {evts.map(e => <TickerItem key={e.uid} e={e}/>)}
+          </React.Fragment>
+        ))}
+        <div style={{ height:14 }}/>
+      </div>
+    </Phone>
+  );
+};
+
+// ── DIR HEADER ─────────────────────────────────────────────────────────────
+const DirHead = ({ letter, name, desc }) => (
+  <div style={{ display:'flex', alignItems:'center', gap:14, paddingBottom:18, borderBottom:`1px solid #1a1828` }}>
+    <div style={{
+      width:38, height:38, borderRadius:'50%',
+      background: T.pri,
+      display:'flex', alignItems:'center', justifyContent:'center',
+      fontFamily:"'Syne',sans-serif", fontSize:17, fontWeight:800, color:T.inv,
+      flexShrink:0,
+    }}>{letter}</div>
+    <div>
+      <Disp size={20} style={{ display:'block' }}>{name}</Disp>
+      <Px size={12} dim style={{ display:'block', marginTop:3 }}>{desc}</Px>
+    </div>
+  </div>
+);
+
+const Wrap = ({ label, children }) => (
+  <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:10 }}>
+    {children}
+    <Px size={10} color={T.faint} mono style={{ textTransform:'uppercase', letterSpacing:'0.1em' }}>{label}</Px>
+  </div>
+);
+
+// ── ROOT ───────────────────────────────────────────────────────────────────
+const DIRECTIONS = [
+  {
+    letter:'A', name:'Editorial List',
+    desc:'Familiar card layout — refined hierarchy; category · time at top, big title, city+tags+price at bottom.',
+    Component: DirA,
+    note:'Empty days are skipped. The list jumps straight to the next day with events.',
+  },
+  {
+    letter:'B', name:'Hero + Stream',
+    desc:'One card takes the spotlight (highest sourceCount / nearest multi-day). Rest stack as compact rows.',
+    Component: DirB,
+    note:'Hero selection: most-confirmed event (sourceCount) or longest upcoming multi-day event wins.',
+  },
+  {
+    letter:'C', name:'Week Agenda',
+    desc:'Mon–Sun dot strip shows event density at a glance. Tap a day to jump. Empty days have no dot — never shown in the list.',
+    Component: DirC,
+    note:'Week strip gives users a quick "this week is busy / quiet" read before even scrolling.',
+  },
+  {
+    letter:'D', name:'Dense Ticker',
+    desc:'Timetable rows. City + tag sub-line per event. Maximum events above the fold.',
+    Component: DirD,
+    note:'Best for repeat visitors who know what they\'re looking for. City shown inline — no separate filter needed.',
+  },
+];
+
+function App() {
+  return (
+    <div className="canvas">
+      <div>
+        <div className="page-title">Gotovo — Direction Previews</div>
+        <div className="page-sub">All directions · normal inventory · city + tag filters · empty days skipped</div>
+      </div>
+
+      {DIRECTIONS.map(d => (
+        <div key={d.letter} className="dir-section">
+          <DirHead letter={d.letter} name={d.name} desc={d.desc}/>
+          <div className="phones-row">
+            <Wrap label="Feed view">
+              <d.Component/>
+            </Wrap>
+            <div style={{
+              maxWidth:240,
+              padding:'16px 18px',
+              background:T.surface,
+              border:`1px solid ${T.div}`,
+              borderRadius:10,
+              alignSelf:'flex-start',
+              marginTop:40,
+            }}>
+              <Px size={10} color={T.pri} weight={600} mono style={{ display:'block', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:8 }}>Design note</Px>
+              <Px size={12} style={{ display:'block', lineHeight:1.65 }}>{d.note}</Px>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gotovo — Feed Wireframes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #f0ede6; font-family: 'Caveat', cursive; }
+</style>
+</head>
+<body>
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel">
+
+// ── PALETTE ────────────────────────────────────────────────────────────────
+const INK   = '#1c1917';
+const PAPER = '#faf9f5';
+const WARM  = '#f5f2eb';
+const LINE  = '#ccc8be';
+const DIM   = '#9c9790';
+const AMBER = '#c97d1a';
+const VIOLET= '#6d4fa0';
+const GREEN = '#3a7d55';
+const ROSE  = '#b5404a';
+
+// ── SHARED PRIMITIVES ──────────────────────────────────────────────────────
+
+const T = ({size=14, weight=400, color=INK, dim=false, mono=false, style:s={}, children}) => (
+  <span style={{
+    fontFamily: mono ? "'DM Mono', monospace" : "'Caveat', cursive",
+    fontSize: size, fontWeight: weight,
+    color: dim ? DIM : color,
+    lineHeight: 1.3,
+    ...s
+  }}>{children}</span>
+);
+
+const Pill = ({label, color=VIOLET, size=11, style:s={}}) => (
+  <span style={{
+    display:'inline-flex', alignItems:'center',
+    padding:'1px 7px', borderRadius:99,
+    border:`1.5px solid ${color}`, color,
+    fontFamily:'Caveat', fontSize:size, fontWeight:600,
+    lineHeight:1.4, whiteSpace:'nowrap',
+    ...s
+  }}>{label}</span>
+);
+
+const Chip = ({label, active, dot, color=VIOLET}) => (
+  <span style={{
+    display:'inline-flex', alignItems:'center', gap:4,
+    padding:'3px 10px', borderRadius:99,
+    border:`1.5px solid ${active ? color : LINE}`,
+    background: active ? `${color}18` : PAPER,
+    color: active ? color : DIM,
+    fontFamily:'Caveat', fontSize:12, fontWeight: active ? 700 : 400,
+    whiteSpace:'nowrap', flexShrink:0,
+  }}>
+    {dot && <span style={{width:6,height:6,borderRadius:'50%',background:color,flexShrink:0}}/>}
+    {label}
+  </span>
+);
+
+const Hatch = ({w='100%', h=40, label='', color=LINE}) => (
+  <div style={{
+    width:w, height:h, flexShrink:0,
+    background:`repeating-linear-gradient(45deg,transparent,transparent 4px,${color}40 4px,${color}40 5px)`,
+    border:`1.5px solid ${color}`,
+    borderRadius:3,
+    display:'flex', alignItems:'center', justifyContent:'center',
+  }}>
+    {label && <T size={10} dim style={{background:WARM, padding:'1px 6px', borderRadius:2}}>{label}</T>}
+  </div>
+);
+
+const Divider = ({style:s={}}) => (
+  <div style={{height:1, background:LINE, margin:'6px 0', ...s}}/>
+);
+
+const Row = ({children, gap=6, center=false, style:s={}}) => (
+  <div style={{display:'flex', alignItems:center?'center':'flex-start', gap, ...s}}>{children}</div>
+);
+
+const Stack = ({children, gap=4, style:s={}}) => (
+  <div style={{display:'flex', flexDirection:'column', gap, ...s}}>{children}</div>
+);
+
+// ── PHONE FRAME ────────────────────────────────────────────────────────────
+const Phone = ({children, label, annotation}) => (
+  <div style={{display:'flex', flexDirection:'column', alignItems:'center', gap:12}}>
+    <div style={{
+      width:320, background:PAPER,
+      border:`2px solid ${INK}`,
+      borderRadius:16,
+      overflow:'hidden',
+      boxShadow:`3px 4px 0 ${INK}`,
+      position:'relative',
+    }}>
+      {/* Status bar */}
+      <div style={{
+        height:24, background:INK,
+        display:'flex', alignItems:'center',
+        justifyContent:'space-between',
+        padding:'0 12px',
+      }}>
+        <T size={9} color={PAPER} mono>9:41</T>
+        <T size={9} color={PAPER} mono>▪▪▪ ◈</T>
+      </div>
+      {children}
+    </div>
+    {label && <T size={13} weight={700} color={VIOLET}>{label}</T>}
+    {annotation && (
+      <div style={{
+        maxWidth:280, textAlign:'center',
+        padding:'6px 10px',
+        border:`1.5px dashed ${AMBER}`,
+        borderRadius:6,
+        background:`${AMBER}0f`,
+      }}>
+        <T size={11} color={AMBER}>{annotation}</T>
+      </div>
+    )}
+  </div>
+);
+
+// ── HEADER ─────────────────────────────────────────────────────────────────
+const AppHeader = ({title='Gotovo', right}) => (
+  <div style={{
+    borderBottom:`1.5px solid ${LINE}`,
+    padding:'8px 12px',
+    display:'flex', alignItems:'center',
+    background:WARM,
+  }}>
+    <T size={17} weight={700}>{title}</T>
+    {right && <div style={{marginLeft:'auto'}}>{right}</div>}
+  </div>
+);
+
+const TabBar = ({tabs, active}) => (
+  <div style={{display:'flex', borderBottom:`1.5px solid ${LINE}`, background:WARM}}>
+    {tabs.map(t => (
+      <div key={t} style={{
+        padding:'6px 12px',
+        fontSize:12, fontFamily:'Caveat',
+        color: t===active ? VIOLET : DIM,
+        fontWeight: t===active ? 700 : 400,
+        borderBottom: t===active ? `2.5px solid ${VIOLET}` : '2.5px solid transparent',
+        marginBottom:-1,
+      }}>{t}</div>
+    ))}
+  </div>
+);
+
+const ChipRow = ({chips, activeIndex=0, colors}) => (
+  <div style={{
+    display:'flex', gap:5, overflowX:'hidden',
+    padding:'8px 12px 6px',
+  }}>
+    {chips.map((c,i) => <Chip key={c} label={c} active={i===activeIndex} dot={i>0} color={colors?.[i]||VIOLET}/>)}
+  </div>
+);
+
+// ── CARD COMPONENTS ────────────────────────────────────────────────────────
+
+const DateHeader = ({label, count}) => (
+  <div style={{
+    padding:'8px 12px 5px',
+    borderBottom:`1px solid ${LINE}`,
+    display:'flex', alignItems:'baseline', gap:8,
+  }}>
+    <T size={15} weight={700}>{label}</T>
+    <T size={10} dim style={{marginLeft:'auto'}}>{count}</T>
+  </div>
+);
+
+// Direction A — Editorial Card
+const CardA = ({title, cat, catColor=VIOLET, time, price, location, isNew, dim=false, multiday}) => (
+  <div style={{
+    margin:'6px 12px 0',
+    padding:'10px 10px 8px',
+    border:`1.5px solid ${dim ? LINE : (isNew ? VIOLET : LINE)}`,
+    borderRadius:6,
+    background: dim ? WARM : PAPER,
+    borderLeft: isNew ? `3.5px solid ${VIOLET}` : undefined,
+    opacity: dim ? 0.7 : 1,
+  }}>
+    <Row gap={5} center style={{marginBottom:4}}>
+      <Pill label={cat} color={catColor} size={10}/>
+      {isNew && <Pill label="✦ New" color={VIOLET} size={10}/>}
+      {multiday && <Pill label="3-day" color={AMBER} size={10}/>}
+      <div style={{marginLeft:'auto'}}>
+        {time ? <T size={12} weight={700} color={AMBER} mono>{time}</T>
+               : <T size={10} dim>all day</T>}
+      </div>
+    </Row>
+    <T size={15} weight={700} style={{display:'block', lineHeight:1.2, marginBottom:3}}>{title}</T>
+    <Row gap={4} center style={{marginTop:2}}>
+      <T size={10} dim>{location}</T>
+      <div style={{marginLeft:'auto'}}>
+        <Pill label={price} color={price==='Free' ? GREEN : DIM} size={10}/>
+      </div>
+    </Row>
+  </div>
+);
+
+// Direction B — Hero Card
+const HeroCard = ({title, cat, catColor=VIOLET, time, price, location, tags}) => (
+  <div style={{
+    margin:'8px 12px 0',
+    padding:'14px 14px 12px',
+    border:`2px solid ${INK}`,
+    borderRadius:8,
+    background:WARM,
+    boxShadow:`2px 3px 0 ${INK}`,
+  }}>
+    <Row gap={5} center style={{marginBottom:8}}>
+      <Pill label={cat} color={catColor} size={10}/>
+      <T size={10} weight={700} color={AMBER} mono style={{marginLeft:'auto'}}>{time}</T>
+    </Row>
+    <T size={18} weight={700} style={{display:'block', lineHeight:1.15, marginBottom:6}}>{title}</T>
+    <Divider/>
+    <Row center gap={8} style={{marginTop:4}}>
+      <T size={10} dim>{location}</T>
+      <Pill label={price} color={price==='Free' ? GREEN : DIM} size={10} style={{marginLeft:'auto'}}/>
+    </Row>
+    {tags && <T size={10} dim style={{display:'block', marginTop:4}}>{tags}</T>}
+  </div>
+);
+
+const CardMini = ({title, cat, catColor=VIOLET, time, price}) => (
+  <div style={{
+    margin:'5px 12px 0',
+    padding:'7px 10px',
+    border:`1.5px solid ${LINE}`,
+    borderRadius:5,
+    background:PAPER,
+    display:'flex', alignItems:'center', gap:8,
+  }}>
+    <Pill label={cat} color={catColor} size={9}/>
+    <T size={12} weight={600} style={{flex:1, minWidth:0, overflow:'hidden', whiteSpace:'nowrap', textOverflow:'ellipsis'}}>{title}</T>
+    {time && <T size={11} weight={600} color={AMBER} mono>{time}</T>}
+    <Pill label={price} color={price==='Free'?GREEN:DIM} size={9}/>
+  </div>
+);
+
+// Direction C — Week strip
+const WeekStrip = ({days}) => (
+  <div style={{
+    display:'flex', gap:0,
+    borderBottom:`1.5px solid ${LINE}`,
+    background:WARM,
+  }}>
+    {days.map(d => (
+      <div key={d.label} style={{
+        flex:1, padding:'5px 0 6px',
+        display:'flex', flexDirection:'column', alignItems:'center', gap:3,
+        background: d.active ? `${VIOLET}18` : 'transparent',
+        borderBottom: d.active ? `2.5px solid ${VIOLET}` : '2.5px solid transparent',
+        marginBottom:-1,
+      }}>
+        <T size={9} color={d.active ? VIOLET : DIM} weight={d.active?700:400}>{d.label}</T>
+        {d.count > 0
+          ? <div style={{width:16,height:16,borderRadius:'50%',background:d.active?VIOLET:LINE, display:'flex',alignItems:'center',justifyContent:'center'}}>
+              <T size={9} color={d.active?PAPER:INK} weight={700}>{d.count}</T>
+            </div>
+          : <div style={{width:16,height:4,borderRadius:2,background:`${LINE}60`}}/>
+        }
+      </div>
+    ))}
+  </div>
+);
+
+const AgendaBlock = ({day, events, quiet=false}) => (
+  <div style={{margin:'8px 12px 0'}}>
+    <T size={11} weight={700} color={quiet?DIM:INK} style={{display:'block', marginBottom:4}}>{day}</T>
+    {quiet
+      ? <div style={{padding:'6px 8px', borderRadius:4, background:WARM, border:`1px dashed ${LINE}`}}>
+          <T size={10} dim>— quiet</T>
+        </div>
+      : events.map((e,i) => (
+          <div key={i} style={{
+            display:'flex', alignItems:'center', gap:6,
+            padding:'5px 8px', marginBottom:3,
+            border:`1.5px solid ${LINE}`, borderRadius:4,
+            background:PAPER,
+          }}>
+            <Pill label={e.cat} color={e.catColor||VIOLET} size={9}/>
+            <T size={12} weight={600} style={{flex:1}}>{e.title}</T>
+            <T size={10} color={AMBER} mono weight={600}>{e.time}</T>
+          </div>
+        ))
+    }
+  </div>
+);
+
+// Direction D — Ticker row
+const TickerRow = ({title, cat, catColor=VIOLET, time, price, location, muted=false}) => (
+  <div style={{
+    display:'flex', alignItems:'center', gap:6,
+    padding:'6px 12px',
+    borderBottom:`1px solid ${LINE}`,
+    background: muted ? `${WARM}` : PAPER,
+    opacity: muted ? 0.5 : 1,
+  }}>
+    <div style={{width:3, alignSelf:'stretch', background:catColor, borderRadius:2, flexShrink:0}}/>
+    <T size={10} color={AMBER} mono weight={500} style={{width:32, flexShrink:0}}>{time||'—'}</T>
+    <T size={12} weight={muted?400:600} style={{flex:1, minWidth:0}}>{title}</T>
+    <Pill label={price} color={price==='Free'?GREEN:DIM} size={9}/>
+  </div>
+);
+
+const TickerDayLabel = ({label}) => (
+  <div style={{
+    padding:'4px 12px 3px',
+    background:WARM,
+    borderBottom:`1px solid ${LINE}`,
+    borderTop:`1px solid ${LINE}`,
+    marginTop:2,
+  }}>
+    <T size={10} weight={700} color={VIOLET}>{label}</T>
+  </div>
+);
+
+// ── ANNOTATION ARROW ───────────────────────────────────────────────────────
+const Note = ({children, color=AMBER}) => (
+  <div style={{
+    display:'inline-flex', alignItems:'flex-start', gap:4,
+    padding:'4px 8px',
+    border:`1.5px dashed ${color}`,
+    borderRadius:4,
+    background:`${color}0d`,
+    maxWidth:200,
+  }}>
+    <T size={11} color={color}>↗ {children}</T>
+  </div>
+);
+
+// ── DIRECTION A: Editorial List ────────────────────────────────────────────
+const DirA_Normal = () => (
+  <Phone>
+    <AppHeader right={<T size={11} color={DIM}>☀ ○</T>}/>
+    <TabBar tabs={['Timeline','Recently Added']} active="Timeline"/>
+    <ChipRow chips={['All','Music','Adventure','Food','Education']} colors={[DIM,VIOLET,GREEN,AMBER,ROSE]} activeIndex={0}/>
+    <DateHeader label="Today, Mon 28" count="2 events"/>
+    <CardA title="Sunrise Via Ferrata" cat="Adventure" catColor={GREEN} time="06:30" price="Free" location="Fruška Gora" isNew/>
+    <CardA title="Experimental Noise Night" cat="Music" catColor={VIOLET} time="22:00" price="500 RSD" location="Fabrika, Liman"/>
+    <DateHeader label="Tuesday 29" count="2 events"/>
+    <CardA title="Natural Wine Pop-Up" cat="Food" catColor={AMBER} time="17:00" price="1200 RSD" location="Dunavski Kej"/>
+    <CardA title="Kids Ceramics Class" cat="Education" catColor={ROSE} time="10:00" price="800 RSD" location="Studio Glina"/>
+    <div style={{height:12}}/>
+  </Phone>
+);
+
+const DirA_Sparse = () => (
+  <Phone>
+    <AppHeader right={<T size={11} color={DIM}>☀ ○</T>}/>
+    <TabBar tabs={['Timeline','Recently Added']} active="Timeline"/>
+    <ChipRow chips={['All','Music','Adventure','Food','Education']} colors={[DIM,VIOLET,GREEN,AMBER,ROSE]} activeIndex={0}/>
+    <DateHeader label="Today, Mon 28" count="1 event"/>
+    <CardA title="Experimental Noise Night" cat="Music" catColor={VIOLET} time="22:00" price="500 RSD" location="Fabrika" isNew/>
+    {/* Editorial empty state */}
+    <div style={{
+      margin:'10px 12px 0',
+      padding:'14px',
+      border:`1.5px dashed ${LINE}`,
+      borderRadius:8,
+      background:WARM,
+      textAlign:'center',
+    }}>
+      <T size={22} style={{display:'block', marginBottom:4}}>🌙</T>
+      <T size={14} weight={700} style={{display:'block', marginBottom:3}}>The city is quiet today</T>
+      <T size={11} dim style={{display:'block', lineHeight:1.5}}>Next big thing: Jazz Weekend<br/>starts Wed, 3 days away</T>
+      <div style={{
+        marginTop:10, padding:'7px 12px',
+        border:`1.5px solid ${VIOLET}`,
+        borderRadius:5, background:`${VIOLET}0d`,
+        display:'inline-block',
+      }}>
+        <T size={11} color={VIOLET} weight={600}>Petrovaradin Jazz Weekend →</T>
+      </div>
+    </div>
+    <div style={{
+      margin:'8px 12px 0',
+      padding:'8px 10px',
+      border:`1px solid ${LINE}`,
+      borderRadius:5,
+      display:'flex', alignItems:'center', gap:6,
+    }}>
+      <T size={10} dim style={{flex:1}}>Notify me when new events drop</T>
+      <Pill label="Watch" color={VIOLET} size={10}/>
+    </div>
+    <div style={{height:12}}/>
+  </Phone>
+);
+
+// ── DIRECTION B: Hero + Stream ─────────────────────────────────────────────
+const DirB_Normal = () => (
+  <Phone>
+    <AppHeader right={<Row gap={4}><T size={11} color={DIM}>○ ≡</T></Row>}/>
+    <div style={{
+      padding:'4px 12px 4px',
+      display:'flex', alignItems:'center', gap:6,
+      borderBottom:`1px solid ${LINE}`,
+      background:WARM,
+    }}>
+      <T size={10} dim>Now</T>
+      <div style={{flex:1, height:1, background:LINE}}/>
+      <T size={10} dim>This week</T>
+    </div>
+    <HeroCard
+      title="Petrovaradin Jazz Weekend"
+      cat="Music" catColor={VIOLET}
+      time="18:00"
+      price="1500 RSD"
+      location="Petrovaradin Fortress"
+      tags="#Jazz  #Festival  #Outdoor"
+    />
+    <div style={{
+      padding:'8px 12px 3px',
+      display:'flex', alignItems:'center', gap:6,
+    }}>
+      <T size={10} weight={700}>Also coming up</T>
+      <div style={{flex:1, height:1, background:LINE}}/>
+    </div>
+    <CardMini title="Natural Wine Pop-Up" cat="Food" catColor={AMBER} time="17:00" price="1200 RSD"/>
+    <CardMini title="Kids Ceramics Class" cat="Education" catColor={ROSE} time="10:00" price="Free"/>
+    <CardMini title="Foraging Walk" cat="Adventure" catColor={GREEN} time="09:00" price="Free"/>
+    <div style={{height:12}}/>
+  </Phone>
+);
+
+const DirB_Sparse = () => (
+  <Phone>
+    <AppHeader right={<Row gap={4}><T size={11} color={DIM}>○ ≡</T></Row>}/>
+    <div style={{
+      padding:'4px 12px 4px',
+      display:'flex', alignItems:'center', gap:6,
+      borderBottom:`1px solid ${LINE}`,
+      background:WARM,
+    }}>
+      <T size={10} dim>Today</T>
+      <div style={{flex:1, height:1, background:LINE}}/>
+      <T size={10} dim>This week</T>
+    </div>
+    {/* Hero expands when little else */}
+    <div style={{
+      margin:'8px 12px 0',
+      padding:'18px 14px 16px',
+      border:`2px solid ${INK}`,
+      borderRadius:8,
+      background:WARM,
+      boxShadow:`2px 3px 0 ${INK}`,
+    }}>
+      <Row gap={5} center style={{marginBottom:8}}>
+        <Pill label="Music" color={VIOLET} size={10}/>
+        <Pill label="✦ New" color={VIOLET} size={10}/>
+        <T size={10} weight={700} color={AMBER} mono style={{marginLeft:'auto'}}>22:00</T>
+      </Row>
+      <T size={19} weight={700} style={{display:'block', lineHeight:1.15, marginBottom:8}}>Experimental Noise Night</T>
+      <Divider/>
+      <T size={11} dim style={{display:'block', marginTop:6}}>Fabrika, Liman · 500 RSD</T>
+      <T size={10} dim style={{display:'block', marginTop:4}}>#Electronic  #Live  #Experimental</T>
+      <div style={{
+        marginTop:12, display:'flex', gap:8,
+      }}>
+        <div style={{flex:1, padding:'7px', border:`1.5px solid ${LINE}`, borderRadius:5, textAlign:'center'}}>
+          <T size={11} weight={600}>Directions</T>
+        </div>
+        <div style={{flex:1, padding:'7px', border:`1.5px solid ${VIOLET}`, background:`${VIOLET}14`, borderRadius:5, textAlign:'center'}}>
+          <T size={11} weight={600} color={VIOLET}>Save</T>
+        </div>
+      </div>
+    </div>
+    <div style={{
+      margin:'8px 12px 0',
+      padding:'10px',
+      borderRadius:5,
+      border:`1px dashed ${LINE}`,
+      background:WARM,
+    }}>
+      <T size={11} weight={700} style={{display:'block', marginBottom:4}}>Coming later this week</T>
+      <CardMini title="Petrovaradin Jazz Weekend" cat="Music" catColor={VIOLET} time="Wed 18:00" price="1500 RSD"/>
+    </div>
+    <div style={{height:8}}/>
+  </Phone>
+);
+
+// ── DIRECTION C: Week Agenda ───────────────────────────────────────────────
+const WEEK_DAYS = [
+  {label:'M',count:2,active:true},
+  {label:'T',count:2,active:false},
+  {label:'W',count:1,active:false},
+  {label:'T',count:0,active:false},
+  {label:'F',count:3,active:false},
+  {label:'S',count:0,active:false},
+  {label:'S',count:1,active:false},
+];
+
+const DirC_Normal = () => (
+  <Phone>
+    <AppHeader title="Gotovo — Apr 28" right={<T size={11} color={DIM}>○</T>}/>
+    <WeekStrip days={WEEK_DAYS}/>
+    <ChipRow chips={['All','Music','Food','Adventure']} colors={[DIM,VIOLET,AMBER,GREEN]} activeIndex={0}/>
+    <div style={{overflowY:'hidden', maxHeight:480}}>
+      <AgendaBlock day="Monday 28" events={[
+        {title:'Via Ferrata', cat:'Adventure', catColor:GREEN, time:'06:30'},
+        {title:'Noise Night', cat:'Music', catColor:VIOLET, time:'22:00'},
+      ]}/>
+      <AgendaBlock day="Tuesday 29" events={[
+        {title:'Natural Wine Pop-Up', cat:'Food', catColor:AMBER, time:'17:00'},
+        {title:'Kids Ceramics', cat:'Education', catColor:ROSE, time:'10:00'},
+      ]}/>
+      <AgendaBlock day="Wednesday 30" events={[
+        {title:'Jazz Weekend starts', cat:'Music', catColor:VIOLET, time:'18:00'},
+      ]}/>
+      <AgendaBlock day="Thursday 1" events={[]} quiet/>
+    </div>
+    <div style={{height:8}}/>
+  </Phone>
+);
+
+const DirC_Sparse = () => (
+  <Phone>
+    <AppHeader title="Gotovo — Apr 28" right={<T size={11} color={DIM}>○</T>}/>
+    <WeekStrip days={[
+      {label:'M',count:1,active:true},
+      {label:'T',count:0,active:false},
+      {label:'W',count:1,active:false},
+      {label:'T',count:0,active:false},
+      {label:'F',count:0,active:false},
+      {label:'S',count:0,active:false},
+      {label:'S',count:0,active:false},
+    ]}/>
+    <ChipRow chips={['All','Music','Food','Adventure']} colors={[DIM,VIOLET,AMBER,GREEN]} activeIndex={0}/>
+    <AgendaBlock day="Monday 28" events={[
+      {title:'Experimental Noise Night', cat:'Music', catColor:VIOLET, time:'22:00'},
+    ]}/>
+    <AgendaBlock day="Tuesday 29" events={[]} quiet/>
+    <AgendaBlock day="Wednesday 30" events={[
+      {title:'Jazz Weekend (3-day)', cat:'Music', catColor:VIOLET, time:'18:00'},
+    ]}/>
+    <AgendaBlock day="Thursday 1" events={[]} quiet/>
+    <AgendaBlock day="Friday 2" events={[]} quiet/>
+    <div style={{
+      margin:'10px 12px 0',
+      padding:'8px 10px',
+      borderRadius:5, border:`1px dashed ${LINE}`, background:WARM,
+      textAlign:'center',
+    }}>
+      <T size={10} dim>Sparse week — check back or browse past events</T>
+    </div>
+    <div style={{height:12}}/>
+  </Phone>
+);
+
+// ── DIRECTION D: Dense Ticker ──────────────────────────────────────────────
+const DirD_Normal = () => (
+  <Phone>
+    <AppHeader right={
+      <Row gap={6}>
+        <Pill label="compact" color={VIOLET} size={9}/>
+        <T size={11} color={DIM}>○</T>
+      </Row>
+    }/>
+    <TabBar tabs={['Timeline','Recent']} active="Timeline"/>
+    <div style={{
+      padding:'4px 12px',
+      display:'flex', gap:5, overflowX:'hidden',
+      borderBottom:`1px solid ${LINE}`,
+    }}>
+      <Chip label="All" active color={VIOLET}/>
+      <Chip label="Music" dot color={VIOLET}/>
+      <Chip label="Food" dot color={AMBER}/>
+    </div>
+    <TickerDayLabel label="TODAY — Monday 28 Apr"/>
+    <TickerRow title="Sunrise Via Ferrata" cat="Adv" catColor={GREEN} time="06:30" price="Free"/>
+    <TickerRow title="Experimental Noise Night" cat="Music" catColor={VIOLET} time="22:00" price="500 RSD"/>
+    <TickerDayLabel label="TUESDAY — 29 Apr"/>
+    <TickerRow title="Natural Wine Pop-Up" cat="Food" catColor={AMBER} time="17:00" price="1200 RSD"/>
+    <TickerRow title="Kids Ceramics Masterclass" cat="Edu" catColor={ROSE} time="10:00" price="800 RSD"/>
+    <TickerDayLabel label="WEDNESDAY — 30 Apr"/>
+    <TickerRow title="Foraging Walk — Vojvodina" cat="Adv" catColor={GREEN} time="09:00" price="Free"/>
+    <TickerRow title="Ambient Dusk Set" cat="Music" catColor={VIOLET} time="19:30" price="300 RSD"/>
+    <TickerRow title="Petrovaradin Jazz Weekend ↗" cat="Music" catColor={VIOLET} time="18:00" price="1500 RSD"/>
+    <div style={{height:8}}/>
+  </Phone>
+);
+
+const DirD_Sparse = () => (
+  <Phone>
+    <AppHeader right={
+      <Row gap={6}>
+        <Pill label="compact" color={VIOLET} size={9}/>
+        <T size={11} color={DIM}>○</T>
+      </Row>
+    }/>
+    <TabBar tabs={['Timeline','Recent']} active="Timeline"/>
+    <div style={{
+      padding:'4px 12px',
+      display:'flex', gap:5, overflowX:'hidden',
+      borderBottom:`1px solid ${LINE}`,
+    }}>
+      <Chip label="All" active color={VIOLET}/>
+      <Chip label="Music" dot color={VIOLET}/>
+    </div>
+    {/* Past events muted */}
+    <div style={{padding:'4px 12px 2px'}}>
+      <T size={9} color={DIM}>↑ recent past (context)</T>
+    </div>
+    <TickerRow title="Night Swim Social" cat="Social" catColor={DIM} time="20:00" price="Free" muted/>
+    <TickerRow title="Folk Music Session" cat="Music" catColor={DIM} time="18:00" price="Free" muted/>
+    <div style={{
+      height:1, background:`${AMBER}60`, margin:'4px 0',
+      position:'relative',
+    }}>
+      <div style={{position:'absolute', left:12, top:-8}}>
+        <T size={9} color={AMBER} mono>NOW</T>
+      </div>
+    </div>
+    <TickerDayLabel label="TODAY — Monday 28 Apr"/>
+    <TickerRow title="Experimental Noise Night" cat="Music" catColor={VIOLET} time="22:00" price="500 RSD"/>
+    <TickerDayLabel label="WEDNESDAY — 30 Apr"/>
+    <TickerRow title="Jazz Weekend (3-day)" cat="Music" catColor={VIOLET} time="18:00" price="1500 RSD"/>
+    <div style={{
+      padding:'10px 12px',
+      textAlign:'center',
+    }}>
+      <T size={10} dim>— end of known events —</T>
+    </div>
+  </Phone>
+);
+
+// ── MAIN APP ───────────────────────────────────────────────────────────────
+const WireframeLabel = ({letter, name, desc}) => (
+  <div style={{
+    maxWidth:660,
+    marginBottom:8,
+    padding:'10px 14px',
+    border:`2px solid ${INK}`,
+    borderRadius:8,
+    background:PAPER,
+    boxShadow:`2px 2px 0 ${INK}`,
+  }}>
+    <Row gap={10} center>
+      <div style={{
+        width:32, height:32, borderRadius:'50%',
+        background:INK, color:PAPER,
+        display:'flex', alignItems:'center', justifyContent:'center',
+        fontFamily:'Caveat', fontSize:16, fontWeight:700,
+        flexShrink:0,
+      }}>{letter}</div>
+      <Stack gap={1}>
+        <T size={16} weight={700}>{name}</T>
+        <T size={11} dim>{desc}</T>
+      </Stack>
+    </Row>
+  </div>
+);
+
+function App() {
+  return (
+    <DCCanvas title="Gotovo — Feed Wireframes" background="#f0ede6">
+
+      <DCSection id="dir-a" title="A — Editorial List">
+        <DCArtboard id="a1" label="Normal feed" width={320} height={590}>
+          <DirA_Normal/>
+        </DCArtboard>
+        <DCArtboard id="a2" label="Sparse (0–1 events)" width={320} height={590}>
+          <DirA_Sparse/>
+        </DCArtboard>
+        <DCArtboard id="a-notes" label="Direction notes" width={280} height={590}>
+          <div style={{padding:16, display:'flex', flexDirection:'column', gap:10}}>
+            <T size={15} weight={700} style={{display:'block', marginBottom:4}}>A — Editorial List</T>
+            <T size={12} style={{display:'block', lineHeight:1.6}}>Iteration of the current direction. Cards have a clearer 3-zone hierarchy: category+time at top, big title in middle, location+price at bottom.</T>
+            <Divider/>
+            <T size={12} weight={700}>Sparse state strategy:</T>
+            <T size={12} style={{display:'block', lineHeight:1.6}}>When there are {'<'}3 events, show an editorial "city is quiet" message + tease the next upcoming event as a CTA card. Add a "watch" notif trigger to make empty feel useful.</T>
+            <Divider/>
+            <T size={12} weight={700}>Good for:</T>
+            <T size={12} style={{display:'block', lineHeight:1.6}}>· Browsing / discovery<br/>· Nullable fields (gracefully degrade)<br/>· Low friction — no extra UI to learn</T>
+            <Divider/>
+            <T size={12} weight={700}>Risks:</T>
+            <T size={12} style={{display:'block', lineHeight:1.6}}>· Looks empty on low-inventory days<br/>· No sense of "how many events this week"</T>
+          </div>
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection id="dir-b" title="B — Hero + Stream">
+        <DCArtboard id="b1" label="Normal feed" width={320} height={590}>
+          <DirB_Normal/>
+        </DCArtboard>
+        <DCArtboard id="b2" label="Sparse (1 event)" width={320} height={590}>
+          <DirB_Sparse/>
+        </DCArtboard>
+        <DCArtboard id="b-notes" label="Direction notes" width={280} height={590}>
+          <div style={{padding:16, display:'flex', flexDirection:'column', gap:10}}>
+            <T size={15} weight={700} style={{display:'block', marginBottom:4}}>B — Hero + Stream</T>
+            <T size={12} style={{display:'block', lineHeight:1.6}}>One event gets the spotlight as a big hero card — the most imminent or highest-sourceCount event. The rest stack as compact mini-rows below.</T>
+            <Divider/>
+            <T size={12} weight={700}>Sparse state strategy:</T>
+            <T size={12} style={{display:'block', lineHeight:1.6}}>When there's only 1 event, the hero expands to fill the screen with full detail + inline CTAs (directions, save). Upcoming events from the rest of the week appear below in a preview band.</T>
+            <Divider/>
+            <T size={12} weight={700}>Good for:</T>
+            <T size={12} style={{display:'block', lineHeight:1.6}}>· Always feels "full" — hero adapts<br/>· Strong single-event focus on sparse days<br/>· sourceCount can drive hero ranking</T>
+            <Divider/>
+            <T size={12} weight={700}>Risks:</T>
+            <T size={12} style={{display:'block', lineHeight:1.6}}>· Hero selection algorithm needed<br/>· Mini-rows lose context (no date group)<br/>· Less scannable across days</T>
+          </div>
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection id="dir-c" title="C — Week Agenda">
+        <DCArtboard id="c1" label="Normal feed" width={320} height={590}>
+          <DirC_Normal/>
+        </DCArtboard>
+        <DCArtboard id="c2" label="Sparse week" width={320} height={590}>
+          <DirC_Sparse/>
+        </DCArtboard>
+        <DCArtboard id="c-notes" label="Direction notes" width={280} height={590}>
+          <div style={{padding:16, display:'flex', flexDirection:'column', gap:10}}>
+            <T size={15} weight={700} style={{display:'block', marginBottom:4}}>C — Week Agenda</T>
+            <T size={12} style={{display:'block', lineHeight:1.6}}>A week-strip at the top shows Mon–Sun with event-count dots. Tapping a day jumps to that day's events. Empty days show explicitly — "quiet" becomes a feature, not a bug.</T>
+            <Divider/>
+            <T size={12} weight={700}>Sparse state strategy:</T>
+            <T size={12} style={{display:'block', lineHeight:1.6}}>A sparse week is self-evident from the strip — users can see at a glance which days have events. "Quiet" labels replace empty date groups, making low-inventory feel intentional.</T>
+            <Divider/>
+            <T size={12} weight={700}>Good for:</T>
+            <T size={12} style={{display:'block', lineHeight:1.6}}>· Planning ahead (multi-day events)<br/>· Sparse inventory looks intentional<br/>· Context: "quiet week" vs "busy weekend"</T>
+            <Divider/>
+            <T size={12} weight={700}>Risks:</T>
+            <T size={12} style={{display:'block', lineHeight:1.6}}>· More chrome = less content above fold<br/>· Week strip may confuse casual users<br/>· Harder with scraped / uncertain dates</T>
+          </div>
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection id="dir-d" title="D — Dense Ticker">
+        <DCArtboard id="d1" label="Normal feed" width={320} height={590}>
+          <DirD_Normal/>
+        </DCArtboard>
+        <DCArtboard id="d2" label="Sparse (2 events)" width={320} height={590}>
+          <DirD_Sparse/>
+        </DCArtboard>
+        <DCArtboard id="d-notes" label="Direction notes" width={280} height={590}>
+          <div style={{padding:16, display:'flex', flexDirection:'column', gap:10}}>
+            <T size={15} weight={700} style={{display:'block', marginBottom:4}}>D — Dense Ticker</T>
+            <T size={12} style={{display:'block', lineHeight:1.6}}>Timetable-style list. Every event is one compact row: colored category stripe, time, title, price pill. Maximum density — 10+ events fit above the fold.</T>
+            <Divider/>
+            <T size={12} weight={700}>Sparse state strategy:</T>
+            <T size={12} style={{display:'block', lineHeight:1.6}}>Surfacing recent past events in a muted state above the "NOW" line gives the list body even on dead days. Scrolling up = memory; scrolling down = future.</T>
+            <Divider/>
+            <T size={12} weight={700}>Good for:</T>
+            <T size={12} style={{display:'block', lineHeight:1.6}}>· Power users, repeat visitors<br/>· Handles 0–50 events gracefully<br/>· Time-oriented (great for "what's on now")<br/>· Past events add useful body mass</T>
+            <Divider/>
+            <T size={12} weight={700}>Risks:</T>
+            <T size={12} style={{display:'block', lineHeight:1.6}}>· Title truncation at small sizes<br/>· Less visually exciting / browsable<br/>· Location/tags need detail view to surface</T>
+          </div>
+        </DCArtboard>
+      </DCSection>
+
+    </DCCanvas>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+<div id="root"></div>
+</body>
+</html>

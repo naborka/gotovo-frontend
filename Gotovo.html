@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gotovo — Event Discovery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <style>
+    /* ─── RESET & BASE ────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+    /* ─── DESIGN TOKENS: LIGHT ────────────────────────────────── */
+    :root {
+      --background:        #f4f2ff;
+      --foreground:        #1a1730;
+      --card:              #ffffff;
+      --surface-2:         #faf9ff;
+      --offset:            #ede9fe;
+      --dynamic:           #ddd6fe;
+      --divider:           #cdc8e8;
+      --border:            #bdb8d8;
+      --muted-fg:          #6b6888;
+      --faint:             #a09cbc;
+
+      --primary:           #6d28d9;
+      --primary-fg:        #ffffff;
+      --primary-hi:        rgba(109,40,217,0.08);
+      --primary-bd:        rgba(109,40,217,0.22);
+
+      --amber:             #b45309;
+      --amber-hi:          rgba(180,83,9,0.08);
+      --amber-bd:          rgba(180,83,9,0.20);
+
+      --teal:              #0d9488;
+      --teal-hi:           rgba(13,148,136,0.09);
+      --teal-bd:           rgba(13,148,136,0.22);
+
+      --green:             #22863a;
+      --green-hi:          rgba(34,134,58,0.09);
+      --green-bd:          rgba(34,134,58,0.22);
+
+      --rose:              #be123c;
+      --rose-hi:           rgba(190,18,60,0.09);
+      --rose-bd:           rgba(190,18,60,0.22);
+
+      --blue:              #1d4ed8;
+      --blue-hi:           rgba(29,78,216,0.09);
+      --blue-bd:           rgba(29,78,216,0.22);
+
+      --new-badge:         #4338ca;
+      --new-hi:            rgba(67,56,202,0.09);
+      --new-bd:            rgba(67,56,202,0.22);
+
+      --radius:            8px;
+      --radius-xl:         12px;
+      --radius-pill:       999px;
+
+      --font-sans:         'DM Sans', system-ui, sans-serif;
+      --font-mono:         'DM Mono', ui-monospace, monospace;
+      --font-heading:      'Syne', system-ui, sans-serif;
+
+      --shadow-card:       0 1px 3px rgba(26,23,48,0.06), 0 1px 2px rgba(26,23,48,0.04);
+      --shadow-lift:       0 4px 16px rgba(26,23,48,0.12), 0 1px 4px rgba(26,23,48,0.06);
+      --shadow-panel:      -8px 0 40px rgba(26,23,48,0.14);
+    }
+
+    /* ─── DESIGN TOKENS: DARK ─────────────────────────────────── */
+    .dark {
+      --background:        #0d0c12;
+      --foreground:        #eae8f4;
+      --card:              #131220;
+      --surface-2:         #19172a;
+      --offset:            #201e30;
+      --dynamic:           #28263a;
+      --divider:           #2e2b42;
+      --border:            #383550;
+      --muted-fg:          #8a87a8;
+      --faint:             #4a4762;
+
+      --primary:           #9d7ff4;
+      --primary-fg:        #ffffff;
+      --primary-hi:        rgba(157,127,244,0.13);
+      --primary-bd:        rgba(157,127,244,0.28);
+
+      --amber:             #f5a623;
+      --amber-hi:          rgba(245,166,35,0.12);
+      --amber-bd:          rgba(245,166,35,0.25);
+
+      --teal:              #2ec4b6;
+      --teal-hi:           rgba(46,196,182,0.11);
+      --teal-bd:           rgba(46,196,182,0.25);
+
+      --green:             #4caf7d;
+      --green-hi:          rgba(76,175,125,0.11);
+      --green-bd:          rgba(76,175,125,0.25);
+
+      --rose:              #e8607a;
+      --rose-hi:           rgba(232,96,122,0.11);
+      --rose-bd:           rgba(232,96,122,0.22);
+
+      --blue:              #5b9cf6;
+      --blue-hi:           rgba(91,156,246,0.11);
+      --blue-bd:           rgba(91,156,246,0.22);
+
+      --new-badge:         #818cf8;
+      --new-hi:            rgba(129,140,248,0.13);
+      --new-bd:            rgba(129,140,248,0.28);
+
+      --shadow-card:       0 1px 3px rgba(0,0,0,0.24), 0 1px 2px rgba(0,0,0,0.16);
+      --shadow-lift:       0 4px 16px rgba(0,0,0,0.36), 0 1px 4px rgba(0,0,0,0.20);
+      --shadow-panel:      -8px 0 40px rgba(0,0,0,0.40);
+    }
+
+    /* ─── GLOBAL LAYOUT ───────────────────────────────────────── */
+    body {
+      font-family: var(--font-sans);
+      background: var(--background);
+      color: var(--foreground);
+      height: 100dvh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #root {
+      display: flex;
+      flex-direction: column;
+      height: 100dvh;
+      overflow: hidden;
+    }
+
+    /* ─── SCROLLBAR UTILITIES ─────────────────────────────────── */
+    .scrollbar-hidden {
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .scrollbar-hidden::-webkit-scrollbar { display: none; }
+
+    /* ─── ANIMATIONS ──────────────────────────────────────────── */
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.35; }
+    }
+    .animate-pulse-dot { animation: pulse-dot 2.5s ease-in-out infinite; }
+
+    @keyframes slide-in-right {
+      from { transform: translateX(100%); }
+      to   { transform: translateX(0); }
+    }
+    @keyframes slide-out-right {
+      from { transform: translateX(0); }
+      to   { transform: translateX(100%); }
+    }
+    @keyframes fade-in {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes fade-out {
+      from { opacity: 1; }
+      to   { opacity: 0; }
+    }
+    @keyframes card-in {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .panel-enter  { animation: slide-in-right 0.28s cubic-bezier(0.22,1,0.36,1) forwards; }
+    .panel-exit   { animation: slide-out-right 0.22s ease-in forwards; }
+    .backdrop-enter { animation: fade-in 0.28s ease forwards; }
+    .backdrop-exit  { animation: fade-out 0.22s ease forwards; }
+
+    /* ─── FOCUS RING ──────────────────────────────────────────── */
+    :focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+    }
+  </style>
+</head>
+<body class="dark">
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useCallback, useMemo, useEffect, useRef } = React;
+
+/* ══════════════════════════════════════════════════════════════
+   DATA LAYER
+══════════════════════════════════════════════════════════════ */
+
+const BASE_DATE = new Date('2026-04-29T10:00:00');
+const mkDate = (offsetDays, h = 0, m = 0) => {
+  const d = new Date(BASE_DATE);
+  d.setDate(d.getDate() + offsetDays);
+  d.setHours(h, m, 0, 0);
+  return d;
+};
+
+const EVENTS = [
+  { uid:'1', sourceUrl:'https://www.fruskagora.rs/events', title:'Sunrise Via Ferrata', description:'A guided climb up the rocky ridge of Fruška Gora starting at dawn. All gear provided. Moderate fitness required — no prior climbing experience needed. Groups capped at 12.', startDate:mkDate(0), startTime:'06:30', cat:'Adventure', loc:'Fruška Gora National Park', city:'Novi Sad', price:'Free', tags:['Via Ferrata','Nature','Guided','Morning'], createdAt:mkDate(-1,14,20), sourceCount:3 },
+  { uid:'2', sourceUrl:'https://www.facebook.com/events/fabrika-novi-sad', title:'Experimental Noise Night', description:'Three local projects performing uncompromising electronic and noise sets. Expect feedback loops, tape manipulation, and field recordings pressed into uncomfortable shapes. Bar open from 21:00.', startDate:mkDate(0), startTime:'22:00', cat:'Music', loc:'Fabrika, Liman', city:'Novi Sad', price:'500 RSD', tags:['Electronic','Live','Experimental','Late Night'], createdAt:mkDate(0,8,5), sourceCount:2 },
+  { uid:'3', sourceUrl:'https://t.me/naturalwinesns', title:'Natural Wine Pop-Up', description:"A curated selection of low-intervention wines from small Serbian and regional producers. The exact address is shared 24 hours before via the organiser's Telegram channel.", startDate:mkDate(1), startTime:'17:00', endTime:'21:00', cat:'Food & Drink', loc:'Dunavski Kej — confirm via Telegram', city:'Novi Sad', price:'1200 RSD', tags:['Wine','Pop-up','Tasting'], createdAt:mkDate(0,10,30), sourceCount:1 },
+  { uid:'4', sourceUrl:'https://www.studioglina.rs/radionice', title:'Kids Ceramics Masterclass', description:'A hands-on Saturday session for children aged 6–12. Each child leaves with a finished piece. All materials included. Parents are welcome to stay and watch.', startDate:mkDate(1), startTime:'10:00', endTime:'12:30', cat:'Education', loc:'Studio Glina, Stari Grad', city:'Novi Sad', price:'800 RSD', tags:['Kids','Craft','Workshop'], createdAt:mkDate(-2,9,0), sourceCount:2 },
+  { uid:'5', sourceUrl:'https://www.eventbrite.com/e/foraging-walk', title:'Foraging Walk — Vojvodina Plants', description:'A slow two-hour riverside walk with botanist Jelena Marić. Learn to identify edible and medicinal plants growing along the Sodros waterfront. Bring a bag and sturdy shoes.', startDate:mkDate(2), startTime:'09:00', endTime:'11:00', cat:'Adventure', loc:'Sodros, riverside entrance', city:'Novi Sad', price:'Free', tags:['Nature','Foraging','Guided'], createdAt:mkDate(-1,18,45), sourceCount:1 },
+  { uid:'6', sourceUrl:'https://www.instagram.com/rooftopbarx', title:'Ambient Dusk Set', description:'An unannounced ambient performance on the rooftop terrace. One artist, two hours, no setlist. Entry is first-come, limited to 40 people. BYO patience.', startDate:mkDate(2), startTime:'19:30', endTime:'21:30', cat:'Music', loc:'Rooftop Bar X, Centar', city:'Novi Sad', price:'300 RSD', tags:['Ambient','Outdoors','Limited Spots'], createdAt:mkDate(0,9,55), sourceCount:2 },
+  { uid:'7', sourceUrl:'https://www.petrovaradinjazz.rs', title:'Petrovaradin Jazz Weekend', description:'Three evenings of jazz across the Petrovaradin Fortress courtyard. Lineup spans local big bands, visiting trios from Vienna and Bratislava, and a late-night jam session open to all musicians on Sunday.', startDate:mkDate(3), endDate:mkDate(5), startTime:'18:00', endTime:'23:30', cat:'Music', loc:'Petrovaradin Fortress', city:'Novi Sad', price:'1500 RSD', tags:['Jazz','Festival','Outdoor','Multi-day'], createdAt:mkDate(-3,11,0), sourceCount:4 },
+  { uid:'8', sourceUrl:'https://www.instagram.com/streetfoodbgd', title:'Street Food Festival', description:"Over 30 vendors across three days: grilled meats, vegan bowls, craft drinks, live cooking demos, and a kids' zone. Location TBA — follow the organiser's Instagram for updates.", startDate:mkDate(4), endDate:mkDate(6), cat:'Food & Drink', city:'Belgrade', tags:['Street Food','Family','Outdoor','Multi-day'], createdAt:mkDate(-1,16,10), sourceCount:2 },
+  { uid:'9', sourceUrl:'https://www.culturalcentrebeograd.rs/workshops', title:'Photography Masterclass', description:'A full-day workshop covering composition, light reading, and post-processing in Lightroom. Suitable for DSLR and mirrorless users. Participants receive a reviewed portfolio at the end.', startDate:mkDate(5), startTime:'11:00', endTime:'17:00', cat:'Education', loc:'Cultural Centre Beograd', city:'Belgrade', price:'2000 RSD', tags:['Photography','Workshop'], createdAt:mkDate(0,7,22), sourceCount:1 },
+  { uid:'10', sourceUrl:'https://www.facebook.com/kafebasta', title:'Open Mic Night', description:'Sign up on the door from 19:00. Five minutes per act — poetry, music, stand-up, spoken word. No auditions, no judgment. House band available for accompaniment.', startDate:mkDate(2), startTime:'20:00', endTime:'23:00', cat:'Music', loc:'Kafe Basta, Centar', city:'Novi Sad', price:'Free', tags:['Live','Open Mic','Comedy'], createdAt:mkDate(0,11,5), sourceCount:1 },
+  { uid:'11', sourceUrl:'https://www.instagram.com/yogadunavskipark', title:'Yoga in the Park', description:'A beginner-friendly outdoor yoga session led by certified instructor Ana Popovic. Bring your own mat. Runs rain or shine — in heavy rain moves to the nearby covered pavilion.', startDate:mkDate(1), startTime:'08:00', endTime:'09:15', cat:'Wellness', loc:'Dunavski Park', city:'Novi Sad', price:'Free', tags:['Yoga','Outdoor','Morning'], createdAt:mkDate(-1,7,0), sourceCount:1 },
+  { uid:'12', sourceUrl:'https://www.belgradedw.com', title:'Belgrade Design Week', description:'Five days of exhibitions, talks, and workshops spanning graphic, product, and architectural design. The opening night features a curated group show from emerging Serbian designers.', startDate:mkDate(3), endDate:mkDate(7), startTime:'17:00', endTime:'22:00', cat:'Art', loc:'Dom Omladine', city:'Belgrade', price:'Free', tags:['Design','Exhibition','Opening','Multi-day'], createdAt:mkDate(0,12,0), sourceCount:3 },
+];
+
+const ALL_FILTER = 'all';
+
+/* Derived constants — computed once */
+const ALL_CATEGORIES = [...new Set(EVENTS.map(e => e.cat))].sort();
+const ALL_CITIES     = [...new Set(EVENTS.map(e => e.city).filter(Boolean))].sort();
+const ALL_TAGS       = [...new Set(EVENTS.flatMap(e => e.tags))].sort();
+
+/* ══════════════════════════════════════════════════════════════
+   UTILITY FUNCTIONS
+══════════════════════════════════════════════════════════════ */
+
+const WEEK_DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MONTHS    = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+const formatDateLong  = d => `${WEEK_DAYS[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]}`;
+const formatDateShort = d => `${d.getDate()} ${MONTHS[d.getMonth()].slice(0,3)}`;
+const daysBetween     = (a, b) => Math.round((b.getTime() - a.getTime()) / 86_400_000);
+
+/* Reference time is fixed for SSR-parity / demo consistency */
+const REFERENCE_TIME = new Date('2026-04-29T12:00:00').getTime();
+const isNewEvent = e => REFERENCE_TIME - e.createdAt.getTime() < 86_400_000;
+
+/* Category → CSS variable names */
+const CAT_STYLE = {
+  'Music':      { color:'var(--primary)', hi:'var(--primary-hi)', bd:'var(--primary-bd)' },
+  'Adventure':  { color:'var(--teal)',    hi:'var(--teal-hi)',    bd:'var(--teal-bd)' },
+  'Food & Drink':{ color:'var(--green)',  hi:'var(--green-hi)',   bd:'var(--green-bd)' },
+  'Education':  { color:'var(--blue)',    hi:'var(--blue-hi)',    bd:'var(--blue-bd)' },
+  'Art':        { color:'var(--rose)',    hi:'var(--rose-hi)',    bd:'var(--rose-bd)' },
+  'Wellness':   { color:'var(--teal)',    hi:'var(--teal-hi)',    bd:'var(--teal-bd)' },
+};
+const DEFAULT_CAT_STYLE = { color:'var(--muted-fg)', hi:'var(--offset)', bd:'var(--border)' };
+const getCatStyle  = cat   => CAT_STYLE[cat] ?? DEFAULT_CAT_STYLE;
+const getPriceStyle = price => {
+  if (!price) return { color:'var(--faint)', hi:'transparent', bd:'var(--divider)' };
+  if (price === 'Free') return { color:'var(--green)', hi:'var(--green-hi)', bd:'var(--green-bd)' };
+  return { color:'var(--muted-fg)', hi:'var(--offset)', bd:'var(--border)' };
+};
+
+/* Grouping — preserves insertion order via Map */
+const groupByDate = (events, sortKey) => {
+  const sorted = [...events].sort(sortKey);
+  const map = new Map();
+  for (const ev of sorted) {
+    const key = ev.startDate.toDateString();
+    if (!map.has(key)) map.set(key, { date: ev.startDate, events: [] });
+    map.get(key).events.push(ev);
+  }
+  return [...map.values()];
+};
+
+const groupEventsByDate = events =>
+  groupByDate(events, (a, b) => {
+    const dd = a.startDate.getTime() - b.startDate.getTime();
+    if (dd !== 0) return dd;
+    return (a.startTime ?? '99:99').localeCompare(b.startTime ?? '99:99');
+  });
+
+const groupEventsByRecency = events =>
+  groupByDate(events, (a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
+const filterEvents = (events, category, city, tags) =>
+  events.filter(ev => {
+    if (category !== ALL_FILTER && ev.cat !== category) return false;
+    if (city     !== ALL_FILTER && ev.city !== city)    return false;
+    if (tags.size > 0 && !ev.tags.some(t => tags.has(t))) return false;
+    return true;
+  });
+
+/* ══════════════════════════════════════════════════════════════
+   ICON COMPONENTS
+══════════════════════════════════════════════════════════════ */
+
+const svgBase = { fill:'none', stroke:'currentColor', strokeWidth:2, strokeLinecap:'round', strokeLinejoin:'round' };
+const Svg = ({ size = 14, children, ...rest }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" {...svgBase} {...rest}>{children}</svg>
+);
+
+const IconPin        = p => <Svg {...p}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></Svg>;
+const IconTag        = p => <Svg {...p}><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></Svg>;
+const IconSun        = p => <Svg {...p}><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></Svg>;
+const IconMoon       = p => <Svg {...p}><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></Svg>;
+const IconBack       = p => <Svg {...p}><polyline points="15 18 9 12 15 6"/></Svg>;
+const IconClose      = p => <Svg {...p}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></Svg>;
+const IconShare      = p => <Svg {...p}><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></Svg>;
+const IconDirections = p => <Svg {...p}><polygon points="3 11 22 2 13 21 11 13 3 11"/></Svg>;
+const IconExternal   = p => <Svg {...p}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></Svg>;
+const IconSearch     = p => <Svg {...p}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></Svg>;
+const IconCalendar   = p => <Svg {...p}><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></Svg>;
+
+const LogoMark = ({ size = 22 }) => (
+  <svg width={size} height={size} viewBox="0 0 22 22" fill="none">
+    <circle cx="11" cy="11" r="9.5" stroke="var(--primary)" strokeWidth="1.4"/>
+    <circle cx="11" cy="11" r="3.5" fill="var(--primary)" opacity="0.3"/>
+    <circle cx="11" cy="11" r="1.5" fill="var(--primary)"/>
+    <ellipse cx="11" cy="11" rx="9.5" ry="3.5" stroke="var(--primary)" strokeWidth="1.1" strokeDasharray="2.2 1.8"/>
+  </svg>
+);
+
+/* ══════════════════════════════════════════════════════════════
+   ATOMIC COMPONENTS
+══════════════════════════════════════════════════════════════ */
+
+/** Pill badge — category, price, status labels */
+const Pill = ({ label, color, hi, bd, style: extraStyle }) => (
+  <span style={{
+    display: 'inline-flex', alignItems: 'center',
+    padding: '2px 8px', borderRadius: 'var(--radius-pill)',
+    fontSize: 10, fontWeight: 700, lineHeight: 1.5, whiteSpace: 'nowrap',
+    backgroundColor: hi, border: `1px solid ${bd}`, color,
+    ...extraStyle,
+  }}>
+    {label}
+  </span>
+);
+
+/** Chip filter button */
+const Chip = ({ label, active, dotColor, activeStyle, onClick, mono }) => (
+  <button
+    type="button"
+    aria-pressed={active}
+    onClick={onClick}
+    style={{
+      flexShrink: 0,
+      display: 'inline-flex', alignItems: 'center', gap: 5,
+      padding: '4px 10px', borderRadius: 'var(--radius-pill)',
+      fontSize: mono ? 10 : 11,
+      fontFamily: mono ? 'var(--font-mono)' : 'var(--font-sans)',
+      fontWeight: active ? 600 : 400,
+      whiteSpace: 'nowrap',
+      cursor: 'pointer',
+      transition: 'all 0.15s ease',
+      border: active
+        ? (activeStyle?.border ?? `1px solid var(--primary-bd)`)
+        : '1px solid var(--border)',
+      background: active
+        ? (activeStyle?.background ?? 'var(--primary-hi)')
+        : 'var(--card)',
+      color: active
+        ? (activeStyle?.color ?? 'var(--primary)')
+        : 'var(--muted-fg)',
+    }}
+  >
+    {dotColor && (
+      <span style={{
+        width: 5, height: 5, borderRadius: '50%', flexShrink: 0,
+        backgroundColor: dotColor,
+      }} />
+    )}
+    {label}
+  </button>
+);
+
+/** Icon-only header button */
+const IconBtn = ({ icon, label, onClick, size = 36 }) => (
+  <button
+    aria-label={label}
+    title={label}
+    onClick={onClick}
+    style={{
+      width: size, height: size, borderRadius: 'var(--radius)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      background: 'transparent', border: 'none', cursor: 'pointer',
+      color: 'var(--muted-fg)',
+      transition: 'background 0.15s, color 0.15s',
+    }}
+    onMouseEnter={e => { e.currentTarget.style.background = 'var(--offset)'; e.currentTarget.style.color = 'var(--foreground)'; }}
+    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--muted-fg)'; }}
+  >
+    {icon}
+  </button>
+);
+
+/* ══════════════════════════════════════════════════════════════
+   HEADER
+══════════════════════════════════════════════════════════════ */
+
+const Header = ({ hasFilters, onClearFilters, theme, onToggleTheme }) => (
+  <header style={{
+    height: 56, padding: '0 16px',
+    display: 'flex', alignItems: 'center',
+    background: 'var(--background)',
+    borderBottom: '1px solid var(--divider)',
+    flexShrink: 0, gap: 8,
+  }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <LogoMark size={22} />
+      <span style={{
+        fontFamily: 'var(--font-heading)', fontSize: 18, fontWeight: 800,
+        color: 'var(--foreground)', letterSpacing: '-0.02em',
+      }}>
+        Gotovo
+      </span>
+    </div>
+    <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 2 }}>
+      {hasFilters && (
+        <IconBtn icon={<IconClose size={14} />} label="Clear all filters" onClick={onClearFilters} />
+      )}
+      <IconBtn
+        icon={theme === 'dark' ? <IconSun size={14} /> : <IconMoon size={14} />}
+        label="Toggle theme"
+        onClick={onToggleTheme}
+      />
+    </div>
+  </header>
+);
+
+/* ══════════════════════════════════════════════════════════════
+   TAB BAR
+══════════════════════════════════════════════════════════════ */
+
+const TabBar = ({ activeTab, onTabChange }) => {
+  const tabs = [
+    { id: 'timeline', label: 'Timeline', dot: false },
+    { id: 'recent',   label: 'Recently Added', dot: true },
+  ];
+  return (
+    <nav
+      role="tablist"
+      aria-label="Feed view"
+      style={{
+        display: 'flex',
+        borderBottom: '1px solid var(--divider)',
+        flexShrink: 0,
+      }}
+    >
+      {tabs.map(tab => {
+        const active = activeTab === tab.id;
+        return (
+          <button
+            key={tab.id}
+            role="tab"
+            aria-selected={active}
+            onClick={() => onTabChange(tab.id)}
+            style={{
+              padding: '8px 16px',
+              fontSize: 12, fontFamily: 'var(--font-sans)',
+              fontWeight: active ? 600 : 400,
+              color: active ? 'var(--foreground)' : 'var(--muted-fg)',
+              background: 'none', border: 'none',
+              borderBottom: active ? '2px solid var(--primary)' : '2px solid transparent',
+              marginBottom: -1,
+              cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: 6,
+              transition: 'color 0.15s',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {tab.label}
+            {tab.dot && (
+              <span
+                className="animate-pulse-dot"
+                style={{
+                  width: 6, height: 6, borderRadius: '50%',
+                  background: 'var(--new-badge)',
+                  display: 'inline-block',
+                }}
+              />
+            )}
+          </button>
+        );
+      })}
+    </nav>
+  );
+};
+
+/* ══════════════════════════════════════════════════════════════
+   FILTER ZONE
+══════════════════════════════════════════════════════════════ */
+
+const FilterZone = ({ activeCategory, setActiveCategory, activeCity, setActiveCity, activeTags, toggleTag }) => {
+  const primaryActiveStyle  = { background:'var(--primary-hi)', border:'1px solid var(--primary-bd)', color:'var(--primary)' };
+  const cityActiveStyle     = { background:'var(--amber-hi)',   border:'1px solid var(--amber-bd)',   color:'var(--amber)' };
+  const getCatActive = cat  => { const s = getCatStyle(cat); return { background: s.hi, border:`1px solid ${s.bd}`, color: s.color }; };
+
+  const row = {
+    display: 'flex', alignItems: 'center',
+    padding: '6px 12px', gap: 6,
+    overflowX: 'auto',
+  };
+  const divider = { height: 1, background:'var(--divider)', margin:'0 12px' };
+
+  return (
+    <div style={{ background:'var(--background)', borderBottom:'1px solid var(--divider)', flexShrink: 0 }}>
+      {/* Categories */}
+      <div className="scrollbar-hidden" style={row}>
+        <Chip label="All" active={activeCategory === ALL_FILTER} activeStyle={primaryActiveStyle} onClick={() => setActiveCategory(ALL_FILTER)} />
+        {ALL_CATEGORIES.map(cat => (
+          <Chip key={cat} label={cat} active={activeCategory === cat}
+            dotColor={getCatStyle(cat).color}
+            activeStyle={getCatActive(cat)}
+            onClick={() => setActiveCategory(activeCategory === cat ? ALL_FILTER : cat)}
+          />
+        ))}
+      </div>
+      <div style={divider} />
+      {/* Cities */}
+      <div className="scrollbar-hidden" style={row}>
+        <span style={{ color:'var(--faint)', flexShrink:0, marginRight:2, display:'flex', alignItems:'center' }}>
+          <IconPin size={11} />
+        </span>
+        <Chip label="All cities" active={activeCity === ALL_FILTER} activeStyle={cityActiveStyle} onClick={() => setActiveCity(ALL_FILTER)} />
+        {ALL_CITIES.map(city => (
+          <Chip key={city} label={city} active={activeCity === city} activeStyle={cityActiveStyle}
+            onClick={() => setActiveCity(activeCity === city ? ALL_FILTER : city)}
+          />
+        ))}
+      </div>
+      <div style={divider} />
+      {/* Tags */}
+      <div className="scrollbar-hidden" style={{ ...row, paddingBottom: 8 }}>
+        <span style={{ color:'var(--faint)', flexShrink:0, marginRight:2, display:'flex', alignItems:'center' }}>
+          <IconTag size={11} />
+        </span>
+        {ALL_TAGS.map(tag => (
+          <Chip key={tag} label={`#${tag}`} mono active={activeTags.has(tag)} activeStyle={primaryActiveStyle}
+            onClick={() => toggleTag(tag)}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+/* ══════════════════════════════════════════════════════════════
+   EVENT CARD
+══════════════════════════════════════════════════════════════ */
+
+const EventCard = ({ event, onOpen }) => {
+  const { title, description, startTime, cat, city, price, tags, startDate, endDate } = event;
+  const catSt    = getCatStyle(cat);
+  const priceSt  = getPriceStyle(price);
+  const isNew    = isNewEvent(event);
+  const span     = endDate ? daysBetween(startDate, endDate) : 0;
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <article
+      role="button"
+      tabIndex={0}
+      aria-label={title}
+      onClick={() => onOpen(event)}
+      onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), onOpen(event))}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        margin: '8px 12px 0',
+        padding: 12,
+        background: hovered ? 'var(--surface-2)' : 'var(--card)',
+        border: `1px solid ${hovered ? 'var(--primary-bd)' : 'var(--border)'}`,
+        borderLeft: isNew ? `3px solid var(--primary)` : undefined,
+        borderRadius: 'var(--radius)',
+        cursor: 'pointer',
+        boxShadow: hovered ? 'var(--shadow-lift)' : 'var(--shadow-card)',
+        transform: hovered ? 'translateY(-1px)' : 'none',
+        transition: 'all 0.15s ease',
+        userSelect: 'none',
+      }}
+    >
+      {/* Top row: badges + time */}
+      <div style={{ display:'flex', alignItems:'center', gap:6, flexWrap:'wrap', marginBottom:6 }}>
+        <Pill label={cat} color={catSt.color} hi={catSt.hi} bd={catSt.bd} />
+        {isNew && <Pill label="New" color="var(--new-badge)" hi="var(--new-hi)" bd="var(--new-bd)" />}
+        {span > 0 && <Pill label={`${span+1}-day`} color="var(--amber)" hi="var(--amber-hi)" bd="var(--amber-bd)" />}
+        <span style={{ marginLeft:'auto' }}>
+          {startTime
+            ? <span style={{ fontFamily:'var(--font-mono)', fontSize:12, fontWeight:500, color:'var(--amber)', flexShrink:0 }}>{startTime}</span>
+            : <span style={{ fontSize:10, color:'var(--faint)', fontStyle:'italic' }}>all day</span>
+          }
+        </span>
+      </div>
+
+      {/* Title */}
+      <span style={{
+        display:'block', fontFamily:'var(--font-heading)',
+        fontSize:14, fontWeight:700, color:'var(--foreground)',
+        letterSpacing:'-0.02em', lineHeight:1.3, marginBottom:4,
+      }}>
+        {title}
+      </span>
+
+      {/* Description */}
+      {description && (
+        <p style={{
+          fontSize:11.5, color:'var(--muted-fg)', lineHeight:1.6,
+          marginBottom:8,
+          display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical', overflow:'hidden',
+        }}>
+          {description}
+        </p>
+      )}
+
+      {/* Footer: location + tags + price */}
+      <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+        <div style={{ display:'flex', alignItems:'center', gap:4, flex:1, minWidth:0, overflow:'hidden' }}>
+          <IconPin size={10} style={{ color:'var(--faint)', flexShrink:0 }} />
+          {city && <span style={{ fontSize:10, color:'var(--muted-fg)', fontWeight:500, whiteSpace:'nowrap' }}>{city}</span>}
+          {city && tags.length > 0 && <span style={{ fontSize:10, color:'var(--faint)' }}>·</span>}
+          {tags.length > 0 && (
+            <span style={{
+              fontSize:10, color:'var(--faint)',
+              overflow:'hidden', whiteSpace:'nowrap', textOverflow:'ellipsis',
+              fontFamily:'var(--font-mono)',
+            }}>
+              {tags.map(t => `#${t}`).join(' ')}
+            </span>
+          )}
+        </div>
+        <Pill label={price ?? 'TBA'} color={priceSt.color} hi={priceSt.hi} bd={priceSt.bd} />
+      </div>
+    </article>
+  );
+};
+
+/* ══════════════════════════════════════════════════════════════
+   EMPTY STATE
+══════════════════════════════════════════════════════════════ */
+
+const EmptyState = () => (
+  <div style={{
+    display:'flex', flexDirection:'column', alignItems:'center',
+    textAlign:'center', padding:'64px 32px', gap:12,
+  }}>
+    <div style={{ color:'var(--faint)', marginBottom:4 }}><IconSearch size={48} /></div>
+    <p style={{ fontFamily:'var(--font-heading)', fontSize:18, fontWeight:700, color:'var(--foreground)' }}>
+      No events match
+    </p>
+    <p style={{ fontSize:12, color:'var(--muted-fg)', lineHeight:1.6, maxWidth:'26ch' }}>
+      Try adjusting your filters — new events drop throughout the day.
+    </p>
+  </div>
+);
+
+/* ══════════════════════════════════════════════════════════════
+   FEED
+══════════════════════════════════════════════════════════════ */
+
+const Feed = ({ events, tab, onOpenEvent }) => {
+  if (events.length === 0) return <EmptyState />;
+
+  const groups = tab === 'recent' ? groupEventsByRecency(events) : groupEventsByDate(events);
+  const total  = events.length;
+
+  return (
+    <div style={{ paddingBottom: 24 }}>
+      <p style={{
+        padding:'6px 12px 2px',
+        fontFamily:'var(--font-mono)', fontSize:10, color:'var(--faint)',
+      }}>
+        {total} event{total !== 1 ? 's' : ''} · {groups.length} day{groups.length !== 1 ? 's' : ''}
+      </p>
+
+      {groups.map((group, i) => (
+        <div key={i} style={{ marginTop: 10 }}>
+          {/* Date header */}
+          <div style={{
+            display:'flex', alignItems:'baseline', gap:8,
+            padding:'6px 12px', borderBottom:'1px solid var(--divider)',
+          }}>
+            <span style={{
+              fontFamily:'var(--font-heading)', fontSize:15, fontWeight:800,
+              color:'var(--foreground)', letterSpacing:'-0.02em', lineHeight:1,
+            }}>
+              {formatDateLong(group.date)}
+            </span>
+            <span style={{
+              marginLeft:'auto', fontFamily:'var(--font-mono)',
+              fontSize:10, color:'var(--faint)',
+            }}>
+              {group.events.length} event{group.events.length !== 1 ? 's' : ''}
+            </span>
+          </div>
+
+          {/* Cards */}
+          {group.events.map(ev => (
+            <EventCard key={ev.uid} event={ev} onOpen={onOpenEvent} />
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+};
+
+/* ══════════════════════════════════════════════════════════════
+   DETAIL PAGE
+══════════════════════════════════════════════════════════════ */
+
+/** InfoCell for the detail grid */
+const InfoCell = ({ label, fullWidth, children }) => (
+  <div style={{
+    background:'var(--offset)', border:'1px solid var(--divider)',
+    borderRadius: 'var(--radius)', padding:12,
+    gridColumn: fullWidth ? 'span 2' : undefined,
+  }}>
+    <p style={{
+      fontFamily:'var(--font-mono)', fontSize:9, fontWeight:500,
+      color:'var(--muted-fg)', textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:4,
+    }}>
+      {label}
+    </p>
+    <div style={{ fontSize:13, fontWeight:600, color:'var(--foreground)', lineHeight:1.4 }}>
+      {children}
+    </div>
+  </div>
+);
+
+/** Action button for the detail bottom bar */
+const ActionBtn = ({ icon, label, onClick, href }) => {
+  const sharedStyle = {
+    width:48, height:48, borderRadius:'var(--radius-xl)',
+    border:'1px solid var(--border)', background:'var(--offset)',
+    display:'flex', alignItems:'center', justifyContent:'center',
+    color:'var(--muted-fg)', cursor:'pointer', flexShrink:0,
+    transition:'all 0.15s',
+    textDecoration:'none',
+  };
+  const hoverOn  = e => { e.currentTarget.style.background = 'var(--dynamic)'; e.currentTarget.style.color = 'var(--foreground)'; e.currentTarget.style.borderColor = 'var(--primary-bd)'; };
+  const hoverOff = e => { e.currentTarget.style.background = 'var(--offset)';  e.currentTarget.style.color = 'var(--muted-fg)';   e.currentTarget.style.borderColor = 'var(--border)'; };
+
+  if (href) return (
+    <a href={href} target="_blank" rel="noopener noreferrer" aria-label={label}
+       style={sharedStyle} onMouseEnter={hoverOn} onMouseLeave={hoverOff}>
+      {icon}
+    </a>
+  );
+  return (
+    <button aria-label={label} onClick={onClick} style={sharedStyle}
+      onMouseEnter={hoverOn} onMouseLeave={hoverOff}>
+      {icon}
+    </button>
+  );
+};
+
+const DetailPage = ({ event, onClose }) => {
+  const isOpen = !!event;
+
+  /* Keyboard: Escape closes */
+  useEffect(() => {
+    if (!isOpen) return;
+    const handler = e => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [isOpen, onClose]);
+
+  /* Lock body scroll */
+  useEffect(() => {
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [isOpen]);
+
+  /* Render even when closed so exit animation plays */
+  const catSt   = event ? getCatStyle(event.cat)       : null;
+  const priceSt = event ? getPriceStyle(event.price)   : null;
+  const isNew   = event ? isNewEvent(event)             : false;
+  const span    = event?.endDate ? daysBetween(event.startDate, event.endDate) : 0;
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div
+        onClick={onClose}
+        aria-hidden="true"
+        style={{
+          position:'fixed', inset:0, zIndex:40,
+          background:'rgba(var(--background-raw, 13,12,18), 0.75)',
+          backdropFilter:'blur(4px)',
+          opacity: isOpen ? 1 : 0,
+          pointerEvents: isOpen ? 'auto' : 'none',
+          transition:'opacity 0.28s ease',
+        }}
+      />
+
+      {/* Panel */}
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-hidden={!isOpen}
+        style={{
+          position:'fixed', top:0, bottom:0, right:0,
+          width:'100%', maxWidth:480,
+          background:'var(--background)',
+          zIndex:50,
+          display:'flex', flexDirection:'column',
+          boxShadow:'var(--shadow-panel)',
+          transform: isOpen ? 'translateX(0)' : 'translateX(100%)',
+          transition:'transform 0.28s cubic-bezier(0.22,1,0.36,1)',
+        }}
+      >
+        {/* Panel header */}
+        <header style={{
+          height:56, padding:'0 16px',
+          display:'flex', alignItems:'center', gap:12,
+          background:'var(--background)', borderBottom:'1px solid var(--divider)',
+          flexShrink:0,
+        }}>
+          <button
+            aria-label="Back to feed"
+            onClick={onClose}
+            style={{
+              width:36, height:36, borderRadius:'var(--radius)',
+              display:'flex', alignItems:'center', justifyContent:'center',
+              background:'transparent', border:'none', cursor:'pointer',
+              color:'var(--primary)', transition:'background 0.15s',
+            }}
+            onMouseEnter={e => e.currentTarget.style.background = 'var(--primary-hi)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+          >
+            <IconBack size={18} />
+          </button>
+          <span style={{
+            fontFamily:'var(--font-heading)', fontSize:14, fontWeight:700,
+            color:'var(--foreground)', letterSpacing:'-0.01em',
+            overflow:'hidden', whiteSpace:'nowrap', textOverflow:'ellipsis',
+          }}>
+            {event?.cat ?? ''}
+          </span>
+        </header>
+
+        {/* Scrollable content */}
+        {event && (
+          <div className="scrollbar-hidden" style={{ flex:1, overflowY:'auto' }}>
+            <div style={{ padding:'20px 20px 48px' }}>
+
+              {/* Badges */}
+              <div style={{ display:'flex', flexWrap:'wrap', gap:6, marginBottom:12 }}>
+                <Pill label={event.cat} color={catSt.color} hi={catSt.hi} bd={catSt.bd} style={{ fontSize:11 }} />
+                {isNew && <Pill label="Just Added" color="var(--new-badge)" hi="var(--new-hi)" bd="var(--new-bd)" style={{ fontSize:11 }} />}
+                {span > 0 && <Pill label={`${span+1}-day event`} color="var(--amber)" hi="var(--amber-hi)" bd="var(--amber-bd)" style={{ fontSize:11 }} />}
+              </div>
+
+              {/* Title */}
+              <h1 style={{
+                fontFamily:'var(--font-heading)', fontSize:26, fontWeight:800,
+                letterSpacing:'-0.03em', lineHeight:1.15,
+                color:'var(--foreground)', marginBottom:12,
+              }}>
+                {event.title}
+              </h1>
+
+              {/* Description */}
+              {event.description && (
+                <p style={{
+                  fontSize:13, color:'var(--muted-fg)', lineHeight:1.7, marginBottom:20,
+                }}>
+                  {event.description}
+                </p>
+              )}
+
+              {/* Info grid */}
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:16 }}>
+
+                {/* Date / time cells */}
+                {event.endDate ? (
+                  <>
+                    <InfoCell label="Starts" fullWidth>
+                      <p style={{ color:'var(--amber)', fontFamily:'var(--font-heading)', fontSize:15 }}>
+                        {[formatDateLong(event.startDate), event.startTime].filter(Boolean).join(' · ')}
+                      </p>
+                    </InfoCell>
+                    <InfoCell label="Ends" fullWidth>
+                      {(event.endDate || event.endTime) ? (
+                        <p style={{ color:'var(--amber)', fontFamily:'var(--font-heading)', fontSize:15 }}>
+                          {[formatDateLong(event.endDate), event.endTime].filter(Boolean).join(' · ')}
+                        </p>
+                      ) : (
+                        <p style={{ color:'var(--faint)', fontStyle:'italic' }}>End time TBA</p>
+                      )}
+                    </InfoCell>
+                  </>
+                ) : (
+                  <>
+                    <InfoCell label="Date">
+                      <p>{formatDateLong(event.startDate)}</p>
+                    </InfoCell>
+                    <InfoCell label="Time">
+                      {event.startTime ? (
+                        <p style={{ color:'var(--amber)', fontFamily:'var(--font-heading)', fontSize:15 }}>
+                          {event.startTime}{event.endTime ? ` – ${event.endTime}` : ''}
+                        </p>
+                      ) : (
+                        <p style={{ color:'var(--faint)', fontStyle:'italic' }}>All day</p>
+                      )}
+                    </InfoCell>
+                  </>
+                )}
+
+                {/* Location */}
+                <InfoCell label="Location" fullWidth>
+                  {event.city ? (
+                    <>
+                      <p>{event.city}</p>
+                      {event.loc && <p style={{ fontSize:11, color:'var(--muted-fg)', marginTop:2 }}>{event.loc}</p>}
+                    </>
+                  ) : event.loc ? (
+                    <p>{event.loc}</p>
+                  ) : (
+                    <p style={{ color:'var(--faint)', fontStyle:'italic' }}>TBA</p>
+                  )}
+                </InfoCell>
+
+                {/* Price */}
+                <InfoCell label="Price">
+                  <div style={{ marginTop:2 }}>
+                    <Pill label={event.price ?? 'TBA'} color={priceSt.color} hi={priceSt.hi} bd={priceSt.bd} style={{ fontSize:12 }} />
+                  </div>
+                </InfoCell>
+
+                {/* Confidence / sources */}
+                <InfoCell label="Confidence">
+                  <div style={{ display:'flex', alignItems:'center', gap:6, marginTop:4 }}>
+                    {Array.from({ length: Math.min(event.sourceCount, 5) }).map((_, i) => (
+                      <div key={i} style={{
+                        width:6, height:6, borderRadius:'50%',
+                        background: i < event.sourceCount ? 'var(--green)' : 'var(--divider)',
+                      }} />
+                    ))}
+                    <span style={{ fontFamily:'var(--font-mono)', fontSize:10, color:'var(--muted-fg)' }}>
+                      {event.sourceCount} source{event.sourceCount !== 1 ? 's' : ''}
+                    </span>
+                  </div>
+                </InfoCell>
+              </div>
+
+              {/* Tags */}
+              {event.tags.length > 0 && (
+                <>
+                  <p style={{
+                    fontFamily:'var(--font-mono)', fontSize:9, fontWeight:500,
+                    color:'var(--muted-fg)', textTransform:'uppercase',
+                    letterSpacing:'0.1em', marginBottom:8,
+                  }}>Tags</p>
+                  <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
+                    {event.tags.map(tag => (
+                      <span key={tag} style={{
+                        padding:'2px 10px', borderRadius:'var(--radius-pill)',
+                        border:'1px solid var(--divider)',
+                        fontFamily:'var(--font-mono)', fontSize:10.5, color:'var(--faint)',
+                      }}>
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                </>
+              )}
+
+            </div>
+          </div>
+        )}
+
+        {/* Bottom action bar */}
+        {event && (
+          <div style={{
+            flexShrink:0, padding:'12px 16px',
+            background:'var(--background)', borderTop:'1px solid var(--divider)',
+            display:'flex', gap:8, alignItems:'center',
+          }}>
+            <ActionBtn icon={<IconBack size={18} />}       label="Back"       onClick={onClose} />
+            <ActionBtn icon={<IconDirections size={18} />} label="Directions" />
+            <ActionBtn icon={<IconShare size={16} />}      label="Share" />
+            {event.sourceUrl && (
+              <a
+                href={event.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  flex:1, background:'var(--primary)', color:'var(--primary-fg)',
+                  borderRadius:'var(--radius-xl)',
+                  padding:'0 16px', height:48,
+                  display:'flex', alignItems:'center', justifyContent:'center', gap:8,
+                  fontSize:14, fontWeight:700, fontFamily:'var(--font-sans)',
+                  textDecoration:'none', transition:'background 0.15s',
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = 'var(--new-badge)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'var(--primary)'}
+              >
+                <IconExternal size={15} />
+                View Source
+              </a>
+            )}
+          </div>
+        )}
+      </div>
+    </>
+  );
+};
+
+/* ══════════════════════════════════════════════════════════════
+   ROOT APP
+══════════════════════════════════════════════════════════════ */
+
+const App = () => {
+  /* ── Theme ── */
+  const [theme, setTheme] = useState(() => {
+    const saved = localStorage.getItem('gotovo-theme');
+    return saved === 'light' ? 'light' : 'dark';
+  });
+
+  useEffect(() => {
+    document.body.classList.toggle('dark', theme === 'dark');
+    localStorage.setItem('gotovo-theme', theme);
+  }, [theme]);
+
+  const toggleTheme = useCallback(() => setTheme(t => t === 'dark' ? 'light' : 'dark'), []);
+
+  /* ── Navigation ── */
+  const [activeTab,   setActiveTab]   = useState('timeline');
+  const [detailEvent, setDetailEvent] = useState(null);
+
+  /* ── Filters ── */
+  const [activeCategory, setActiveCategory] = useState(ALL_FILTER);
+  const [activeCity,     setActiveCity]     = useState(ALL_FILTER);
+  const [activeTags,     setActiveTags]     = useState(new Set());
+
+  const hasFilters = activeCategory !== ALL_FILTER || activeCity !== ALL_FILTER || activeTags.size > 0;
+
+  const filteredEvents = useMemo(
+    () => filterEvents(EVENTS, activeCategory, activeCity, activeTags),
+    [activeCategory, activeCity, activeTags]
+  );
+
+  const toggleTag = useCallback(tag => {
+    setActiveTags(prev => {
+      const next = new Set(prev);
+      next.has(tag) ? next.delete(tag) : next.add(tag);
+      return next;
+    });
+  }, []);
+
+  const clearFilters = useCallback(() => {
+    setActiveCategory(ALL_FILTER);
+    setActiveCity(ALL_FILTER);
+    setActiveTags(new Set());
+  }, []);
+
+  const openDetail  = useCallback(ev  => setDetailEvent(ev),   []);
+  const closeDetail = useCallback(()  => setDetailEvent(null),  []);
+
+  return (
+    <div style={{ display:'flex', flexDirection:'column', height:'100dvh', overflow:'hidden' }}>
+      <Header
+        hasFilters={hasFilters}
+        onClearFilters={clearFilters}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+      />
+      <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
+      <FilterZone
+        activeCategory={activeCategory} setActiveCategory={setActiveCategory}
+        activeCity={activeCity}         setActiveCity={setActiveCity}
+        activeTags={activeTags}         toggleTag={toggleTag}
+      />
+      <main className="scrollbar-hidden" style={{ flex:1, overflowY:'auto' }}>
+        <Feed events={filteredEvents} tab={activeTab} onOpenEvent={openDetail} />
+      </main>
+      <DetailPage event={detailEvent} onClose={closeDetail} />
+    </div>
+  );
+};
+
+/* ══════════════════════════════════════════════════════════════
+   TWEAKS PANEL (loaded after App mounts)
+══════════════════════════════════════════════════════════════ */
+const TWEAK_DEFAULS = /*EDITMODE-BEGIN*/{
+  "accentHue": "violet",
+  "cardDensity": "comfortable",
+  "showDescriptions": true,
+  "animateCards": true
+}/*EDITMODE-END*/;
+
+const TweaksOverlay = () => {
+  const [show, setShow] = useState(false);
+  const [tweaks, setTweaksState] = useState(TWEAK_DEFAULS);
+
+  /* Host protocol */
+  useEffect(() => {
+    const handler = e => {
+      if (e.data?.type === '__activate_edit_mode')   setShow(true);
+      if (e.data?.type === '__deactivate_edit_mode') setShow(false);
+    };
+    window.addEventListener('message', handler);
+    window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+    return () => window.removeEventListener('message', handler);
+  }, []);
+
+  const setTweak = (key, value) => {
+    const next = { ...tweaks, [key]: value };
+    setTweaksState(next);
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits: next }, '*');
+    /* Apply live effects */
+    if (key === 'accentHue') {
+      const map = {
+        violet: { light:['#6d28d9','rgba(109,40,217,0.08)','rgba(109,40,217,0.22)'], dark:['#9d7ff4','rgba(157,127,244,0.13)','rgba(157,127,244,0.28)'] },
+        indigo: { light:['#4338ca','rgba(67,56,202,0.08)','rgba(67,56,202,0.22)'],  dark:['#818cf8','rgba(129,140,248,0.13)','rgba(129,140,248,0.28)'] },
+        sky:    { light:['#0369a1','rgba(3,105,161,0.08)','rgba(3,105,161,0.22)'],   dark:['#38bdf8','rgba(56,189,248,0.13)','rgba(56,189,248,0.28)'] },
+      };
+      const isDark = document.body.classList.contains('dark');
+      const [p, ph, pb] = (map[value] || map.violet)[isDark ? 'dark' : 'light'];
+      document.documentElement.style.setProperty('--primary', p);
+      document.documentElement.style.setProperty('--primary-hi', ph);
+      document.documentElement.style.setProperty('--primary-bd', pb);
+    }
+  };
+
+  if (!show) return null;
+
+  const panel = {
+    position:'fixed', bottom:16, right:16, zIndex:200,
+    width:240, background:'var(--card)', border:'1px solid var(--border)',
+    borderRadius:'var(--radius-xl)', boxShadow:'var(--shadow-lift)',
+    fontFamily:'var(--font-sans)', overflow:'hidden',
+  };
+  const header = {
+    display:'flex', alignItems:'center', justifyContent:'space-between',
+    padding:'10px 14px', borderBottom:'1px solid var(--divider)',
+  };
+  const label = { fontSize:11, fontWeight:700, color:'var(--foreground)', letterSpacing:'0.04em', textTransform:'uppercase' };
+  const section = { padding:'12px 14px', display:'flex', flexDirection:'column', gap:12 };
+  const row = { display:'flex', flexDirection:'column', gap:5 };
+  const rowLabel = { fontSize:10, color:'var(--muted-fg)', fontWeight:500, textTransform:'uppercase', letterSpacing:'0.06em' };
+  const btnGroup = { display:'flex', gap:4 };
+  const optBtn = (active, onClick, children) => (
+    <button onClick={onClick} style={{
+      flex:1, padding:'5px 0', borderRadius: 6, fontSize:11, fontWeight: active ? 600 : 400,
+      cursor:'pointer', border: active ? '1.5px solid var(--primary-bd)' : '1px solid var(--border)',
+      background: active ? 'var(--primary-hi)' : 'var(--offset)',
+      color: active ? 'var(--primary)' : 'var(--muted-fg)',
+      transition:'all 0.1s',
+    }}>{children}</button>
+  );
+  const toggle = (key) => (
+    <div
+      onClick={() => setTweak(key, !tweaks[key])}
+      style={{
+        width:36, height:20, borderRadius:10, cursor:'pointer',
+        background: tweaks[key] ? 'var(--primary)' : 'var(--border)',
+        position:'relative', transition:'background 0.2s', flexShrink:0,
+      }}
+    >
+      <div style={{
+        position:'absolute', top:2,
+        left: tweaks[key] ? 18 : 2,
+        width:16, height:16, borderRadius:'50%', background:'#fff',
+        transition:'left 0.2s', boxShadow:'0 1px 3px rgba(0,0,0,0.2)',
+      }} />
+    </div>
+  );
+
+  return (
+    <div style={panel}>
+      <div style={header}>
+        <span style={label}>Tweaks</span>
+        <button onClick={() => { setShow(false); window.parent.postMessage({type:'__edit_mode_dismissed'},'*'); }}
+          style={{ background:'none', border:'none', cursor:'pointer', color:'var(--muted-fg)', display:'flex' }}>
+          <IconClose size={14} />
+        </button>
+      </div>
+      <div style={section}>
+        <div style={row}>
+          <span style={rowLabel}>Accent color</span>
+          <div style={btnGroup}>
+            {optBtn(tweaks.accentHue === 'violet', () => setTweak('accentHue','violet'), 'Violet')}
+            {optBtn(tweaks.accentHue === 'indigo', () => setTweak('accentHue','indigo'), 'Indigo')}
+            {optBtn(tweaks.accentHue === 'sky',    () => setTweak('accentHue','sky'),    'Sky')}
+          </div>
+        </div>
+        <div style={row}>
+          <span style={rowLabel}>Card density</span>
+          <div style={btnGroup}>
+            {optBtn(tweaks.cardDensity === 'compact',     () => setTweak('cardDensity','compact'),     'Compact')}
+            {optBtn(tweaks.cardDensity === 'comfortable', () => setTweak('cardDensity','comfortable'), 'Normal')}
+          </div>
+        </div>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+          <span style={rowLabel}>Show descriptions</span>
+          {toggle('showDescriptions')}
+        </div>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+          <span style={rowLabel}>Card hover lift</span>
+          {toggle('animateCards')}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ── Mount ── */
+const rootEl = document.getElementById('root');
+const reactRoot = ReactDOM.createRoot(rootEl);
+reactRoot.render(
+  <>
+    <App />
+    <TweaksOverlay />
+  </>
+);
+</script>
+</body>
+</html>
