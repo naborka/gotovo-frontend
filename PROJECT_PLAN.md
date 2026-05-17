@@ -29,7 +29,7 @@
 | `BACKEND_API_CONTRACT.md` v1.1 | ✅ Reviewed, current | Five public endpoints + revalidate webhook |
 | Next.js codebase (`uploads/b_L9NGMYx2uNe/`) | ⚠️ Scaffold only — needs productionization | Next 16.2.4, React 19.2.4, Tailwind v4, fonts wired, Radix installed |
 | Design tokens (CSS variables) | ✅ Light + dark themes complete | `app/globals.css` |
-| Mock data (`lib/data.ts`) | ⚠️ Hardcoded, must be replaced with fetcher | 12 events, faithful to schema |
+| Mock data (`lib/data.ts`) | ⚠️ Hardcoded, must be replaced with fetcher | 12 events authored against the v1.0 contract; mock fixtures need refresh against the 9-category vocabulary, 14-tag controlled list, 5-city slug set (Decisions 0001, 0002, 0003) |
 | Pure utilities (`lib/event-utils.ts`) | ✅ Production-quality, testable | `filterEvents`, `groupEventsByDate`, `getCategoryStyle`, etc. |
 | `app/page.tsx` | ⚠️ Fully client-side; no SSR data fetching | All state in `useState` |
 | `components/gotovo/*.tsx` | ✅ Atomic, SOLID-compliant | Header, TabBar, FilterZone, Feed, EventCard, DetailPage, Chip, Pill, EmptyState |
@@ -47,7 +47,7 @@ Ordered by impact:
 5. **No CI.** No lint gate, no typecheck gate, no test gate.
 6. **No error boundaries** (`error.tsx`, `not-found.tsx`, `loading.tsx` missing throughout `app/`).
 7. **No env validation.** No `.env` schema; no T3-env or Zod-based env guard.
-8. **No i18n.** Serbian content with English-only UI is a hard ceiling on the audience.
+8. **No i18n.** ~99% Russian content with English-only UI is a hard ceiling on the audience (Decision 0005).
 9. **No PWA.** No manifest, no service worker, no offline shell.
 10. **No image strategy.** Cards have no slot for hero imagery; `images.unoptimized: true` would ship full-size when they arrive.
 11. **No analytics events.** `@vercel/analytics` is installed but only auto-pageview firing — no custom events for filter use, event detail opens, share clicks.
@@ -63,7 +63,7 @@ These are **bugs**, not gaps:
 | `images.unoptimized: true` | **High** — ships full-size images, hurts CWV | `next.config.mjs` |
 | Theme toggle uses `document.documentElement.classList.toggle('dark', …)` directly | **Medium** — hydration mismatch risk; `next-themes` is installed but ignored | `app/page.tsx` |
 | `REFERENCE_TIME` is a hardcoded constant in 2026 | **Medium** — "New" badge will be wrong in prod | `lib/event-utils.ts` |
-| `ALL_CITIES.sort()` uses default ASCII collation | **Medium** — wrong for Serbian (`'Žabac' < 'Apple'` is false in `sr` locale, true in ASCII) | `lib/data.ts` |
+| `ALL_CITIES.sort()` uses default ASCII collation | **Medium** — wrong for any non-ASCII locale. Cities use slugs (Decision 0003); display names sort per active UI locale via `Intl.Collator(locale, { sensitivity: 'base' })` (active locale is `ru` or `en` per Decision 0005). | `lib/data.ts` |
 | ~30 unused Radix packages installed | **Low** — install bloat, audit noise | `package.json` |
 | `lib/data-6f074227.ts` and `lib/data.ts` both exist (export contains both versions) | **Low** — repository hygiene | `uploads/` |
 | `generator: 'v0.app'` left in metadata | **Low** — cosmetic / supply-chain signal | `app/layout.tsx` |
@@ -105,7 +105,7 @@ Gotovo is a **read-only event discovery web app** for Novi Sad and Belgrade. It 
 | F4 | Modal-style detail-over-feed UX | Clicking a card opens the detail as an intercepted parallel route (Next.js `@modal` slot) |
 | F5 | Light/dark theme with persistence | No FOUC on first paint; respects `prefers-color-scheme`; user choice persists |
 | F6 | Empty state | Renders when no events match active filters; CTA to clear filters |
-| F7 | Localized content (en + sr-Latn) | UI strings + dates render per `Accept-Language` and explicit toggle; locale survives reload |
+| F7 | Localized UI chrome (`ru` + `en`); content stays in source language (`ru`) | Default `ru` at `/`; English at `/en/...` via `next-intl` `localePrefix: 'as-needed'`. UI strings + dates render per `Accept-Language` and explicit toggle; locale survives reload (Decision 0005). |
 | F8 | Backend integration with Zod-validated boundary | Feed and detail hit `/v1/events` and `/v1/events/{uid}`; schema violations log to Sentry, render error state |
 | F9 | ISR with on-demand revalidation | Backend posts to `/api/revalidate` with HMAC; affected pages purge within seconds |
 | F10 | PWA installability | Manifest, icons, offline shell via Serwist; Chrome/Safari install prompt eligible |
@@ -137,7 +137,7 @@ Gotovo is a **read-only event discovery web app** for Novi Sad and Belgrade. It 
 | **LCP** (Largest Contentful Paint) | < 2.0 s on 4G mobile | Vercel Speed Insights, real-user data |
 | **INP** (Interaction to Next Paint) | < 200 ms p75 | Vercel Speed Insights |
 | **CLS** | < 0.05 | Vercel Speed Insights |
-| **First-load JS** | ≤ 120 KB gzipped on `/` | `@next/bundle-analyzer` in CI |
+| **First-load JS** | ≤ 160 KB gzipped on `/` (revised up from 120 KB to match the libraries committed to by this plan: `next-intl` + `next-themes` + `nuqs` + Sentry. Squeeze path if 160 KB is missed: lazy-load Sentry browser SDK behind first user interaction, defer Speed Insights mount, drop unused Radix.) | `@next/bundle-analyzer` in CI |
 | **Lighthouse a11y** | ≥ 95 | Lighthouse CI on every PR |
 | **Type coverage** | 100% strict (`strict: true`, `noUncheckedIndexedAccess: true`) | `tsc --noEmit` in CI |
 | **Test coverage** | ≥ 80% on `lib/` (pure functions); ≥ 60% overall | Vitest coverage in CI |
@@ -198,7 +198,7 @@ Gotovo is a **read-only event discovery web app** for Novi Sad and Belgrade. It 
 | --- | --- |
 | Filters (category, city, tags, date range, tab) | **URL search params** via `nuqs` |
 | Theme | `next-themes` (cookie) |
-| Locale | `next-intl` segment (`/en/...`, `/sr/...`) |
+| Locale | `next-intl` segment with `localePrefix: 'as-needed'` — default `ru` at `/`, English at `/en/...` (Decision 0005) |
 | Detail modal open/closed | Route (intercepted parallel route) |
 | Form fields (future) | `react-hook-form` |
 | Server data | Server components only; no client-side cache for the feed (it's cacheable upstream) |
@@ -209,7 +209,7 @@ Gotovo is a **read-only event discovery web app** for Novi Sad and Belgrade. It 
 ### 3.4 Data flow — feed
 
 ```
-URL params (?cat=Music&city=Novi+Sad)
+URL params (?category=HIKING&city=novi-sad)
    ↓
 Server Component reads params (nuqs server adapter)
    ↓
@@ -225,7 +225,7 @@ Component tree (Feed → DateGroup → EventCard)
 ```
 /event/[uid] requested
    ↓
-generateStaticParams: top 200 events pre-rendered at build
+generateStaticParams: next 200 events by startsAt pre-rendered at build
    ↓
 fetch(/v1/events/{uid}) with next: { revalidate: 3600, tags: ['event:{uid}'] }
    ↓
@@ -235,7 +235,7 @@ Zod validation → 404 page if event missing, "removed" state if 410
 ### 3.6 Theme + locale
 
 - **Theme**: `next-themes` provider in root layout, `attribute="class"`, `defaultTheme="system"`, `enableSystem`. Persisted via cookie (SSR-friendly, no FOUC).
-- **Locale**: `next-intl` with `[locale]` segment. Two locales: `en`, `sr` (Latin script default for v1). Middleware detects `Accept-Language` on first visit.
+- **Locale** (Decision 0005): `next-intl` with `[locale]` segment; locales `['ru', 'en']`; default `ru` at `/` via `localePrefix: 'as-needed'` (English lives at `/en/...`, `sr-Latn` deferred to v1.x). Middleware detects `Accept-Language` on first visit and persists choice via cookie. Content language: `ru`; UI renders an "Original: Russian" hint when active UI locale ≠ content language.
 
 ### 3.7 Error handling
 
@@ -289,14 +289,38 @@ Six phases, each ~1 week of focused work, each independently shippable. **Phase 
 | 0.9 Add `app/error.tsx`, `app/not-found.tsx`, `app/loading.tsx` | Friendly fallbacks at root | Triggering each renders correctly |
 | 0.10 Env schema | `lib/env.ts` validates `NEXT_PUBLIC_API_BASE_URL`, `REVALIDATE_SECRET`, `SENTRY_DSN`, etc., with Zod at boot | Boot fails fast on missing/invalid env |
 | 0.11 Replace direct theme toggle with `next-themes` | Theme cookie persists; no hydration warning | DevTools console clean across reloads |
+| 0.12 `next-intl` scaffold (Decision 0005) | Install `next-intl`. Add `[locale]` segment, `messages/ru.json` + `messages/en.json` placeholders, `localePrefix: 'as-needed'`, middleware locale detection. (Moved from Phase 3 — message-key extraction touches every component; do it once.) | `/` renders Russian chrome; `/en` renders English chrome; `/ru` redirects to `/`. |
+| 0.13 `EventCard` image-slot reservation (Decision 0004) | Reserve a 16:9 image block at the top of `EventCard`. Render a category-gradient placeholder with low-opacity LogoMark. `details.images = []` in v1; the slot guards CLS budget against future image switch. | Visual diff in Storybook / preview deploy shows the slot in both themes; CLS < 0.05 with placeholder in place. |
+| 0.14 Locale-aware Intl helper | `lib/datetime.ts` exports `formatDateLong(iso, locale)` and `formatDateShort(iso, locale)` — both call `Intl.DateTimeFormat(locale, { timeZone: 'Europe/Belgrade', ... })`. Forbid bare `Date.prototype.getDay/getMonth/getFullYear` via Biome custom lint or a CI grep step. | Tests pass for `ru` + `en` locales; DST transition test passes for `Europe/Belgrade`. |
 
 **Exit criteria**: green CI on a no-op change.
+
+---
+
+### Phase 0.5 — Backend `/v1/*` API (parallel; 2–3 backend-weeks)
+
+**Goal**: close the gap between `BACKEND_API_CONTRACT.md` and the actual backend. Without this phase, the frontend cannot integrate with anything real — there is no `/v1/*` API on the existing backend; only an internal `/ui/*` admin surface. Run in parallel with frontend Phase 0; Phase 1 depends on this phase shipping.
+
+| Task | Deliverable | Acceptance |
+| --- | --- | --- |
+| 0.5.1 Liquibase migration | Add `event.status text NOT NULL DEFAULT 'live'`, `event.language text NOT NULL DEFAULT 'ru'`, `event.timezone text NOT NULL DEFAULT 'Europe/Belgrade'`. Drop `idx_event_start_date`; add `idx_event_timeline (start_date, start_time NULLS FIRST, uid)` and `idx_event_recent (created_date DESC, uid DESC)` (Decision 0008). | Migration applies cleanly on staging; `EXPLAIN ANALYZE` for both sort modes shows index scan. |
+| 0.5.2 `EventsController`, `EventDetailController`, `FacetsController`, `HealthController` | New `space.cloaq.app.api.v1.*` package. DTOs match contract §3 exactly (Money, Source, EventDetail). DB row → DTO mapper composes `startsAt` from `(start_date, start_time, timezone)`; derives `allDay`; applies the canonical-source rule (Decision 0007); maps the controlled enums (Decisions 0001/0002/0003). | Integration tests against Testcontainers Postgres cover the contract; OpenAPI spec generated at `/v1/openapi.yaml`. |
+| 0.5.3 Cursor codec | Encode/decode the `{v, s, k}` cursor JSON (base64url). `+1` row trick for `hasMore`. Sort-mismatch → 400; filter-change tolerated (Decision 0008). | Tests cover: first page, mid-stream, last page, live-insert no-duplicate, malformed cursor, version mismatch, sort mismatch. |
+| 0.5.4 HTTP filter chain | `X-Request-ID` echo, problem+json on every 4xx/5xx, strong `ETag` from response hash, `Last-Modified` from `updated_date`, `Vary: Accept-Encoding, Accept-Language`, CORS allow-list, HMAC-SHA256 verification on `/api/revalidate` poster (Decision 0007 / contract §6). | Curl against staging: every error returns problem+json; CORS preflight returns 204; webhook signed against `REVALIDATE_SECRET`. |
+| 0.5.5 `q` 501 handler | `/v1/events?q=…` returns `501 Not Implemented` with `Sunset: Tue, 01 Sep 2026 00:00:00 GMT` + problem+json (Decision 0006). | `curl -i ?q=test` matches exactly. |
+| 0.5.6 City normaliser at ingest | Map every observed variant onto the 5 slugs (Decision 0003 Appendix B). Liquibase migration also slug-ifies historical rows. | `SELECT DISTINCT city FROM event` returns ≤ 6 rows (5 slugs + NULL). |
+| 0.5.7 `/api/revalidate` notifier on backend | After `EventPersistenceService` upsert + `DedupSplitService` merge, POST to the frontend's `/api/revalidate` with HMAC + replay timestamp. | Manual ingestion → frontend cache purges within 2 s. |
+| 0.5.8 Publish OpenAPI | Micronaut OpenAPI processor (annotation-driven) emits `openapi.yaml` at build; serve at `/v1/openapi.yaml`. | Frontend can run `openapi-typescript` against staging URL. |
+
+**Exit criteria**: `curl https://api.gotovo.app/v1/events?limit=2` returns valid contract-shaped JSON; cursor round-trips; HMAC-revalidate purges frontend ISR.
 
 ---
 
 ### Phase 1 — Backend integration (week 2)
 
 **Goal**: replace `lib/data.ts` constants with a real fetcher that hits the backend API.
+
+**Blocked by**: Phase 0.5 (the `/v1/*` API). Frontend dev unblocked in parallel via `msw` stubs generated from the OpenAPI spec.
 
 | Task | Deliverable | Acceptance |
 | --- | --- | --- |
@@ -333,18 +357,18 @@ Six phases, each ~1 week of focused work, each independently shippable. **Phase 
 
 ### Phase 3 — Theme, locale, fonts polish (week 4)
 
-**Goal**: production-quality theming and Serbian content support.
+**Goal**: production-quality theming, message-catalogue completeness, and locale-aware formatting (Decision 0005). `next-intl` scaffold + middleware already live from Phase 0; this phase fills in the chrome and exercises the locale switch end-to-end.
 
 | Task | Deliverable | Acceptance |
 | --- | --- | --- |
 | 3.1 `next-themes` correctly configured | Cookie-based, system-aware, no FOUC | Lighthouse "No flash of unstyled content" |
-| 3.2 `next-intl` scaffolding | `[locale]` segment, `messages/en.json`, `messages/sr.json` | Visiting `/sr` swaps UI strings |
-| 3.3 Middleware locale detection | First visit reads `Accept-Language`, redirects to best match | Manual test with locale headers |
-| 3.4 Replace custom `WEEK_DAYS`/`MONTHS` with `Intl.DateTimeFormat` | `lib/datetime.ts` exports `formatDateLong(date, locale)` | Tests pass for both en and sr |
-| 3.5 Locale-aware sort | `lib/sort.ts` uses `Intl.Collator` | Cyrillic + diacritic test cases pass |
+| 3.2 Translate message catalogues (Decision 0005) | Fill `messages/ru.json` + `messages/en.json` with the real chrome strings extracted from components. `next-intl` scaffold + middleware already in place from Phase 0 (tasks 0.12). | Visiting `/en` swaps UI strings; no missing-key warnings. |
+| 3.3 Polish "Original: Russian" hint | Component on `EventCard` / `DetailPage` that renders when active UI locale ≠ content `language`. Neutral copy (no "translated" claim). | Visible in `en` mode, hidden in `ru` mode. |
+| 3.4 Replace custom `WEEK_DAYS`/`MONTHS` with `lib/datetime.ts` (created Phase 0, task 0.14) | All date rendering routes through `formatDateLong(iso, locale)` / `formatDateShort(iso, locale)` with `timeZone: 'Europe/Belgrade'`. | Tests pass for `ru` + `en`; DST transition test passes. |
+| 3.5 Locale-aware sort | `lib/sort.ts` uses `Intl.Collator(locale, { sensitivity: 'base' })`. | Russian Cyrillic + Latin diacritic test cases pass under both locales. |
 | 3.6 Theme/locale on Server Components | No `'use client'` needed for either | Lighthouse score unchanged |
 
-**Exit criteria**: app fully functional in en + sr; no hydration warnings; theme toggle smooth.
+**Exit criteria**: app fully functional in `ru` + `en`; no hydration warnings; theme toggle smooth; "Original: Russian" hint surfaces in `en` mode and stays hidden in `ru` mode.
 
 ---
 
@@ -433,16 +457,19 @@ The project is "v1 launchable" when:
 
 | # | Risk | Likelihood | Impact | Mitigation |
 | --- | --- | --- | --- | --- |
-| R1 | Backend contract changes mid-implementation | High | High | OpenAPI spec is the single source of truth; codegen runs in CI; backend signs contract before Phase 1 starts |
-| R2 | Backend not ready when Phase 1 begins | High | High | Stub backend with `msw` against the OpenAPI spec so frontend can develop in parallel |
-| R3 | Serbian content quality (translation drift, mojibake) | Medium | Medium | Native-speaker review of locale files; CI lint for `\u003F` mojibake patterns; freeze translations per release |
+| R0 | `/v1/*` API does not exist on the backend yet | Certain | High | Phase 0.5 builds it in parallel with frontend Phase 0; frontend devs unblocked via `msw` stubs generated from the OpenAPI spec. |
+| R1 | Backend contract changes mid-implementation | High | High | OpenAPI spec is the single source of truth; codegen runs in CI; Phase −1 decision sweep closed every Open Question in §10. |
+| R2 | Backend not ready when Phase 1 begins | High | High | Mitigated by R0's Phase 0.5; `msw` stubs continue as the dev-loop fallback. |
+| R3 | Russian / English content quality (translation drift, mojibake) | Medium | Medium | Native-speaker review of locale files; CI lint for `\u003F` mojibake patterns; freeze translations per release. Russian display names in contract Appendices B/C/D are first-pass drafts. |
 | R4 | PWA install rate disappointment | Medium | Low | Treat as nice-to-have; don't block launch on install metrics |
-| R5 | Real images break card layout | High | Medium | Design the image slot in Phase 0; even if backend doesn't ship images yet, reserve the space |
-| R6 | Bundle creep from Radix usage | Medium | Medium | Bundle budget in CI; one Radix primitive at a time, justified |
-| R7 | Hydration mismatches from date formatting | Medium | High | Always pass ISO strings, format inside RSCs; never call `new Date()` in client effects without `useEffect` guard |
-| R8 | SEO regression by moving away from MPA conventions | Low | High | Dynamic `sitemap.ts`, per-event metadata, ISR for static-feel URLs |
-| R9 | Backend rate-limits us during build (`generateStaticParams` over many events) | Medium | Medium | Cap pre-rendered events at 200; rely on ISR for the rest |
-| R10 | Vercel pricing surprises (image optimization metering) | Low | Medium | Pre-resize at backend CDN; pass `unoptimized` for already-optimized URLs; monitor usage weekly |
+| R5 | Real images break card layout | Medium | Medium | v1 reserves the 16:9 image slot rendered as a category-gradient placeholder (Phase 0 task 0.13); backend image pipeline is v1.x scope (Decision 0004). |
+| R6 | Bundle creep from Radix usage | Medium | Medium | Bundle budget in CI (160 KB first-load); one Radix primitive at a time, justified. |
+| R7 | Hydration mismatches from date / locale formatting | Medium | High | All `Intl.*` calls take `locale` + `timeZone: 'Europe/Belgrade'` explicitly; lint rule (Phase 0 task 0.14) rejects bare `Date.prototype.getDay/getMonth/...`. Server emits ISO 8601 strings exclusively; client never constructs `Date` objects outside `lib/datetime.ts`. |
+| R8 | SEO regression by moving away from MPA conventions | Low | High | Dynamic `sitemap.ts`, per-event metadata, ISR for static-feel URLs. |
+| R9 | Backend rate-limits us during build (`generateStaticParams` over many events) | Medium | Medium | Cap pre-rendered events at 200 (next-by-startsAt); rely on ISR for the rest. |
+| R10 | Vercel pricing surprises (image optimization metering) | Low | Medium | Sidestepped for v1 by Decision 0004 (no images). When images land, prefer backend CDN with on-the-fly resize (reference plan: Cloudflare Images or imgproxy). |
+| R11 | Vercel image-optimisation bill (when v1.x adds images) | Medium | Medium | Decision 0004 reference plan picks Option B (backend CDN); Vercel optimiser explicitly avoided. |
+| R12 | Serwist + Next 16 compatibility unverified | Medium | Low | Verify at Phase 5 start. If broken, defer PWA to v1.x with plain manifest only (no service worker). |
 
 ---
 
@@ -459,8 +486,8 @@ gotovo/
 ├── .vscode/
 │   └── settings.json                    # Biome as default formatter
 ├── messages/
-│   ├── en.json
-│   └── sr.json
+│   ├── ru.json
+│   └── en.json
 ├── public/
 │   ├── manifest.webmanifest
 │   ├── icon-{192,512}.png
@@ -531,7 +558,11 @@ gotovo/
 │   │   │   ├── errors.ts                # ApiError, SchemaError
 │   │   │   └── hmac.ts                  # for /api/revalidate
 │   │   ├── analytics.ts                 # track() wrapper
-│   │   ├── datetime.ts                  # Intl.DateTimeFormat helpers
+│   │   ├── constants/                   # derived from BACKEND_API_CONTRACT Appendices B/C/D
+│   │   │   ├── cities.ts                # 5-slug city table (Decision 0003)
+│   │   │   ├── categories.ts            # 9-value category display map (Decision 0001)
+│   │   │   └── tags.ts                  # 14-value tag display map (Decision 0002)
+│   │   ├── datetime.ts                  # Intl.DateTimeFormat with timeZone: 'Europe/Belgrade'
 │   │   ├── sort.ts                      # Intl.Collator helpers
 │   │   ├── style-tokens.ts              # category → CSS variable map
 │   │   ├── url.ts                       # nuqs schemas
@@ -605,8 +636,8 @@ gotovo/
 
 The project has **good bones**: a clear visual direction, a clean component split, a strict type system, and a thoughtful design-token system. What it lacks is everything that makes a real product real — data fetching, URL state, routing, observability, i18n, PWA, tests, CI.
 
-**The plan above closes that gap in six phases over ~6 engineer-weeks.** Each phase is independently shippable. Phase 0 is the only one that's truly non-negotiable; the others can be reordered if backend readiness or user demand shifts priorities.
+**The plan above closes that gap in seven phases over ~7 frontend-weeks + 2–3 backend-weeks.** Phase 0.5 (backend `/v1/*` API) was added after the Phase −1 decision sweep surfaced that the contract describes a backend that does not yet exist. Each phase is independently shippable. Phase 0 and Phase 0.5 are the only ones that are truly non-negotiable; the others can be reordered if backend readiness or user demand shifts priorities.
 
-The single biggest risk is **backend readiness** (R1, R2). The contract is signed but implementation parity must be verified before Phase 1 begins — otherwise the frontend stalls waiting for endpoints that don't behave per spec. The mitigation (MSW stub from the OpenAPI spec) is non-negotiable.
+The single biggest risk is **backend readiness** (R0, R1, R2). The contract is signed (v1.2 post-Phase −1) but the `/v1/*` API does not yet exist on the backend — it is built in Phase 0.5. Frontend dev is unblocked in parallel via `msw` stubs generated from the OpenAPI spec; that mitigation is non-negotiable.
 
 Everything else is execution.
