@@ -1,6 +1,23 @@
-# Gotovo — Backend API Contract (v1.1)
+# Gotovo — Backend API Contract (v1.2)
 
 > Authoritative contract between the **Next.js frontend** (Vercel) and the **existing backend**. Every endpoint listed here is derived from a concrete need in the frontend — nothing speculative. Anything not listed is out of scope for v1.
+
+---
+
+## Changelog from v1.1
+
+Phase −1 decision sweep applied. Each entry references the local issue tracker (`issues/NNNN-*.md`) and GitHub issue numbers.
+
+| # | Change | Source |
+| --- | --- | --- |
+| 1 | `EventCategory` enum changed from contract-aspirational 6 (`Music`, `Adventure`, `Food & Drink`, `Education`, `Art`, `Wellness`) to backend's actual 9 (`HIKING`, `SPORTS`, `PARTY`, `WORKSHOP`, `EDUCATION`, `TRIP`, `CULTURE`, `ENTERTAINMENT`, `IT_NETWORKING`). Display names in new Appendix D. | Decision 0001 |
+| 2 | `tags` field constrained to controlled 14-value vocabulary; examples replaced; Appendix C added with `ru`/`en` display names. Closes Open Q #2 and #4. | Decision 0002 |
+| 3 | `city` field changed from `string \| null` to enum of 5 slugs (`belgrade`, `novi-sad`, `subotica`, `nis`, `kragujevac`). Appendix B added with display names, timezone, normaliser variants. Closes Open Q #1. | Decision 0003 |
+| 4 | v1 ships with `details.images = []`; backend image pipeline deferred to v1.x. Closes Open Q #3. | Decision 0004 |
+| 5 | Locale set narrows to `['ru', 'en']` for v1 UI; default `ru` at `/`; `en` at `/en/...` via `next-intl` `localePrefix: 'as-needed'`. Content language is `ru`. `EventLanguage` Zod enum amended to include `ru` first. Closes §11 Open Q #1. | Decision 0005 |
+| 6 | `q` search returns `501 Not Implemented` with `Sunset: Tue, 01 Sep 2026 00:00:00 GMT`. Closes Open Q #5. | Decision 0006 |
+| 7 | `source.url` canonical-selection rule specified: prefer public Telegram channels, highest `confidenceScore`, tiebreak by earliest `created_date`. Public URL form `https://t.me/{username}/{message_id}`; private fallback `tg://privatepost?...`. | Decision 0007 |
+| 8 | Cursor pagination encoding nailed down: `{ "v": 1, "s": "timeline" \| "recent", "k": [...] }` base64url-encoded. Sort-mismatch → 400; filter-change tolerated. Compound indexes `idx_event_timeline` and `idx_event_recent` referenced in §9. | Decision 0008 |
 
 ---
 
@@ -125,11 +142,11 @@ Most traffic hits the edge and never sees origin. Origin limit protects the back
 
 ### Pagination
 
-Cursor-based, forward-only. The browser's history stack handles backward navigation.
+Cursor-based keyset pagination, forward-only. The browser's history stack handles backward navigation.
 
 Request:
 ```
-GET /v1/events?cursor=eyJpZCI6IjEyIn0&limit=20
+GET /v1/events?cursor=eyJ2IjoxLCJzIjoidGltZWxpbmUiLCJrIjpbIjIwMjYtMDQtMjkiLCIwNjozMCIsImV2dF8wMUhYWVoiXX0&limit=20
 ```
 
 Response envelope:
@@ -137,26 +154,40 @@ Response envelope:
 {
   "data": [ /* items */ ],
   "page": {
-    "nextCursor": "eyJpZCI6IjMyIn0",
+    "nextCursor": "eyJ2IjoxLCJzIjoidGltZWxpbmUiLCJrIjpbIjIwMjYtMDUtMDEiLCIxOTowMCIsImV2dF8wMUhYWloiXX0",
     "hasMore":    true,
     "total":      147
   }
 }
 ```
 
-- `limit` default **20**, max **100**.
-- `cursor` is opaque (base64 JSON server-side). Frontend never inspects it.
-- `total` is the count **across all pages under the current filter set**.
+- `limit` default **20**, max **100**. Above 100 → `400` problem+json.
+- `cursor` is opaque to clients. Internally it is `base64url(JSON.stringify(payload))` with no padding.
+- Cursor payload shape (Decision 0008):
+  ```json
+  { "v": 1, "s": "timeline" | "recent", "k": [...sort-key tuple...] }
+  ```
+  - `v` is the encoding version. Mismatched version → `400`.
+  - `s` is the sort mode the cursor was created for. If a request's `sort` differs from the cursor's `s`, server returns `400` with `"cursor sort mismatch — restart pagination"`. Other filter changes are tolerated: the same cursor applied to a different filter set produces well-defined boundary semantics without dropping data.
+  - `k` is the sort-key tuple of the **last row of the previous page**:
+    - `sort=timeline`: `[startDate, startTimeOrEmpty, uid]` (e.g. `["2026-04-29", "06:30", "evt_01HXYZ"]`; empty string for all-day events).
+    - `sort=recent`: `[createdAtUtc, uid]` (e.g. `["2026-04-28T14:20:00Z", "evt_01HXYZ"]`).
+- Malformed base64 / JSON / missing keys → `400` problem+json with `"invalid cursor"`.
+- `nextCursor` is `null` when `hasMore=false`.
+- `total` is the count **across all pages under the current filter set**. Computed via a separate `SELECT COUNT(*)` under the same filter; cacheable at the API layer when filter cardinality stays modest.
+- Implementation detail (server-side, not user-facing): each query fetches `limit + 1` rows; if `limit + 1` returned, `hasMore = true` and the extra row is discarded before serialisation. Avoids a second COUNT for the common case.
 
 ### Localization
 
-- `Accept-Language` honored with quality values. Examples:
-  - `Accept-Language: en` → English content where available, source language otherwise.
-  - `Accept-Language: sr-Latn` → Serbian Latin script preferred.
-  - `Accept-Language: sr-Cyrl` → Serbian Cyrillic script preferred.
-  - `Accept-Language: sr-Latn;q=0.9, sr;q=0.8, en;q=0.5` → graceful preference chain.
-- Each event includes a `"language"` field with the **actual** language returned (BCP 47 tag). Frontend renders a "translated from …" hint if there's a mismatch.
-- Server-side sorting uses `Collator(locale, { sensitivity: 'base' })` — never default ASCII sort. `'Žabac'` must sort after `'Apple'` and `'Ulica'`, not before.
+- **v1 UI locales**: `['ru', 'en']`. `ru` is the default and lives at the root path (`/`); English lives at `/en/...` via `next-intl` `localePrefix: 'as-needed'`. `sr-Latn` is deferred to v1.x — the schema below tolerates it for forward compatibility but the backend will not emit it.
+- **Content language**: `ru`. ~99% of ingested Telegram posts are in Russian; the LLM extracts structured fields in Russian. The `language` field on each event is `'ru'` in v1.
+- `Accept-Language` honored with quality values. Examples (post-Decision 0005):
+  - `Accept-Language: ru` → Russian UI chrome + Russian content (default behaviour).
+  - `Accept-Language: en` → English UI chrome; content stays Russian; UI renders an "Original: Russian" hint.
+  - `Accept-Language: ru-RU;q=0.9, ru;q=0.8, en;q=0.5` → graceful preference chain; resolves to `ru`.
+  - `Accept-Language: sr-Latn` → not v1; falls back to `ru` per default.
+- Each event includes a `"language"` field with the **actual** content language (BCP 47 tag). In v1, this is always `"ru"`. Frontend renders an "Original: Russian" hint when active UI locale ≠ content language.
+- Server-side sorting uses `Intl.Collator(locale, { sensitivity: 'base' })` — never default ASCII sort. Russian Cyrillic and Latin diacritics must collate correctly under both UI locales.
 
 ### CORS
 
@@ -199,7 +230,7 @@ The feed. Single most-called endpoint. Everything else is decoration.
 | `from` | `YYYY-MM-DD` | today (server-local) | Earliest `startsAt` date inclusive |
 | `to` | `YYYY-MM-DD` | `from` + 30 days | Latest `startsAt` date **inclusive**. Range `to - from` ≤ **92 days**; greater → `400`. |
 | `sort` | `timeline` \| `recent` | `timeline` | `timeline` = by `startsAt` asc; `recent` = by `createdAt` desc |
-| `q` | string (1–80 chars) | — | Full-text search on title + description. If not yet implemented: `501 Not Implemented` + `Sunset` header showing planned date. |
+| `q` | string (1–80 chars) | — | Full-text search on title + description. **v1: always returns `501 Not Implemented`** with `Sunset: Tue, 01 Sep 2026 00:00:00 GMT` and `Link: <https://api.gotovo.app/v1/changelog>; rel="alternate"`. Activation tracked under Decision 0006. |
 | `cursor` | string | — | Pagination cursor from previous response |
 | `limit` | integer 1–100 | 20 | Page size |
 
@@ -216,10 +247,10 @@ The feed. Single most-called endpoint. Everything else is decoration.
     {
       "uid":         "evt_01HXYZABCDE",
       "title":       "Sunrise Via Ferrata",
-      "description": "A guided climb up the rocky ridge…",
-      "category":    "Adventure",
-      "tags":        ["Via Ferrata", "Nature", "Guided", "Morning"],
-      "city":        "Novi Sad",
+      "description": "Прогулка по Фрушка-Горе со сбором у вокзала.",
+      "category":    "HIKING",
+      "tags":        ["Outdoor", "Free", "Weekend"],
+      "city":        "novi-sad",
       "location":    "Fruška Gora National Park",
       "startsAt":    "2026-04-29T06:30:00+02:00",
       "endsAt":      null,
@@ -229,20 +260,20 @@ The feed. Single most-called endpoint. Everything else is decoration.
         "kind":     "free",
         "amount":   null,
         "currency": null,
-        "display":  "Free"
+        "display":  "Бесплатно"
       },
       "source": {
-        "url":   "https://www.fruskagora.rs/events",
+        "url":   "https://t.me/exampleChannel/12345",
         "count": 3
       },
-      "language":  "en",
+      "language":  "ru",
       "status":    "live",
       "createdAt": "2026-04-28T14:20:00Z",
       "updatedAt": "2026-04-28T14:20:00Z"
     }
   ],
   "page": {
-    "nextCursor": "eyJpZCI6IjIwIn0",
+    "nextCursor": "eyJ2IjoxLCJzIjoidGltZWxpbmUiLCJrIjpbIjIwMjYtMDUtMDEiLCIxOTowMCIsImV2dF8wMUhYWVoiXX0",
     "hasMore":    true,
     "total":      12
   }
@@ -256,19 +287,19 @@ The feed. Single most-called endpoint. Everything else is decoration.
 | `uid` | string | Opaque, stable for the life of the event. Format owned by backend (ULIDs recommended). |
 | `title` | string, non-empty | Plain text. No HTML. |
 | `description` | string \| null | Plain text. Newlines preserved. No HTML. |
-| `category` | enum | One of: `Music`, `Adventure`, `Food & Drink`, `Education`, `Art`, `Wellness`. New values require a coordinated rollout with ≥ 90 days notice. |
-| `tags` | string[] | Each tag is a display string. Adjacent duplicates (case/whitespace) must be deduped at ingestion. |
-| `city` | string \| null | Display name. See Open Q #1 for canonical-slug discussion. |
+| `category` | enum | One of (Decision 0001): `HIKING`, `SPORTS`, `PARTY`, `WORKSHOP`, `EDUCATION`, `TRIP`, `CULTURE`, `ENTERTAINMENT`, `IT_NETWORKING`. Display names per locale: see Appendix D. New values require a coordinated rollout with ≥ 90 days notice. |
+| `tags` | string[] (controlled) | Each tag is one of the controlled vocabulary; see Appendix C. Cap 50 per event (vocabulary is 14 values, so cap is defensive). Adjacent duplicates impossible by construction. |
+| `city` | enum \| null | One of (Decision 0003): `belgrade`, `novi-sad`, `subotica`, `nis`, `kragujevac`, or `null` when ingest cannot map the raw extracted city string to a known slug. Display names per locale + IANA timezone + normaliser variants: see Appendix B. |
 | `location` | string \| null | Venue / address line; free text. |
-| `startsAt` | ISO 8601 with offset | The event's local civil time. |
+| `startsAt` | ISO 8601 with offset | The event's local civil time. Composed at API layer from `(start_date, start_time, timezone)` columns; emitted with `+02:00` offset (or `+01:00` during DST) per `Europe/Belgrade`. |
 | `endsAt` | ISO 8601 with offset \| null | **Inclusive** of the final day for multi-day events. `null` = same-day event. |
-| `allDay` | boolean | `true` when no time-of-day applies. When `true`, `startsAt` / `endsAt` are at `00:00` of the local day. |
-| `timezone` | IANA zone string | E.g. `"Europe/Belgrade"`. Authoritative for DST resolution. |
+| `allDay` | boolean | `true` when no time-of-day applies. Derived from `start_time IS NULL`. When `true`, `startsAt` / `endsAt` are at `00:00` of the local day. |
+| `timezone` | IANA zone string | E.g. `"Europe/Belgrade"`. Authoritative for DST resolution. All v1 events: `"Europe/Belgrade"`. |
 | `price` | object | See below. |
-| `source.url` | string (URL) \| null | Where the event was scraped from. |
-| `source.count` | integer ≥ 1 | **Number of distinct upstream sources** that confirmed this event. Higher = more confidence. Capped at 999 (UI shows ≤ 5 dots). |
-| `language` | BCP 47 tag | `"en"`, `"sr"`, `"sr-Latn"`, `"sr-Cyrl"`. The actual language returned for this object. |
-| `status` | enum | `"live"` \| `"cancelled"` \| `"postponed"`. Cancelled events MUST still be returned within their date window — the frontend strikes them through. |
+| `source.url` | string (URL) \| null | Canonical Telegram message URL chosen per Decision 0007: public form `https://t.me/{username}/{message_id}` when available; private fallback `tg://privatepost?channel={absChannelId}&post={message_id}`; `null` only when zero sources (defensive). |
+| `source.count` | integer ≥ 1 | **Number of distinct upstream sources** that confirmed this event. Higher = more confidence. Capped server-side at 5 (matches the 5-dot UI). |
+| `language` | BCP 47 tag | Always `"ru"` in v1 (Decision 0005). Zod schema tolerates the full enum (`'ru' \| 'en' \| 'sr' \| 'sr-Latn' \| 'sr-Cyrl'`) for forward compatibility. |
+| `status` | enum | `"live"` \| `"cancelled"` \| `"postponed"`. Cancelled events MUST still be returned within their date window — the frontend strikes them through. Backed by `event.status text NOT NULL DEFAULT 'live'` (Phase 0.5 migration). |
 | `createdAt` | UTC ISO 8601 | First time the event entered the backend. |
 | `updatedAt` | UTC ISO 8601 | Last meaningful change. Drives cache invalidation; equality with previous value ⇒ no UI churn. |
 
@@ -285,12 +316,27 @@ The feed. Single most-called endpoint. Everything else is decoration.
 
 Frontend prefers `display` for rendering, uses `kind`/`amount` for filtering.
 
+Parser heuristic (Phase 0.5 API layer maps backend's free-text `event.price text` column into the structured shape above): blank / literal `"Free"` / `"Бесплатно"` → `kind=free`, `amount=null`, `currency=null`, `display="Бесплатно"` (or English equivalent per `Accept-Language`); numeric-looking value with `RSD` / `EUR` / `Дин.` / `€` → `kind=paid` with parsed amount in smallest unit; everything else → `kind=unknown`, `display=<source text>`. v1 emits the heuristic verbatim; v1.x can swap in a better parser without contract change.
+
 ### Sorting contract
 
-- `sort=timeline`: `ORDER BY startsAt ASC, allDay DESC, uid ASC` (all-day events sort first within a day).
-- `sort=recent`:   `ORDER BY createdAt DESC, uid DESC`.
+- `sort=timeline`: `ORDER BY start_date ASC, start_time ASC NULLS FIRST, uid ASC` (all-day events — `start_time IS NULL` — sort first within a day).
+- `sort=recent`:   `ORDER BY created_date DESC, uid DESC`.
 
 Stable tiebreaker on `uid` is **mandatory** — otherwise cursor pagination duplicates rows.
+
+Backing indexes (Decision 0008, applied in the Phase 0.5 backend migration):
+- `idx_event_timeline ON event (start_date, start_time NULLS FIRST, uid)`
+- `idx_event_recent   ON event (created_date DESC, uid DESC)`
+
+Source-attribution selection (Decision 0007): when multiple `event_source` rows back the same event, the canonical `source.url` is chosen by:
+1. Prefer rows whose Telegram channel has a public username (`source.username IS NOT NULL`).
+2. Within that subset, pick the row with the highest `extracted_payload.confidenceScore`.
+3. Tiebreak by earliest `event_source.created_date`.
+4. If no public sources exist, fall back to the same rule on private channels; `url` returned as `tg://privatepost?channel={absChannelId}&post={message_id}`.
+5. Defensive: if no `event_source` rows exist (delete cascade race), `url=null, count=0`.
+
+Public URL form: `https://t.me/{username}/{message_id}` (browser-renderable, opens Telegram preview).
 
 ---
 
@@ -365,20 +411,20 @@ This is the standard "facet-aware" pattern. Selecting a filter never zeros-out t
 ```json
 {
   "categories": [
-    { "value": "Adventure",     "count": 5 },
-    { "value": "Art",           "count": 2 },
-    { "value": "Education",     "count": 3 },
-    { "value": "Food & Drink",  "count": 4 },
-    { "value": "Music",         "count": 8 },
-    { "value": "Wellness",      "count": 1 }
+    { "value": "HIKING",        "count": 5 },
+    { "value": "CULTURE",       "count": 2 },
+    { "value": "EDUCATION",     "count": 3 },
+    { "value": "PARTY",         "count": 4 },
+    { "value": "WORKSHOP",      "count": 8 },
+    { "value": "IT_NETWORKING", "count": 1 }
   ],
   "cities": [
-    { "value": "Belgrade", "count": 6 },
-    { "value": "Novi Sad", "count": 17 }
+    { "value": "belgrade", "count": 6 },
+    { "value": "novi-sad", "count": 17 }
   ],
   "tags": [
-    { "value": "Jazz",    "count": 3 },
-    { "value": "Outdoor", "count": 7 }
+    { "value": "Outdoor", "count": 7 },
+    { "value": "Free",    "count": 3 }
   ],
   "truncated": {
     "categories": false,
@@ -388,8 +434,9 @@ This is the standard "facet-aware" pattern. Selecting a filter never zeros-out t
 }
 ```
 
-- Sort: `localeCompare` with the request's locale, `sensitivity: 'base'`.
-- Tags capped at **200** entries; set `truncated.tags = true` past that. Above 200, the frontend switches to a searchable picker UI (see Open Q #4).
+- Sort: `Intl.Collator(locale, { sensitivity: 'base' })` with the request's locale.
+- `value` is the wire form for each dimension: `category` returns enum values (`HIKING`, …), `city` returns slugs (`belgrade`, `novi-sad`, …), `tags` returns vocabulary strings (`Outdoor`, `Free`, …). Display names are the frontend's responsibility via Appendices B / C / D.
+- Tags capped at **200** entries; `truncated.tags = true` past that. v1 vocabulary is 14 entries — the cap is defensive. The "searchable picker over 40 tags" UI question (former Open Q #4) is closed as n/a per Decision 0002.
 - Zero-count entries are **omitted** (they would clutter the UI).
 
 ---
@@ -466,15 +513,34 @@ const Money = z.object({
   display:  z.string(),
 });
 
+// Source: see "Sorting contract" in §2 for canonical-selection rule (Decision 0007).
+// `url` may be `https://t.me/{username}/{message_id}` (public) or `tg://privatepost?...` (private fallback) or `null` (defensive).
+// `count` is capped server-side at 5 to match the 5-dot UI.
 const Source = z.object({
-  url:   z.string().url().nullable(),
-  count: z.number().int().min(1).max(999),
+  url:   z.string().nullable(),  // not z.url() — `tg://` is a valid URI but fails standard URL parsers
+  count: z.number().int().min(0).max(5),
 });
 
-export const EventLanguage = z.enum(['en', 'sr', 'sr-Latn', 'sr-Cyrl']);
-export const EventStatus   = z.enum(['live', 'cancelled', 'postponed']);
+// Decision 0005: backend emits only `ru` in v1; full enum tolerated for forward compatibility.
+export const EventLanguage = z.enum(['ru', 'en', 'sr', 'sr-Latn', 'sr-Cyrl']);
+
+export const EventStatus = z.enum(['live', 'cancelled', 'postponed']);
+
+// Decision 0001: backend's 9-value vocabulary. Display names per locale in Appendix D.
 export const EventCategory = z.enum([
-  'Music', 'Adventure', 'Food & Drink', 'Education', 'Art', 'Wellness',
+  'HIKING', 'SPORTS', 'PARTY', 'WORKSHOP', 'EDUCATION',
+  'TRIP', 'CULTURE', 'ENTERTAINMENT', 'IT_NETWORKING',
+]);
+
+// Decision 0002: controlled vocabulary (14 values). Display names per locale in Appendix C.
+export const EventTag = z.enum([
+  'Kids', 'Family', 'Outdoor', 'Indoor', 'Free', 'Paid', 'Beginner',
+  'Advanced', 'Evening', 'Weekend', 'Nature', 'Urban', 'International', 'Online',
+]);
+
+// Decision 0003: 5-slug enum. Display names + timezone + normaliser variants in Appendix B.
+export const EventCity = z.enum([
+  'belgrade', 'novi-sad', 'subotica', 'nis', 'kragujevac',
 ]);
 
 export const Event = z.object({
@@ -482,8 +548,8 @@ export const Event = z.object({
   title:       z.string().min(1),
   description: z.string().nullable(),
   category:    EventCategory,
-  tags:        z.array(z.string()).max(50),
-  city:        z.string().nullable(),
+  tags:        z.array(EventTag).max(50),
+  city:        EventCity.nullable(),
   location:    z.string().nullable(),
   startsAt:    z.string().datetime({ offset: true }),
   endsAt:      z.string().datetime({ offset: true }).nullable(),
@@ -583,29 +649,97 @@ Split by layer because the original mixed CDN and origin SLOs.
 | Compression | `br` preferred, `gzip` fallback |
 | Time skew tolerance | client/server clocks may differ ≤ 5 min; revalidate webhook enforces this |
 
+### Index strategy (backing the SLOs above)
+
+Required indexes on `event` (added in the Phase 0.5 Liquibase migration, Decision 0008):
+
+- `idx_event_timeline ON event (start_date, start_time NULLS FIRST, uid)` — powers `sort=timeline` keyset pagination.
+- `idx_event_recent ON event (created_date DESC, uid DESC)` — powers `sort=recent`.
+
+These supersede the current `idx_event_start_date` (single-column) — drop it in the same migration after the compound index is in place.
+
 ---
 
 ## 10. Must-answer-before-signing questions
 
-These are **not** open questions — they are contract gaps that block sign-off.
+These were contract gaps that blocked sign-off. All closed in the Phase −1 decision sweep.
 
-1. **City identity.** Free text or controlled enum with slugs? If enum, ship the canonical list (slug + display name + IANA zone if cities span zones). Frontend can't route `/c/novi-sad` without this.
-2. **Tag governance.** Same question. Either dedupe at ingestion (lowercase + trim + collapse whitespace → display via a `displayName`) or expose a stable slug. The frontend cannot render `#OPEN-MIC` and `#Open Mic` as separate facets forever.
-3. **Image pipeline.** Does the backend CDN accept `?w=…` for on-the-fly resizing, or does the frontend route through Vercel's image optimizer? Answer decides `loader:` in `next.config.js`.
-4. **Tag count threshold for searchable picker.** The contract caps facets at 200, but at what real-world count should the frontend swap chip rows for a search input? Suggest **40** based on a typical mobile viewport.
-5. **`q` search readiness.** Now, planned (give date), or never? Frontend code path differs.
-6. **`source.count` cap.** Hard limit so the UI doesn't render "47 sources". Suggest 5 (matches the existing dot UI).
+1. ~~**City identity.**~~ Closed by Decision 0003 — controlled 5-slug enum; see Appendix B.
+2. ~~**Tag governance.**~~ Closed by Decision 0002 — controlled 14-value vocabulary; see Appendix C.
+3. ~~**Image pipeline.**~~ Closed by Decision 0004 — v1 ships with `details.images = []`; backend image pipeline deferred to v1.x.
+4. ~~**Tag count threshold for searchable picker.**~~ Closed by Decision 0002 — n/a, controlled vocabulary fits on a single chip row.
+5. ~~**`q` search readiness.**~~ Closed by Decision 0006 — `501 Not Implemented` + `Sunset: Tue, 01 Sep 2026 00:00:00 GMT`.
+6. ~~**`source.count` cap.**~~ Locked at **5** (matches the dot UI).
 
 ## 11. Open questions (truly open — can defer past signing)
 
-1. **`Accept-Language: sr` default script** when the client doesn't specify Latn vs Cyrl. Latin is the safer default for v1; revisit with user data.
+1. ~~**`Accept-Language: sr` default script.**~~ Closed by Decision 0005 — `sr` is not a v1 UI locale; deferred to v1.x.
 2. **Event "happening now" filter.** Useful but YAGNI — frontend can derive from `startsAt`/`endsAt` + `Date.now()`.
 3. **RSS / iCal feeds.** Out of scope for v1 but the URL pattern (`/v1/events.rss`, `/v1/events/{uid}.ics`) should be reserved.
 
 ---
 
+## Appendix A — reserved
+
+Reserved for a future cross-reference table.
+
+## Appendix B — Cities (Decision 0003)
+
+| Slug         | Display (ru)  | Display (en) | Timezone        | Normaliser variants (examples)                              |
+|--------------|---------------|--------------|-----------------|-------------------------------------------------------------|
+| `belgrade`   | Белград       | Belgrade     | Europe/Belgrade | `Belgrade`, `Beograd`, `Београд`, `Белград`, `BG`           |
+| `novi-sad`   | Нови-Сад      | Novi Sad     | Europe/Belgrade | `Novi Sad`, `Novi-Sad`, `Нови Сад`, `Нови-Сад`, `NS`        |
+| `subotica`   | Суботица      | Subotica     | Europe/Belgrade | `Subotica`, `Суботица`, `Szabadka` (Hungarian)              |
+| `nis`        | Ниш           | Niš          | Europe/Belgrade | `Nis`, `Niš`, `Ниш`                                         |
+| `kragujevac` | Крагуевац     | Kragujevac   | Europe/Belgrade | `Kragujevac`, `Крагујевац`, `Крагуевац`, `KG`               |
+
+Normaliser matching: case-insensitive, Unicode-NFC-folded, whitespace-collapsed, hyphen/space-equivalent. ASCII-fold optional for matching; never for display (`Niš` keeps the glyph; URL slug is `nis`).
+
+Frontend `lib/constants/cities.ts` mirrors this table. Backend's ingestion normaliser is the authoritative source; the frontend list is presentation-only.
+
+When N approaches ~20 cities or runtime city management is required, migrate from enum to a `city` schema table (per Decision 0003's Option C reference plan).
+
+## Appendix C — Tag vocabulary (Decision 0002)
+
+| Tag             | Display (ru)         | Display (en)    |
+|-----------------|----------------------|-----------------|
+| `Kids`          | Дети                 | Kids            |
+| `Family`        | Семья                | Family          |
+| `Outdoor`       | На открытом воздухе  | Outdoor         |
+| `Indoor`        | В помещении          | Indoor          |
+| `Free`          | Бесплатно            | Free            |
+| `Paid`          | Платно               | Paid            |
+| `Beginner`      | Для начинающих       | Beginner        |
+| `Advanced`      | Продвинутый уровень  | Advanced        |
+| `Evening`       | Вечер                | Evening         |
+| `Weekend`       | Выходные             | Weekend         |
+| `Nature`        | Природа              | Nature          |
+| `Urban`         | Город                | Urban           |
+| `International` | Международный        | International   |
+| `Online`        | Онлайн               | Online          |
+
+Wire form is the English key (`Outdoor`, `Free`, …). Display per active UI locale via the table above. Russian display values are first-pass drafts; revisit with a native speaker before broad release.
+
+## Appendix D — Category display names (Decision 0001)
+
+| Enum value       | Display (ru)            | Display (en)    |
+|------------------|-------------------------|-----------------|
+| `HIKING`         | Походы                  | Hiking          |
+| `SPORTS`         | Спорт                   | Sports          |
+| `PARTY`          | Вечеринки               | Party           |
+| `WORKSHOP`       | Мастер-классы           | Workshop        |
+| `EDUCATION`      | Образование             | Education       |
+| `TRIP`           | Поездки                 | Trip            |
+| `CULTURE`        | Культура                | Culture         |
+| `ENTERTAINMENT`  | Развлечения             | Entertainment   |
+| `IT_NETWORKING`  | IT и нетворкинг         | IT/Networking   |
+
+Wire form is the enum value (`HIKING`, …). Backend's existing English display-name map in `gotovo-backend/shared/src/main/kotlin/space/cloaq/shared/constant/EventCategory.kt` is authoritative for the English column. Russian display values are first-pass drafts subject to native-speaker review; if a reviewer is unavailable at merge time, ship with English-only fallback for any row whose Russian translation has not been confirmed.
+
+---
+
 ## Bottom line
 
-**Five public endpoints, one webhook, one strict JSON contract.** Every field, every error, every cache header, every rate limit, every signature requirement is specified — no remaining "we'll figure it out". The only items left to negotiate (§10) block sign-off; the items in §11 don't.
+**Five public endpoints, one webhook, one strict JSON contract.** Every field, every error, every cache header, every rate limit, every signature requirement is specified — no remaining "we'll figure it out". Phase −1 decisions closed every Open Question in §10 and resolved one of three in §11.
 
 Anything outside this document — auth, mutations, real-time, GraphQL, file upload, comments, RSVPs, push — is a separate contract revision.
