@@ -39,3 +39,9 @@ export/
 
 # Vercel
 .vercel
+
+# Test artifacts
+/playwright-report
+/test-results
+/coverage
+.playwright
