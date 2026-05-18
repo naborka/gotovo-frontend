@@ -1,0 +1,21 @@
+{
+  "errors": {
+    "somethingWentWrong": "Something went wrong",
+    "genericRetry": "Unexpected error. Try refreshing the page.",
+    "errorId": "Identifier: {id}",
+    "tryAgain": "Try again"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The event may have been removed or the link is out of date.",
+    "home": "Go home"
+  },
+  "loading": {
+    "label": "Loading"
+  },
+  "header": {
+    "switchToLight": "Switch to light theme",
+    "switchToDark": "Switch to dark theme",
+    "clearFilters": "Clear filters"
+  }
+}
