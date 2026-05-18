@@ -1,0 +1,1334 @@
+openapi: 3.0.1
+info:
+  title: Gotovo Public API
+  description: "Event discovery API for Novi Sad and Belgrade. Contract: BACKEND_API_CONTRACT.md\
+    \ v1.2."
+  contact:
+    name: Gotovo
+    url: https://gotovo.app
+  license:
+    name: TBD
+    url: https://gotovo.app/license
+  version: 1.0.0
+servers:
+- url: https://api.gotovo.app
+  description: Production
+- url: https://staging-api.gotovo.app
+  description: Staging
+- url: http://localhost:8080
+  description: Local
+tags:
+- name: events
+  description: Event feed + detail
+- name: facets
+  description: Faceted counts
+- name: health
+  description: Service health
+paths:
+  /api/admin/dedup/run:
+    post:
+      operationId: run
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DedupRunRequest"
+        required: true
+      responses:
+        "200":
+          description: run 200 response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DedupRunResponse"
+  /api/admin/settings/confidence-threshold:
+    get:
+      operationId: getConfidence
+      responses:
+        "200":
+          description: getConfidence 200 response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConfidenceThresholdResponse"
+    put:
+      operationId: putConfidence
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConfidenceThresholdRequest"
+        required: true
+      responses:
+        "200":
+          description: putConfidence 200 response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConfidenceThresholdResponse"
+  /api/admin/settings/dedup-threshold:
+    get:
+      operationId: get
+      responses:
+        "200":
+          description: get 200 response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DedupThresholdResponse"
+    put:
+      operationId: put
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DedupThresholdRequest"
+        required: true
+      responses:
+        "200":
+          description: put 200 response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DedupThresholdResponse"
+  /api/admin/settings/dedup-title-overlap:
+    get:
+      operationId: getTitleOverlap
+      responses:
+        "200":
+          description: getTitleOverlap 200 response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MinTitleOverlapResponse"
+    put:
+      operationId: putTitleOverlap
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MinTitleOverlapRequest"
+        required: true
+      responses:
+        "200":
+          description: putTitleOverlap 200 response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MinTitleOverlapResponse"
+  /ui:
+    get:
+      operationId: index
+      responses:
+        "200":
+          description: index 200 response
+          content:
+            application/json:
+              schema:
+                type: object
+  /ui/admin:
+    get:
+      operationId: index_1
+      responses:
+        "200":
+          description: index_1 200 response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+  /ui/admin/dedup-run:
+    post:
+      operationId: dedupRun
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/DedupRunForm"
+        required: true
+      responses:
+        "200":
+          description: dedupRun 200 response
+          content:
+            text/html:
+              schema:
+                type: object
+  /ui/admin/events/regenerate-bulk:
+    post:
+      operationId: bulkRegenerateEvents
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/BulkRegenForm"
+        required: true
+      responses:
+        "200":
+          description: bulkRegenerateEvents 200 response
+          content:
+            text/html:
+              schema:
+                type: string
+  /ui/admin/settings/digest-prompt:
+    put:
+      operationId: saveDigestPrompt
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PromptRequest"
+        required: true
+      responses:
+        "200":
+          description: saveDigestPrompt 200 response
+          content:
+            text/html:
+              schema:
+                type: string
+  /ui/admin/settings/digest-prompt/reset:
+    post:
+      operationId: resetDigestPrompt
+      responses:
+        "200":
+          description: resetDigestPrompt 200 response
+          content:
+            application/json:
+              schema:
+                type: object
+  /ui/admin/settings/extraction-prompt:
+    put:
+      operationId: saveExtractionPrompt
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PromptRequest"
+        required: true
+      responses:
+        "200":
+          description: saveExtractionPrompt 200 response
+          content:
+            text/html:
+              schema:
+                type: string
+  /ui/admin/settings/extraction-prompt/reset:
+    post:
+      operationId: resetExtractionPrompt
+      responses:
+        "200":
+          description: resetExtractionPrompt 200 response
+          content:
+            application/json:
+              schema:
+                type: object
+  /ui/digests:
+    get:
+      operationId: list
+      responses:
+        "200":
+          description: list 200 response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+    post:
+      operationId: create
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/CreateDigestForm"
+        required: true
+      responses:
+        "200":
+          description: create 200 response
+          content:
+            text/html:
+              schema:
+                type: object
+  /ui/digests/new:
+    get:
+      operationId: newForm
+      responses:
+        "200":
+          description: newForm 200 response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+  /ui/digests/{uid}:
+    get:
+      operationId: detail
+      parameters:
+      - name: uid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: detail 200 response
+          content:
+            application/json:
+              schema:
+                type: object
+    delete:
+      summary: Deletes a digest.
+      description: Deletes a digest.
+      operationId: delete
+      parameters:
+      - name: uid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: from
+        in: query
+        description: '"list" (default) returns 204 --- HTMX removes the table row
+          inline. "detail" returns HX-Redirect --- HTMX navigates back to the list
+          page.'
+        required: true
+        explode: false
+        schema:
+          type: string
+          default: list
+      responses:
+        "200":
+          description: delete 200 response
+  /ui/events:
+    get:
+      operationId: events
+      parameters:
+      - name: sort
+        in: query
+        required: true
+        explode: false
+        schema:
+          type: string
+          default: date
+      - name: dateCategory
+        in: query
+        required: true
+        explode: false
+        schema:
+          type: string
+          default: upcoming
+      - name: tags
+        in: query
+        explode: false
+        schema:
+          type: array
+          nullable: true
+          items:
+            type: string
+      - name: city
+        in: query
+        explode: false
+        schema:
+          type: string
+          nullable: true
+      - name: perPage
+        in: query
+        required: true
+        explode: false
+        schema:
+          type: integer
+          format: int32
+          default: 15
+      - name: page
+        in: query
+        required: true
+        explode: false
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      responses:
+        "200":
+          description: events 200 response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+  /ui/events/{uid}:
+    get:
+      operationId: eventDetail
+      parameters:
+      - name: uid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: regenError
+        in: query
+        explode: false
+        schema:
+          type: string
+          nullable: true
+      responses:
+        "200":
+          description: eventDetail 200 response
+          content:
+            application/json:
+              schema:
+                type: object
+  /ui/events/{uid}/regenerate:
+    post:
+      operationId: regenerateEvent
+      parameters:
+      - name: uid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: regenerateEvent 200 response
+          content:
+            application/json:
+              schema:
+                type: object
+  /ui/sources:
+    get:
+      operationId: sources
+      responses:
+        "200":
+          description: sources 200 response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+    post:
+      operationId: addSource
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/AddSourceForm"
+        required: true
+      responses:
+        "200":
+          description: addSource 200 response
+          content:
+            application/json:
+              schema:
+                type: object
+  /ui/sources/refetch-all:
+    post:
+      operationId: refetchAllSources
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/RefetchForm"
+        required: true
+      responses:
+        "200":
+          description: refetchAllSources 200 response
+          content:
+            application/json:
+              schema:
+                type: object
+  /ui/sources/resolve:
+    post:
+      operationId: resolveSource
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/ResolveForm"
+        required: true
+      responses:
+        "200":
+          description: resolveSource 200 response
+          content:
+            text/html:
+              schema:
+                $ref: "#/components/schemas/ModelAndView_Map_String.Object__"
+  /ui/sources/{uid}:
+    delete:
+      operationId: removeSource
+      parameters:
+      - name: uid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: removeSource 200 response
+  /ui/sources/{uid}/refetch:
+    post:
+      operationId: refetchSource
+      parameters:
+      - name: uid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/RefetchForm"
+        required: true
+      responses:
+        "200":
+          description: refetchSource 200 response
+          content:
+            text/html:
+              schema:
+                type: object
+  /ui/sources/{uid}/refetch-form:
+    get:
+      operationId: refetchForm
+      parameters:
+      - name: uid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: refetchForm 200 response
+          content:
+            text/html:
+              schema:
+                $ref: "#/components/schemas/ModelAndView_Map_String.Object__"
+  /ui/sources/{uid}/toggle:
+    post:
+      operationId: toggleSource
+      parameters:
+      - name: uid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: toggleSource 200 response
+          content:
+            application/json:
+              schema:
+                type: object
+  /v1/events:
+    get:
+      operationId: list_1
+      parameters:
+      - name: category
+        in: query
+        explode: false
+        schema:
+          type: string
+          nullable: true
+      - name: city
+        in: query
+        explode: false
+        schema:
+          type: string
+          nullable: true
+      - name: tag
+        in: query
+        explode: false
+        schema:
+          type: array
+          nullable: true
+          items:
+            type: string
+      - name: tagMode
+        in: query
+        explode: false
+        schema:
+          type: string
+          nullable: true
+      - name: from
+        in: query
+        explode: false
+        schema:
+          type: string
+          nullable: true
+      - name: to
+        in: query
+        explode: false
+        schema:
+          type: string
+          nullable: true
+      - name: sort
+        in: query
+        explode: false
+        schema:
+          type: string
+          nullable: true
+      - name: limit
+        in: query
+        explode: false
+        schema:
+          type: integer
+          format: int32
+          nullable: true
+      - name: cursor
+        in: query
+        explode: false
+        schema:
+          type: string
+          nullable: true
+      - name: q
+        in: query
+        explode: false
+        schema:
+          type: string
+          nullable: true
+      responses:
+        "200":
+          description: list_1 200 response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventsPage"
+  /v1/events/{uid}:
+    get:
+      operationId: get_1
+      parameters:
+      - name: uid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: get_1 200 response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventDetail"
+  /v1/facets:
+    get:
+      operationId: get_2
+      parameters:
+      - name: category
+        in: query
+        explode: false
+        schema:
+          type: string
+          nullable: true
+      - name: city
+        in: query
+        explode: false
+        schema:
+          type: string
+          nullable: true
+      - name: tag
+        in: query
+        explode: false
+        schema:
+          type: array
+          nullable: true
+          items:
+            type: string
+      - name: tagMode
+        in: query
+        explode: false
+        schema:
+          type: string
+          nullable: true
+      - name: from
+        in: query
+        explode: false
+        schema:
+          type: string
+          nullable: true
+      - name: to
+        in: query
+        explode: false
+        schema:
+          type: string
+          nullable: true
+      - name: q
+        in: query
+        explode: false
+        schema:
+          type: string
+          nullable: true
+      responses:
+        "200":
+          description: get_2 200 response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Facets"
+  /v1/health:
+    get:
+      operationId: get_3
+      responses:
+        "200":
+          description: get_3 200 response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Health"
+  /v1/openapi.yaml:
+    get:
+      operationId: spec
+      responses:
+        "200":
+          description: spec 200 response
+          content:
+            application/yaml:
+              schema:
+                type: string
+                format: binary
+components:
+  schemas:
+    AddSourceForm:
+      required:
+      - title
+      type: object
+      properties:
+        chatId:
+          type: integer
+          format: int64
+          nullable: true
+        title:
+          type: string
+        username:
+          type: string
+          nullable: true
+    BulkRegenForm:
+      required:
+      - days
+      type: object
+      properties:
+        days:
+          type: integer
+          format: int32
+    CityV1:
+      required:
+      - slug
+      type: object
+      properties:
+        slug:
+          type: string
+      description: "v1 city slugs per Decision 0003 Appendix B. Wire format = slug\
+        \ (lowercase, kebab-case)."
+    ConfidenceThresholdRequest:
+      required:
+      - threshold
+      type: object
+      properties:
+        threshold:
+          type: number
+          format: double
+    ConfidenceThresholdResponse:
+      required:
+      - threshold
+      type: object
+      properties:
+        threshold:
+          type: number
+          format: double
+    CreateDigestForm:
+      required:
+      - dateFrom
+      - dateTo
+      type: object
+      properties:
+        dateFrom:
+          type: string
+          format: date
+        dateTo:
+          type: string
+          format: date
+      description: Micronaut converts ISO-8601 date strings from HTML to LocalDate
+        natively.
+    DedupRunForm:
+      required:
+      - endDate
+      - startDate
+      type: object
+      properties:
+        startDate:
+          type: string
+        endDate:
+          type: string
+        preview:
+          type: boolean
+          nullable: true
+        maxSources:
+          type: integer
+          format: int32
+          nullable: true
+    DedupRunRequest:
+      required:
+      - endDate
+      - maxSources
+      - preview
+      - startDate
+      type: object
+      properties:
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        preview:
+          type: boolean
+        maxSources:
+          type: integer
+          format: int32
+    DedupRunResponse:
+      required:
+      - clustersFound
+      - elapsedMs
+      - merges
+      - preview
+      - sourcesProcessed
+      - splits
+      type: object
+      properties:
+        preview:
+          type: boolean
+        sourcesProcessed:
+          type: integer
+          format: int32
+        clustersFound:
+          type: integer
+          format: int32
+        merges:
+          type: array
+          items:
+            $ref: "#/components/schemas/MergeRecord"
+        splits:
+          type: array
+          items:
+            $ref: "#/components/schemas/SplitRecord"
+        elapsedMs:
+          type: integer
+          format: int64
+    DedupThresholdRequest:
+      required:
+      - similarity
+      type: object
+      properties:
+        similarity:
+          type: number
+          format: double
+    DedupThresholdResponse:
+      required:
+      - distance
+      - similarity
+      type: object
+      properties:
+        similarity:
+          type: number
+          format: double
+        distance:
+          type: number
+          format: double
+    Directions:
+      required:
+      - lat
+      - lng
+      - mapsUrl
+      type: object
+      properties:
+        lat:
+          type: number
+          format: double
+        lng:
+          type: number
+          format: double
+        mapsUrl:
+          type: string
+    Event:
+      required:
+      - allDay
+      - category
+      - createdAt
+      - language
+      - price
+      - source
+      - startsAt
+      - status
+      - tags
+      - timezone
+      - title
+      - uid
+      - updatedAt
+      type: object
+      properties:
+        uid:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+          nullable: true
+        category:
+          $ref: "#/components/schemas/EventCategory"
+        tags:
+          type: array
+          items:
+            type: string
+        city:
+          nullable: true
+          allOf:
+          - $ref: "#/components/schemas/CityV1"
+        location:
+          type: string
+          nullable: true
+        startsAt:
+          type: string
+        endsAt:
+          type: string
+          nullable: true
+        allDay:
+          type: boolean
+        timezone:
+          type: string
+        price:
+          $ref: "#/components/schemas/Price"
+        source:
+          $ref: "#/components/schemas/SourceSummary"
+        language:
+          $ref: "#/components/schemas/LanguageTag"
+        status:
+          $ref: "#/components/schemas/EventStatus"
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      description: Contract §2 list-item shape.
+    EventCategory:
+      type: object
+    EventDetail:
+      required:
+      - allDay
+      - category
+      - createdAt
+      - details
+      - language
+      - price
+      - source
+      - startsAt
+      - status
+      - tags
+      - timezone
+      - title
+      - uid
+      - updatedAt
+      type: object
+      properties:
+        uid:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+          nullable: true
+        category:
+          $ref: "#/components/schemas/EventCategory"
+        tags:
+          type: array
+          items:
+            type: string
+        city:
+          nullable: true
+          allOf:
+          - $ref: "#/components/schemas/CityV1"
+        location:
+          type: string
+          nullable: true
+        startsAt:
+          type: string
+        endsAt:
+          type: string
+          nullable: true
+        allDay:
+          type: boolean
+        timezone:
+          type: string
+        price:
+          $ref: "#/components/schemas/Price"
+        source:
+          $ref: "#/components/schemas/SourceSummary"
+        language:
+          $ref: "#/components/schemas/LanguageTag"
+        status:
+          $ref: "#/components/schemas/EventStatus"
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+        details:
+          $ref: "#/components/schemas/EventDetailExtras"
+      description: Contract §3 --- feed fields + details object.
+    EventDetailExtras:
+      required:
+      - images
+      - links
+      type: object
+      properties:
+        longDescription:
+          type: string
+          nullable: true
+        directions:
+          nullable: true
+          allOf:
+          - $ref: "#/components/schemas/Directions"
+        organizer:
+          nullable: true
+          allOf:
+          - $ref: "#/components/schemas/Organizer"
+        images:
+          type: array
+          items:
+            $ref: "#/components/schemas/EventImage"
+        links:
+          type: array
+          items:
+            $ref: "#/components/schemas/EventLink"
+      description: "Contract §3 detail extras. v1 emits stubs for fields backed by\
+        \ columns that don't yet exist (longDescription, directions, organizer, images,\
+        \ links)."
+    EventImage:
+      required:
+      - height
+      - url
+      - width
+      type: object
+      properties:
+        url:
+          type: string
+        width:
+          type: integer
+          format: int32
+        height:
+          type: integer
+          format: int32
+        blurhash:
+          type: string
+          nullable: true
+        alt:
+          type: string
+          nullable: true
+    EventLink:
+      required:
+      - label
+      - url
+      type: object
+      properties:
+        label:
+          type: string
+        url:
+          type: string
+    EventStatus:
+      type: string
+      description: v1 event status. Mirrors event.status CHECK constraint.
+      enum:
+      - Live
+      - Cancelled
+      - Postponed
+      x-enum-varnames:
+      - Live
+      - Cancelled
+      - Postponed
+    EventsPage:
+      required:
+      - data
+      - page
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Event"
+        page:
+          $ref: "#/components/schemas/PageMeta"
+      description: Contract §2 paginated response envelope.
+    FacetEntry_CityV1_:
+      required:
+      - count
+      - value
+      type: object
+      properties:
+        value:
+          $ref: "#/components/schemas/CityV1"
+        count:
+          type: integer
+          format: int64
+    FacetEntry_EventCategory_:
+      required:
+      - count
+      - value
+      type: object
+      properties:
+        value:
+          $ref: "#/components/schemas/EventCategory"
+        count:
+          type: integer
+          format: int64
+    FacetEntry_String_:
+      required:
+      - count
+      - value
+      type: object
+      properties:
+        value:
+          type: string
+        count:
+          type: integer
+          format: int64
+    FacetTruncated:
+      required:
+      - categories
+      - cities
+      - tags
+      type: object
+      properties:
+        categories:
+          type: boolean
+        cities:
+          type: boolean
+        tags:
+          type: boolean
+    Facets:
+      required:
+      - categories
+      - cities
+      - tags
+      - truncated
+      type: object
+      properties:
+        categories:
+          type: array
+          items:
+            $ref: "#/components/schemas/FacetEntry_EventCategory_"
+        cities:
+          type: array
+          items:
+            $ref: "#/components/schemas/FacetEntry_CityV1_"
+        tags:
+          type: array
+          items:
+            $ref: "#/components/schemas/FacetEntry_String_"
+        truncated:
+          $ref: "#/components/schemas/FacetTruncated"
+      description: Contract §4 facets.
+    Health:
+      required:
+      - checkedAt
+      - status
+      - uptime
+      - version
+      type: object
+      properties:
+        status:
+          type: string
+        uptime:
+          type: integer
+          format: int64
+        version:
+          type: string
+        checkedAt:
+          type: string
+      description: Contract §5 health.
+    LanguageTag:
+      type: string
+      description: v1 language tag. Mirrors event.language CHECK constraint. Frontend
+        tolerates a broader BCP 47 set; v1 emits these three.
+      enum:
+      - Ru
+      - En
+      - Sr
+      x-enum-varnames:
+      - Ru
+      - En
+      - Sr
+    MergeRecord:
+      required:
+      - loserEventUids
+      - loserTitles
+      - sourcesMoved
+      - winnerEventUid
+      - winnerTitle
+      type: object
+      properties:
+        winnerEventUid:
+          type: string
+          format: uuid
+        winnerTitle:
+          type: string
+        loserEventUids:
+          type: array
+          items:
+            type: string
+            format: uuid
+        loserTitles:
+          type: array
+          items:
+            type: string
+        sourcesMoved:
+          type: integer
+          format: int32
+    MinTitleOverlapRequest:
+      required:
+      - overlap
+      type: object
+      properties:
+        overlap:
+          type: number
+          format: double
+    MinTitleOverlapResponse:
+      required:
+      - overlap
+      type: object
+      properties:
+        overlap:
+          type: number
+          format: double
+    ModelAndView_Map_String.Object__:
+      required:
+      - model
+      - view
+      type: object
+      properties:
+        view:
+          type: string
+        model:
+          type: object
+          additionalProperties:
+            type: object
+    Organizer:
+      required:
+      - name
+      type: object
+      properties:
+        name:
+          type: string
+        url:
+          type: string
+          nullable: true
+    PageMeta:
+      required:
+      - hasMore
+      type: object
+      properties:
+        nextCursor:
+          type: string
+          nullable: true
+        hasMore:
+          type: boolean
+        total:
+          type: integer
+          description: Total count of events matching filters (irrespective of cursor).
+            null when not computed.
+          format: int64
+          nullable: true
+    Price:
+      required:
+      - display
+      - kind
+      type: object
+      properties:
+        kind:
+          $ref: "#/components/schemas/PriceKind"
+        amount:
+          type: integer
+          format: int64
+          nullable: true
+        currency:
+          type: string
+          nullable: true
+        display:
+          type: string
+      description: Contract §2 "price sub-schema".
+    PriceKind:
+      type: string
+      description: Price kind per contract §2 "price sub-schema".
+      enum:
+      - Free
+      - Paid
+      - Unknown
+      x-enum-varnames:
+      - Free
+      - Paid
+      - Unknown
+    PromptRequest:
+      required:
+      - value
+      type: object
+      properties:
+        value:
+          type: string
+    RefetchForm:
+      required:
+      - days
+      type: object
+      properties:
+        days:
+          type: integer
+          format: int32
+    ResolveForm:
+      required:
+      - channel
+      type: object
+      properties:
+        channel:
+          type: string
+    SourceSummary:
+      required:
+      - count
+      type: object
+      properties:
+        url:
+          type: string
+          nullable: true
+        count:
+          type: integer
+          format: int32
+      description: Contract §2 source object.
+    SplitRecord:
+      required:
+      - newEventTitles
+      - newEventUids
+      - originalEventUid
+      - originalTitle
+      - sourcesMoved
+      type: object
+      properties:
+        originalEventUid:
+          type: string
+          format: uuid
+        originalTitle:
+          type: string
+        newEventUids:
+          type: array
+          items:
+            type: string
+            format: uuid
+        newEventTitles:
+          type: array
+          items:
+            type: string
+        sourcesMoved:
+          type: integer
+          format: int32

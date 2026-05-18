@@ -55,6 +55,14 @@ jobs:
             exit 1
           fi
 
+      - name: Contract drift check
+        run: |
+          pnpm gen:api
+          if ! git diff --exit-code lib/api/types.gen.ts; then
+            echo "::error::lib/api/types.gen.ts drifted from committed spec. Run 'pnpm gen:api' locally and commit the regenerated types."
+            exit 1
+          fi
+
       - name: Test (Vitest)
         run: pnpm test
 
