@@ -136,9 +136,9 @@ export function IconSearch({ size = 14, ...props }: IconProps) {
 }
 
 /** Gotovo logo mark */
-export function LogoMark({ size = 20 }: { size?: number }) {
+export function LogoMark({ size = 20, className }: { size?: number; className?: string }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 22 22" fill="none">
+    <svg width={size} height={size} viewBox="0 0 22 22" fill="none" className={className}>
       <circle cx="11" cy="11" r="9.5" stroke="var(--primary)" strokeWidth="1.4" />
       <circle cx="11" cy="11" r="3.5" fill="var(--primary)" opacity="0.3" />
       <circle cx="11" cy="11" r="1.5" fill="var(--primary)" />
