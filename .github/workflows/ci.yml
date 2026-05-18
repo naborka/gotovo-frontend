@@ -41,6 +41,20 @@ jobs:
       - name: Lint
         run: pnpm lint
 
+      - name: Forbid bare Date.prototype.* timezone-sensitive calls
+        run: |
+          set -euo pipefail
+          MATCHES=$(grep -RnE '\.(getDay|getMonth|getFullYear|getHours|getMinutes|getDate)\(' \
+            app components lib hooks 2>/dev/null \
+            | grep -vE '\.(test|spec)\.tsx?:' \
+            | grep -vE 'lib/datetime\.ts:' \
+            | grep -vE 'lib/data\.ts:' || true)
+          if [ -n "$MATCHES" ]; then
+            echo "::error::Bare Date.prototype.* timezone-sensitive calls found. Use lib/datetime.ts helpers."
+            echo "$MATCHES"
+            exit 1
+          fi
+
       - name: Test (Vitest)
         run: pnpm test
 
