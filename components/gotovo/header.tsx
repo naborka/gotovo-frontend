@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 import { IconClose, IconMoon, IconSun, LogoMark } from '@/components/icons';
@@ -11,6 +12,7 @@ interface HeaderProps {
 }
 
 export function Header({ hasFilters, onClearFilters }: HeaderProps) {
+  const t = useTranslations('header');
   const { theme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -34,7 +36,7 @@ export function Header({ hasFilters, onClearFilters }: HeaderProps) {
         {hasFilters && (
           <IconButton
             icon={<IconClose size={14} />}
-            label="Clear all filters"
+            label={t('clearFilters')}
             onClick={onClearFilters}
           />
         )}
@@ -46,7 +48,7 @@ export function Header({ hasFilters, onClearFilters }: HeaderProps) {
               <IconMoon size={14} />
             ) : null
           }
-          label={current === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
+          label={current === 'dark' ? t('switchToLight') : t('switchToDark')}
           onClick={toggle}
         />
       </div>
