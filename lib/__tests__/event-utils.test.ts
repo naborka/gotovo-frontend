@@ -2,8 +2,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   daysBetween,
   filterEvents,
-  formatDateLong,
-  formatDateShort,
   getCategoryStyle,
   getPriceStyle,
   groupEventsByDate,
@@ -25,43 +23,6 @@ const makeEvent = (overrides: Partial<GotovoEvent> = {}): GotovoEvent => ({
   ...overrides,
 });
 
-describe('formatDateLong', () => {
-  it('renders weekday, day, and full month', () => {
-    // 2026-05-01 is a Friday
-    const result = formatDateLong(new Date('2026-05-01T00:00:00Z'));
-    expect(result).toBe('Friday, 1 May');
-  });
-
-  it('renders correctly for day 1 (no leading zero)', () => {
-    const result = formatDateLong(new Date('2026-06-01T00:00:00Z'));
-    expect(result).toContain('1 ');
-    expect(result).not.toMatch(/01/);
-  });
-
-  it('renders Sunday correctly', () => {
-    // 2026-05-03 is a Sunday
-    const result = formatDateLong(new Date('2026-05-03T00:00:00Z'));
-    expect(result).toBe('Sunday, 3 May');
-  });
-});
-
-describe('formatDateShort', () => {
-  it('renders DD MMM with 3-letter month abbreviation', () => {
-    const result = formatDateShort(new Date('2026-05-29T00:00:00Z'));
-    expect(result).toBe('29 May');
-  });
-
-  it('renders single-digit day without leading zero', () => {
-    const result = formatDateShort(new Date('2026-06-01T00:00:00Z'));
-    expect(result).toBe('1 Jun');
-  });
-
-  it('renders December correctly', () => {
-    const result = formatDateShort(new Date('2026-12-25T00:00:00Z'));
-    expect(result).toBe('25 Dec');
-  });
-});
-
 describe('daysBetween', () => {
   it('returns 0 for identical dates', () => {
     const d = new Date('2026-05-01T00:00:00Z');
@@ -81,7 +42,6 @@ describe('daysBetween', () => {
   });
 
   it('handles DST boundary (Europe/Belgrade spring forward)', () => {
-    // 2026-03-29 is spring forward day in Europe/Belgrade
     const before = new Date('2026-03-28T00:00:00Z');
     const after = new Date('2026-03-30T00:00:00Z');
     expect(daysBetween(before, after)).toBe(2);
@@ -114,7 +74,7 @@ describe('isNewEvent', () => {
 
   it('accepts explicit now as number', () => {
     const event = makeEvent({ createdAt: new Date('2026-05-01T11:00:00Z') });
-    expect(isNewEvent(event, 1777636800000)).toBe(true); // 2026-05-01T12:00:00Z
+    expect(isNewEvent(event, 1777636800000)).toBe(true);
   });
 
   it('accepts explicit now as Date', () => {
@@ -292,7 +252,6 @@ describe('groupEventsByRecency', () => {
     ];
     const result = groupEventsByRecency(events);
     expect(result).toHaveLength(2);
-    // evt_1 has more recent createdAt, so its group comes first
     expect(result[0]?.events[0]?.uid).toBe('evt_1');
     expect(result[1]?.events[0]?.uid).toBe('evt_2');
   });

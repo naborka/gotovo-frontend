@@ -1,6 +1,8 @@
 'use client';
 
-import { formatDateLong, groupEventsByDate, groupEventsByRecency } from '@/lib/event-utils';
+import { useLocale } from 'next-intl';
+import { formatDateLong } from '@/lib/datetime';
+import { groupEventsByDate, groupEventsByRecency } from '@/lib/event-utils';
 import type { GotovoEvent, TabType } from '@/lib/types';
 import { EmptyState } from './empty-state';
 import { EventCard } from './event-card';
@@ -17,6 +19,8 @@ interface FeedProps {
 }
 
 export function Feed({ events, tab, onOpenEvent }: FeedProps) {
+  const locale = useLocale();
+
   if (events.length === 0) {
     return <EmptyState />;
   }
@@ -38,7 +42,7 @@ export function Feed({ events, tab, onOpenEvent }: FeedProps) {
           {/* Date header */}
           <div className="flex items-baseline gap-2 px-3 py-1.5 border-b border-divider md:px-6">
             <span className="font-heading text-base font-extrabold text-foreground tracking-tight leading-none">
-              {formatDateLong(group.date)}
+              {formatDateLong(group.date.toISOString(), locale)}
             </span>
             <span className="ml-auto font-mono text-[10px] text-faint">
               {group.events.length} event{group.events.length !== 1 ? 's' : ''}

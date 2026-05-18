@@ -1,43 +1,5 @@
 import type { CategoryStyle, DateGroup, EventCategory, GotovoEvent, PriceStyle } from './types';
 
-/**
- * Event utility functions.
- * Pure functions following functional programming principles.
- */
-
-const WEEK_DAYS = [
-  'Sunday',
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday',
-  'Saturday',
-] as const;
-
-const MONTHS = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-] as const;
-
-/** Format date as "Wednesday, 29 April" */
-export const formatDateLong = (date: Date): string =>
-  `${WEEK_DAYS[date.getDay()]}, ${date.getDate()} ${MONTHS[date.getMonth()]}`;
-
-/** Format date as "29 Apr" */
-export const formatDateShort = (date: Date): string =>
-  `${date.getDate()} ${(MONTHS[date.getMonth()] ?? '').slice(0, 3)}`;
-
 /** Calculate days between two dates */
 export const daysBetween = (start: Date, end: Date): number =>
   Math.round((end.getTime() - start.getTime()) / 86_400_000);
@@ -127,16 +89,14 @@ export const groupEventsByDate = (events: GotovoEvent[]): DateGroup[] => {
   const sorted = [...events].sort((a, b) => {
     const dateDiff = a.startDate.getTime() - b.startDate.getTime();
     if (dateDiff !== 0) return dateDiff;
-    // Sort by time within same date
     const timeA = a.startTime ?? '99:99';
     const timeB = b.startTime ?? '99:99';
     return timeA.localeCompare(timeB);
   });
 
   const grouped = new Map<string, DateGroup>();
-
   for (const event of sorted) {
-    const key = event.startDate.toDateString();
+    const key = event.startDate.toISOString().slice(0, 10);
     let group = grouped.get(key);
     if (!group) {
       group = { date: event.startDate, events: [] };
@@ -153,9 +113,8 @@ export const groupEventsByRecency = (events: GotovoEvent[]): DateGroup[] => {
   const sorted = [...events].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
   const grouped = new Map<string, DateGroup>();
-
   for (const event of sorted) {
-    const key = event.startDate.toDateString();
+    const key = event.startDate.toISOString().slice(0, 10);
     let group = grouped.get(key);
     if (!group) {
       group = { date: event.startDate, events: [] };

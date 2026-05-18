@@ -1,14 +1,10 @@
 'use client';
 
+import { useLocale } from 'next-intl';
 import { useEffect } from 'react';
 import { IconBack, IconDirections, IconExternal, IconShare } from '@/components/icons';
-import {
-  daysBetween,
-  formatDateLong,
-  getCategoryStyle,
-  getPriceStyle,
-  isNewEvent,
-} from '@/lib/event-utils';
+import { formatDateLong } from '@/lib/datetime';
+import { daysBetween, getCategoryStyle, getPriceStyle, isNewEvent } from '@/lib/event-utils';
 import type { GotovoEvent } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Pill } from './pill';
@@ -156,6 +152,7 @@ function ActionButton({
 
 /** Event detail content */
 function EventDetailContent({ event }: { event: GotovoEvent }) {
+  const locale = useLocale();
   const catStyle = getCategoryStyle(event.cat);
   const priceStyle = getPriceStyle(event.price);
   const isNew = isNewEvent(event);
@@ -206,7 +203,7 @@ function EventDetailContent({ event }: { event: GotovoEvent }) {
 
       {/* Info grid */}
       <div className="grid grid-cols-2 gap-2 mb-4">
-        <DateTimeSection event={event} />
+        <DateTimeSection event={event} locale={locale} />
 
         {/* Location */}
         <InfoCell label="Location" fullWidth>
@@ -280,13 +277,17 @@ function EventDetailContent({ event }: { event: GotovoEvent }) {
 }
 
 /** Date/time section for detail view */
-function DateTimeSection({ event }: { event: GotovoEvent }) {
+function DateTimeSection({ event, locale }: { event: GotovoEvent; locale: string }) {
   const { startDate, endDate, startTime, endTime } = event;
   const isMultiDay = !!endDate;
 
   if (isMultiDay) {
-    const startLabel = [formatDateLong(startDate), startTime].filter(Boolean).join(' · ');
-    const endLabel = [formatDateLong(endDate), endTime].filter(Boolean).join(' · ');
+    const startLabel = [formatDateLong(startDate.toISOString(), locale), startTime]
+      .filter(Boolean)
+      .join(' · ');
+    const endLabel = [formatDateLong(endDate.toISOString(), locale), endTime]
+      .filter(Boolean)
+      .join(' · ');
 
     return (
       <>
@@ -307,7 +308,7 @@ function DateTimeSection({ event }: { event: GotovoEvent }) {
   return (
     <>
       <InfoCell label="Date">
-        <p>{formatDateLong(startDate)}</p>
+        <p>{formatDateLong(startDate.toISOString(), locale)}</p>
       </InfoCell>
       <InfoCell label="Time">
         {startTime ? (
