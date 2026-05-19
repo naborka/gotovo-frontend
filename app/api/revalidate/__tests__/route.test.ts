@@ -92,7 +92,7 @@ describe('POST /api/revalidate', () => {
     const res = await POST(
       await buildRequest(validPayload, {
         ts: String(epoch),
-        sig: 'sha256=BAD' + 'a'.repeat(40),
+        sig: `sha256=BAD${'a'.repeat(40)}`,
       }),
     );
     expect(res.status).toBe(401);
