@@ -1,3 +1,4 @@
+import { SerwistProvider } from '@serwist/turbopack/react';
 import { Analytics } from '@vercel/analytics/next';
 import type { Metadata, Viewport } from 'next';
 import { DM_Mono, DM_Sans, Syne } from 'next/font/google';
@@ -115,19 +116,21 @@ export default async function LocaleLayout({ children, modal, params }: Props) {
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className="font-sans antialiased bg-background">
-        <NextIntlClientProvider messages={messages} locale={locale}>
-          <NuqsAdapter>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="system"
-              enableSystem
-              disableTransitionOnChange
-            >
-              {children}
-              {modal}
-            </ThemeProvider>
-          </NuqsAdapter>
-        </NextIntlClientProvider>
+        <SerwistProvider swUrl="/serwist/sw.js">
+          <NextIntlClientProvider messages={messages} locale={locale}>
+            <NuqsAdapter>
+              <ThemeProvider
+                attribute="class"
+                defaultTheme="system"
+                enableSystem
+                disableTransitionOnChange
+              >
+                {children}
+                {modal}
+              </ThemeProvider>
+            </NuqsAdapter>
+          </NextIntlClientProvider>
+        </SerwistProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
