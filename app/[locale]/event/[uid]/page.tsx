@@ -1,12 +1,23 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { routing } from '@/i18n/routing';
 import { ApiError, getEvent } from '@/lib/api/client';
+import { getPopularEventUids } from '@/lib/api/popular';
 import { tagEventDetail } from '@/lib/api/tags';
 import { EventDetailFullPage } from './_components/EventDetailFullPage';
 
 type Props = {
   params: Promise<{ locale: 'ru' | 'en'; uid: string }>;
 };
+
+/**
+ * Pre-renders top N popular events × every locale at build time. Long-tail
+ * uids fall back to on-demand rendering (`dynamicParams` defaults to true).
+ */
+export async function generateStaticParams() {
+  const uids = await getPopularEventUids();
+  return routing.locales.flatMap((locale) => uids.map((uid) => ({ locale, uid })));
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, uid } = await params;
