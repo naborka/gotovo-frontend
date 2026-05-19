@@ -27,6 +27,15 @@ describe('formatTime', () => {
   });
 });
 
+describe('formatTime — DST spring-forward (Europe/Belgrade)', () => {
+  it('does not crash on the gap hour (2026-03-29)', () => {
+    // Europe/Belgrade jumps from 02:00 CET to 03:00 CEST on last Sunday of March.
+    // 2026-03-29T01:00:00Z = 02:00 CET = 03:00 CEST after jump.
+    const t = formatTime('2026-03-29T01:00:00Z', 'ru');
+    expect(['02:00', '03:00']).toContain(t);
+  });
+});
+
 describe('isSameDayInBelgrade', () => {
   it('returns true for same-day inputs in different offsets', () => {
     expect(isSameDayInBelgrade('2026-04-29T01:00:00+02:00', '2026-04-29T22:00:00+02:00')).toBe(
