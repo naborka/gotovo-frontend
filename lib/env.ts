@@ -7,6 +7,13 @@ import { z } from 'zod';
  */
 const ServerEnvSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+  REVALIDATE_SECRET: z
+    .string()
+    .min(32, 'REVALIDATE_SECRET must be at least 32 chars')
+    .optional()
+    .describe(
+      'Shared HMAC secret with backend RevalidateNotifier. Required to enable /api/revalidate; optional in dev.',
+    ),
 });
 
 /**
