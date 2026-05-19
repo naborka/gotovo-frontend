@@ -6,6 +6,7 @@ import { categoryDisplayName, cityDisplayName } from '@/lib/display';
 import { daysBetween, getCategoryStyle, getPriceStyle, isNewEvent } from '@/lib/event-utils';
 import type { GotovoEvent } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import { LanguageHint } from './language-hint';
 import { Pill } from './pill';
 import { CancelledBanner, PostponedBanner } from './withdrawal-banner';
 
@@ -29,6 +30,7 @@ export function EventDetailContent({ event, locale }: { event: GotovoEvent; loca
     <>
       {isCancelled && <CancelledBanner />}
       {isPostponed && <PostponedBanner />}
+      <LanguageHint language={event.language} />
       <div className="flex items-center gap-1.5 flex-wrap mb-3">
         <Pill
           label={categoryDisplayName(event.category, locale)}

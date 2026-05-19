@@ -49,7 +49,8 @@
       "tags": "Tags",
       "sources": "{count, plural, one {# source} other {# sources}}",
       "endTimeTba": "End time TBA",
-      "tba": "TBA"
+      "tba": "TBA",
+      "originalLanguage": "Original: {name}"
     },
     "actions": {
       "back": "Back",
