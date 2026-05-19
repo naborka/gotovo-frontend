@@ -1,5 +1,6 @@
 import { ApiError, ContractValidationError, getEvents } from '@/lib/api/client';
 import type { EventsPage } from '@/lib/api/schemas';
+import { tagEventList, tagFacets } from '@/lib/api/tags';
 import { EVENTS } from '@/lib/data';
 import { FeedClient } from './_components/FeedClient';
 
@@ -49,7 +50,7 @@ async function safeFetchEvents(
   try {
     return await getEvents(params, {
       locale,
-      next: { revalidate: 600, tags: ['events:list'] },
+      next: { revalidate: 600, tags: [tagEventList(), tagFacets()] },
     });
   } catch (err) {
     // Connection refused / DNS failure → fixtures. Anything else → bubble.
