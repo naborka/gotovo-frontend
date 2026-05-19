@@ -1,6 +1,7 @@
 import { Analytics } from '@vercel/analytics/next';
 import type { Metadata, Viewport } from 'next';
 import { DM_Mono, DM_Sans, Syne } from 'next/font/google';
+import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
@@ -77,19 +78,42 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
+const themeScript = `
+(function() {
+  try {
+    var cookie = document.cookie.match('(^|;)\\\\s*gotovo-theme\\\\s*=\\\\s*([^;]+)');
+    var theme = cookie ? cookie.pop() : null;
+    if (theme === 'dark' || theme === 'light') {
+      document.documentElement.className = document.documentElement.className.replace(/(^|\\\\s)dark(\\\\s|$)/, '$1').trim();
+      document.documentElement.classList.add(theme);
+    } else {
+      var mq = window.matchMedia('(prefers-color-scheme: dark)');
+      if (mq.matches) document.documentElement.classList.add('dark');
+    }
+  } catch (e) {}
+})();
+`;
+
 export default async function LocaleLayout({ children, modal, params }: Props) {
   const { locale } = await params;
   if (!routing.locales.includes(locale as Locale)) notFound();
 
   setRequestLocale(locale);
   const messages = await getMessages();
+  const cookieStore = await cookies();
+  const themeCookie = cookieStore.get('gotovo-theme')?.value;
+  const initialClass = themeCookie === 'dark' ? 'dark' : '';
 
   return (
     <html
       lang={locale}
-      className={`${dmSans.variable} ${dmMono.variable} ${syne.variable}`}
+      className={`${dmSans.variable} ${dmMono.variable} ${syne.variable} ${initialClass}`.trim()}
       suppressHydrationWarning
     >
+      <head>
+        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: static inline theme script, no user content */}
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body className="font-sans antialiased bg-background">
         <NextIntlClientProvider messages={messages} locale={locale}>
           <NuqsAdapter>
