@@ -16,10 +16,8 @@ export default async function InterceptedEventDetail({ params }: Props) {
     });
     return <EventDetailModal event={event} locale={locale} />;
   } catch (err) {
-    if (err instanceof ApiError && (err.status === 404 || err.status === 410)) {
-      // 410 full UX in #0047; for now treat as not-found.
-      notFound();
-    }
+    if (err instanceof ApiError && err.status === 404) notFound();
+    // 410 renders cancelled state inline (client returns body).
     throw err;
   }
 }
