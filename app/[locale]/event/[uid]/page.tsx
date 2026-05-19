@@ -4,7 +4,11 @@ import { routing } from '@/i18n/routing';
 import { ApiError, getEvent } from '@/lib/api/client';
 import { getPopularEventUids } from '@/lib/api/popular';
 import { tagEventDetail } from '@/lib/api/tags';
+import { clientEnv } from '@/lib/env';
 import { EventDetailFullPage } from './_components/EventDetailFullPage';
+
+const localePath = (locale: 'ru' | 'en', suffix: string) =>
+  locale === routing.defaultLocale ? suffix : `/${locale}${suffix}`;
 
 type Props = {
   params: Promise<{ locale: 'ru' | 'en'; uid: string }>;
@@ -21,12 +25,41 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, uid } = await params;
+  const base = clientEnv.NEXT_PUBLIC_SITE_URL;
   try {
     const event = await getEvent(uid, {
       locale,
       next: { revalidate: 600, tags: [tagEventDetail(uid)] },
     });
-    return { title: `${event.title} — Gotovo` };
+    const url = `${base}${localePath(locale, `/event/${uid}`)}`;
+    const description = event.description?.slice(0, 200);
+    const ogImage = `${url}/opengraph-image`;
+    return {
+      title: `${event.title} — Gotovo`,
+      description,
+      alternates: {
+        canonical: url,
+        languages: {
+          ru: `${base}/event/${uid}`,
+          en: `${base}/en/event/${uid}`,
+        },
+      },
+      openGraph: {
+        type: 'article',
+        url,
+        title: event.title,
+        description,
+        images: [{ url: ogImage, width: 1200, height: 630 }],
+        locale: locale === 'ru' ? 'ru_RU' : 'en_US',
+        siteName: 'gotovo',
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: event.title,
+        description,
+        images: [ogImage],
+      },
+    };
   } catch {
     return { title: 'Event — Gotovo' };
   }
