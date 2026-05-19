@@ -1,7 +1,6 @@
-import { ApiError, ContractValidationError, getEvents } from '@/lib/api/client';
+import { getEvents } from '@/lib/api/client';
 import type { EventsPage } from '@/lib/api/schemas';
 import { tagEventList, tagFacets } from '@/lib/api/tags';
-import { EVENTS } from '@/lib/data';
 import { FeedClient } from './_components/FeedClient';
 
 type SearchParams = Record<string, string | string[] | undefined>;
@@ -31,33 +30,11 @@ export default async function HomePage({ params, searchParams }: Props) {
   if (Array.isArray(sp.tag)) listParams.tag = sp.tag;
   else if (typeof sp.tag === 'string') listParams.tag = [sp.tag];
 
-  const initialPage: EventsPage = await safeFetchEvents(listParams, locale);
+  const initialPage: EventsPage = await getEvents(listParams, {
+    locale,
+    next: { revalidate: 600, tags: [tagEventList(), tagFacets()] },
+  });
+  const availableTags = [...new Set(initialPage.data.flatMap((e) => e.tags))].sort();
 
-  return <FeedClient initialPage={initialPage} locale={locale} />;
-}
-
-/**
- * Defensive fetch: when the backend is unreachable (local dev without a
- * running backend) fall back to the lib/data fixtures so the page still
- * renders. Production swaps live data once the backend is deployed.
- *
- * Throws ApiError / ContractValidationError → app/[locale]/error.tsx renders.
- */
-async function safeFetchEvents(
-  params: Parameters<typeof getEvents>[0],
-  locale: 'ru' | 'en',
-): Promise<EventsPage> {
-  try {
-    return await getEvents(params, {
-      locale,
-      next: { revalidate: 600, tags: [tagEventList(), tagFacets()] },
-    });
-  } catch (err) {
-    // Connection refused / DNS failure → fixtures. Anything else → bubble.
-    if (err instanceof ApiError || err instanceof ContractValidationError) throw err;
-    return {
-      data: EVENTS,
-      page: { nextCursor: null, hasMore: false, total: EVENTS.length },
-    };
-  }
+  return <FeedClient initialPage={initialPage} locale={locale} availableTags={availableTags} />;
 }

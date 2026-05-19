@@ -2,9 +2,9 @@
 
 import { useLocale } from 'next-intl';
 import { IconPin, IconTag } from '@/components/icons';
-import { ALL_CATEGORIES, ALL_CITIES, ALL_FILTER, ALL_TAGS } from '@/lib/data';
 import { categoryDisplayName, cityDisplayName } from '@/lib/display';
 import { getCategoryStyle } from '@/lib/event-utils';
+import { ALL_CATEGORIES, ALL_CITIES, ALL_FILTER } from '@/lib/filters';
 import type { EventCategory } from '@/lib/types';
 import { Chip } from './chip';
 
@@ -20,6 +20,8 @@ interface FilterZoneProps {
   setActiveCity: (city: string) => void;
   activeTags: Set<string>;
   toggleTag: (tag: string) => void;
+  /** Tag options to render. Server-derived from current page events (or facets in Phase 2). */
+  availableTags: string[];
 }
 
 export function FilterZone({
@@ -29,6 +31,7 @@ export function FilterZone({
   setActiveCity,
   activeTags,
   toggleTag,
+  availableTags,
 }: FilterZoneProps) {
   const locale = useLocale() as 'ru' | 'en';
   const getCatActiveStyle = (cat: EventCategory) => {
@@ -108,7 +111,7 @@ export function FilterZone({
         <span className="flex-shrink-0 text-faint mr-1">
           <IconTag size={11} />
         </span>
-        {ALL_TAGS.map((tag) => {
+        {availableTags.map((tag) => {
           const isActive = activeTags.has(tag);
           return (
             <Chip

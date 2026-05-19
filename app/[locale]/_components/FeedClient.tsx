@@ -4,14 +4,14 @@ import { useCallback, useMemo, useState } from 'react';
 import { DetailPage, Feed, FilterZone, Header, TabBar } from '@/components/gotovo';
 import type { Event, EventsPage, Facets } from '@/lib/api/schemas';
 import { filterEvents } from '@/lib/event-utils';
+import { ALL_FILTER } from '@/lib/filters';
 import type { GotovoEvent, TabType } from '@/lib/types';
-
-const ALL_FILTER = 'all';
 
 export interface FeedClientProps {
   initialPage: EventsPage;
   initialFacets?: Facets;
   locale: 'ru' | 'en';
+  availableTags: string[];
 }
 
 /**
@@ -19,7 +19,7 @@ export interface FeedClientProps {
  * state. Filter changes apply in-memory against the initial page; Phase 2
  * (#0043) wires URL state and server-side re-fetch on filter change.
  */
-export function FeedClient({ initialPage }: FeedClientProps) {
+export function FeedClient({ initialPage, availableTags }: FeedClientProps) {
   const [activeTab, setActiveTab] = useState<TabType>('timeline');
   const [detailEvent, setDetailEvent] = useState<GotovoEvent | null>(null);
 
@@ -66,6 +66,7 @@ export function FeedClient({ initialPage }: FeedClientProps) {
         setActiveCity={setActiveCity}
         activeTags={activeTags}
         toggleTag={toggleTag}
+        availableTags={availableTags}
       />
       <main className="flex-1 overflow-y-auto">
         <Feed events={filteredEvents} tab={activeTab} onOpenEvent={openDetail} />
