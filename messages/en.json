@@ -74,5 +74,10 @@
   "tabs": {
     "timeline": "Timeline",
     "recent": "Recently Added"
+  },
+  "offline": {
+    "title": "You're offline",
+    "description": "Check your connection. Previously loaded events stay available.",
+    "home": "Go home"
   }
 }
