@@ -79,5 +79,11 @@
     "title": "You're offline",
     "description": "Check your connection. Previously loaded events stay available.",
     "home": "Go home"
+  },
+  "pwa": {
+    "update": {
+      "available": "Update available",
+      "refresh": "Refresh"
+    }
   }
 }
