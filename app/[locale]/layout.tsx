@@ -2,7 +2,6 @@ import { SerwistProvider } from '@serwist/turbopack/react';
 import { Analytics } from '@vercel/analytics/next';
 import type { Metadata, Viewport } from 'next';
 import { DM_Mono, DM_Sans, Syne } from 'next/font/google';
-import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
@@ -102,14 +101,11 @@ export default async function LocaleLayout({ children, modal, params }: Props) {
 
   setRequestLocale(locale);
   const messages = await getMessages();
-  const cookieStore = await cookies();
-  const themeCookie = cookieStore.get('gotovo-theme')?.value;
-  const initialClass = themeCookie === 'dark' ? 'dark' : '';
 
   return (
     <html
       lang={locale}
-      className={`${dmSans.variable} ${dmMono.variable} ${syne.variable} ${initialClass}`.trim()}
+      className={`${dmSans.variable} ${dmMono.variable} ${syne.variable}`.trim()}
       suppressHydrationWarning
     >
       <head>

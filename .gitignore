@@ -45,3 +45,4 @@ export/
 /test-results
 /coverage
 .playwright
+.lighthouseci
