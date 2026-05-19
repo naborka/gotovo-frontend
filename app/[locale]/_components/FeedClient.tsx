@@ -6,6 +6,7 @@ import { Feed, FilterZone, Header, TabBar } from '@/components/gotovo';
 import type { EventsPage, Facets } from '@/lib/api/schemas';
 import { ALL_CATEGORIES, ALL_CITIES, ALL_FILTER } from '@/lib/filters';
 import type { TabType } from '@/lib/types';
+import { clearScrollSnapshot, useScrollRestore } from '@/lib/use-scroll-snapshot';
 
 export interface FeedClientProps {
   initialPage: EventsPage;
@@ -23,6 +24,7 @@ const TAG_MODE_VALUES = ['any', 'all'] as const;
  * to re-fetch — server-driven filtering with shareable links.
  */
 export function FeedClient({ initialPage, availableTags }: FeedClientProps) {
+  useScrollRestore();
   const opts = { shallow: false, scroll: false, clearOnDefault: true } as const;
 
   const [category, setCategory] = useQueryState(
@@ -80,6 +82,8 @@ export function FeedClient({ initialPage, availableTags }: FeedClientProps) {
     setCity(null);
     setTagArr(null);
     setTagMode(null);
+    // Filter clear repaints the list; old scroll position no longer maps.
+    clearScrollSnapshot();
   }, [setCategory, setCity, setTagArr, setTagMode]);
 
   return (

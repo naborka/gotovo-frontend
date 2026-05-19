@@ -6,6 +6,7 @@ import { formatTime } from '@/lib/datetime';
 import { categoryDisplayName, cityDisplayName } from '@/lib/display';
 import { daysBetween, getCategoryStyle, getPriceStyle, isNewEvent } from '@/lib/event-utils';
 import type { GotovoEvent } from '@/lib/types';
+import { useScrollSnapshot } from '@/lib/use-scroll-snapshot';
 import { cn } from '@/lib/utils';
 import { CategoryGradient } from './category-gradient';
 import { Pill } from './pill';
@@ -23,12 +24,20 @@ export function EventCard({ event, locale = 'ru' }: EventCardProps) {
   const isNew = isNewEvent(event);
   const multiDaySpan = endsAt ? daysBetween(startsAt, endsAt) : 0;
   const timeLabel = allDay ? null : formatTime(startsAt, locale);
+  const snapshot = useScrollSnapshot();
+
+  const handleClick = (e: React.MouseEvent) => {
+    // Skip snapshot for cmd/middle-click (opens in new tab; no back navigation).
+    if (e.metaKey || e.ctrlKey || e.button === 1) return;
+    snapshot();
+  };
 
   return (
     <Link
       href={`/event/${uid}`}
       prefetch={false}
       scroll={false}
+      onClick={handleClick}
       className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-lg mx-3 mt-2 md:mx-4"
       aria-label={title}
     >
