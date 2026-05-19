@@ -10,6 +10,7 @@ import type { GotovoEvent } from '@/lib/types';
 import { useScrollSnapshot } from '@/lib/use-scroll-snapshot';
 import { cn } from '@/lib/utils';
 import { CategoryGradient } from './category-gradient';
+import { LanguageHint } from './language-hint';
 import { Pill } from './pill';
 
 interface EventCardProps {
@@ -99,6 +100,8 @@ export function EventCard({ event, locale = 'ru' }: EventCardProps) {
               {description}
             </p>
           )}
+
+          <LanguageHint language={event.language} />
 
           {/* Footer: location + tags + price */}
           <div className="flex items-center gap-1.5">
