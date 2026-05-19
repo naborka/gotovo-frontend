@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useCallback, useEffect } from 'react';
 import { EventDetailContent } from '@/components/gotovo/event-detail-content';
 import { IconBack, IconDirections, IconExternal, IconShare } from '@/components/icons';
@@ -15,6 +16,7 @@ export function EventDetailModal({
   event: GotovoEventDetail;
   locale: 'ru' | 'en';
 }) {
+  const t = useTranslations('event');
   const router = useRouter();
   const close = useCallback(() => router.back(), [router]);
 
@@ -53,7 +55,7 @@ export function EventDetailModal({
             type="button"
             className="w-9 h-9 rounded-lg flex items-center justify-center text-primary hover:bg-primary-highlight transition-colors"
             onClick={close}
-            aria-label="Back to feed"
+            aria-label={t('actions.backToFeed')}
           >
             <IconBack size={18} />
           </button>
@@ -69,9 +71,9 @@ export function EventDetailModal({
         </div>
 
         <div className="flex-shrink-0 px-4 py-3 bg-background border-t border-divider flex gap-2 items-center">
-          <ActionButton icon={<IconBack size={18} />} label="Back" onClick={close} />
-          <ActionButton icon={<IconDirections size={18} />} label="Directions" />
-          <ActionButton icon={<IconShare size={16} />} label="Share" />
+          <ActionButton icon={<IconBack size={18} />} label={t('actions.back')} onClick={close} />
+          <ActionButton icon={<IconDirections size={18} />} label={t('actions.directions')} />
+          <ActionButton icon={<IconShare size={16} />} label={t('actions.share')} />
           {event.source.url && (
             <a
               href={event.source.url}
@@ -85,7 +87,7 @@ export function EventDetailModal({
               )}
             >
               <IconExternal size={15} />
-              View Source
+              {t('actions.viewSource')}
             </a>
           )}
         </div>

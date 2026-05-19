@@ -1,6 +1,6 @@
 'use client';
 
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { IconPin, IconTag } from '@/components/icons';
 import { categoryDisplayName, cityDisplayName } from '@/lib/display';
 import { getCategoryStyle } from '@/lib/event-utils';
@@ -33,6 +33,7 @@ export function FilterZone({
   toggleTag,
   availableTags,
 }: FilterZoneProps) {
+  const t = useTranslations('feed');
   const locale = useLocale() as 'ru' | 'en';
   const getCatActiveStyle = (cat: EventCategory) => {
     const style = getCategoryStyle(cat);
@@ -63,7 +64,7 @@ export function FilterZone({
       {/* Category filters */}
       <div className="flex items-center px-3 py-1.5 overflow-x-auto scrollbar-hidden gap-1.5 md:px-6">
         <Chip
-          label="All"
+          label={t('filters.all')}
           active={activeCategory === ALL_FILTER}
           activeStyle={primaryActiveStyle}
           onClick={() => setActiveCategory(ALL_FILTER)}
@@ -88,7 +89,7 @@ export function FilterZone({
           <IconPin size={11} />
         </span>
         <Chip
-          label="All cities"
+          label={t('filters.allCities')}
           active={activeCity === ALL_FILTER}
           activeStyle={cityActiveStyle}
           onClick={() => setActiveCity(ALL_FILTER)}
