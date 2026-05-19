@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { IconPin } from '@/components/icons';
 import { Link } from '@/i18n/routing';
 import { formatTime } from '@/lib/datetime';
@@ -17,6 +18,7 @@ interface EventCardProps {
 }
 
 export function EventCard({ event, locale = 'ru' }: EventCardProps) {
+  const t = useTranslations('event');
   const { title, description, category, city, price, tags, startsAt, endsAt, allDay, uid } = event;
 
   const catStyle = getCategoryStyle(category);
@@ -63,7 +65,7 @@ export function EventCard({ event, locale = 'ru' }: EventCardProps) {
             />
             {isNew && (
               <Pill
-                label="New"
+                label={t('badges.new')}
                 color="var(--new-badge)"
                 highlight="var(--new-highlight)"
                 border="var(--new-border)"
@@ -71,7 +73,7 @@ export function EventCard({ event, locale = 'ru' }: EventCardProps) {
             )}
             {multiDaySpan > 0 && (
               <Pill
-                label={`${multiDaySpan + 1}-day`}
+                label={t('badges.multiDay', { days: multiDaySpan + 1 })}
                 color="var(--amber)"
                 highlight="var(--amber-highlight)"
                 border="var(--amber-border)"
@@ -82,7 +84,7 @@ export function EventCard({ event, locale = 'ru' }: EventCardProps) {
                 {timeLabel}
               </span>
             ) : (
-              <span className="ml-auto text-[10px] text-faint italic">all day</span>
+              <span className="ml-auto text-[10px] text-faint italic">{t('badges.allDay')}</span>
             )}
           </div>
 

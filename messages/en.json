@@ -31,6 +31,47 @@
     "postponed": {
       "title": "Event postponed",
       "description": "A new date is being announced. Follow the source for updates."
+    },
+    "badges": {
+      "new": "New",
+      "justAdded": "Just Added",
+      "multiDay": "{days}-day event",
+      "allDay": "All day"
+    },
+    "detail": {
+      "starts": "Starts",
+      "ends": "Ends",
+      "date": "Date",
+      "time": "Time",
+      "location": "Location",
+      "price": "Price",
+      "confidence": "Confidence",
+      "tags": "Tags",
+      "sources": "{count, plural, one {# source} other {# sources}}",
+      "endTimeTba": "End time TBA",
+      "tba": "TBA"
+    },
+    "actions": {
+      "back": "Back",
+      "directions": "Directions",
+      "share": "Share",
+      "viewSource": "View Source",
+      "backToFeed": "Back to feed"
     }
+  },
+  "feed": {
+    "summary": "{events, plural, one {# event} other {# events}} · {days, plural, one {# day} other {# days}}",
+    "filters": {
+      "all": "All",
+      "allCities": "All cities"
+    },
+    "empty": {
+      "title": "No events match",
+      "description": "Try adjusting your filters — new events drop throughout the day."
+    }
+  },
+  "tabs": {
+    "timeline": "Timeline",
+    "recent": "Recently Added"
   }
 }

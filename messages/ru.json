@@ -31,6 +31,47 @@
     "postponed": {
       "title": "Событие перенесено",
       "description": "Новая дата уточняется. Следите за источником."
+    },
+    "badges": {
+      "new": "Новое",
+      "justAdded": "Только что",
+      "multiDay": "{days}-дневное событие",
+      "allDay": "Весь день"
+    },
+    "detail": {
+      "starts": "Начало",
+      "ends": "Конец",
+      "date": "Дата",
+      "time": "Время",
+      "location": "Место",
+      "price": "Цена",
+      "confidence": "Уверенность",
+      "tags": "Теги",
+      "sources": "{count, plural, one {# источник} few {# источника} other {# источников}}",
+      "endTimeTba": "Время окончания неизвестно",
+      "tba": "Не указано"
+    },
+    "actions": {
+      "back": "Назад",
+      "directions": "Маршрут",
+      "share": "Поделиться",
+      "viewSource": "Источник",
+      "backToFeed": "К ленте"
     }
+  },
+  "feed": {
+    "summary": "{events, plural, one {# событие} few {# события} other {# событий}} · {days, plural, one {# день} few {# дня} other {# дней}}",
+    "filters": {
+      "all": "Все",
+      "allCities": "Все города"
+    },
+    "empty": {
+      "title": "Событий не найдено",
+      "description": "Попробуйте изменить фильтры — новые события появляются в течение дня."
+    }
+  },
+  "tabs": {
+    "timeline": "Расписание",
+    "recent": "Недавнее"
   }
 }

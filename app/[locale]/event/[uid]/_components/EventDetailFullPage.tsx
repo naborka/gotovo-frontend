@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import { EventDetailContent } from '@/components/gotovo/event-detail-content';
 import { IconBack, IconDirections, IconExternal, IconShare } from '@/components/icons';
 import { Link } from '@/i18n/routing';
@@ -11,13 +12,14 @@ export function EventDetailFullPage({
   event: GotovoEventDetail;
   locale: 'ru' | 'en';
 }) {
+  const t = useTranslations('event');
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <header className="h-14 px-4 flex items-center gap-3 bg-background border-b border-divider flex-shrink-0">
         <Link
           href="/"
           className="w-9 h-9 rounded-lg flex items-center justify-center text-primary hover:bg-primary-highlight transition-colors"
-          aria-label="Back to feed"
+          aria-label={t('actions.backToFeed')}
         >
           <IconBack size={18} />
         </Link>
@@ -33,8 +35,8 @@ export function EventDetailFullPage({
       </main>
 
       <div className="flex-shrink-0 px-4 py-3 bg-background border-t border-divider flex gap-2 items-center max-w-2xl mx-auto w-full">
-        <ActionButton icon={<IconDirections size={18} />} label="Directions" />
-        <ActionButton icon={<IconShare size={16} />} label="Share" />
+        <ActionButton icon={<IconDirections size={18} />} label={t('actions.directions')} />
+        <ActionButton icon={<IconShare size={16} />} label={t('actions.share')} />
         {event.source.url && (
           <a
             href={event.source.url}
@@ -48,7 +50,7 @@ export function EventDetailFullPage({
             )}
           >
             <IconExternal size={15} />
-            View Source
+            {t('actions.viewSource')}
           </a>
         )}
       </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useEffect } from 'react';
 import { IconBack, IconDirections, IconExternal, IconShare } from '@/components/icons';
 import { categoryDisplayName } from '@/lib/display';
@@ -14,6 +14,7 @@ interface DetailPageProps {
 }
 
 export function DetailPage({ event, onClose }: DetailPageProps) {
+  const t = useTranslations('event');
   const isOpen = !!event;
   const locale = useLocale() as 'ru' | 'en';
 
@@ -64,7 +65,7 @@ export function DetailPage({ event, onClose }: DetailPageProps) {
             type="button"
             className="w-9 h-9 rounded-lg flex items-center justify-center text-primary hover:bg-primary-highlight transition-colors"
             onClick={onClose}
-            aria-label="Back to feed"
+            aria-label={t('actions.backToFeed')}
           >
             <IconBack size={18} />
           </button>
@@ -83,9 +84,13 @@ export function DetailPage({ event, onClose }: DetailPageProps) {
 
         {event && (
           <div className="flex-shrink-0 px-4 py-3 bg-background border-t border-divider flex gap-2 items-center">
-            <ActionButton icon={<IconBack size={18} />} label="Back" onClick={onClose} />
-            <ActionButton icon={<IconDirections size={18} />} label="Directions" />
-            <ActionButton icon={<IconShare size={16} />} label="Share" />
+            <ActionButton
+              icon={<IconBack size={18} />}
+              label={t('actions.back')}
+              onClick={onClose}
+            />
+            <ActionButton icon={<IconDirections size={18} />} label={t('actions.directions')} />
+            <ActionButton icon={<IconShare size={16} />} label={t('actions.share')} />
             {event.source.url && (
               <a
                 href={event.source.url}
@@ -99,7 +104,7 @@ export function DetailPage({ event, onClose }: DetailPageProps) {
                 )}
               >
                 <IconExternal size={15} />
-                View Source
+                {t('actions.viewSource')}
               </a>
             )}
           </div>

@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { formatDateLong, formatTime } from '@/lib/datetime';
 import { categoryDisplayName, cityDisplayName } from '@/lib/display';
 import { daysBetween, getCategoryStyle, getPriceStyle, isNewEvent } from '@/lib/event-utils';
@@ -15,6 +16,7 @@ import { CancelledBanner, PostponedBanner } from './withdrawal-banner';
  *   - the intercepted modal route (app/[locale]/@modal/(.)event/[uid]/page.tsx)
  */
 export function EventDetailContent({ event, locale }: { event: GotovoEvent; locale: 'ru' | 'en' }) {
+  const t = useTranslations('event');
   const catStyle = getCategoryStyle(event.category);
   const priceStyle = getPriceStyle(event.price);
   const isNew = isNewEvent(event);
@@ -37,7 +39,7 @@ export function EventDetailContent({ event, locale }: { event: GotovoEvent; loca
         />
         {isNew && (
           <Pill
-            label="Just Added"
+            label={t('badges.justAdded')}
             color="var(--new-badge)"
             highlight="var(--new-highlight)"
             border="var(--new-border)"
@@ -46,7 +48,7 @@ export function EventDetailContent({ event, locale }: { event: GotovoEvent; loca
         )}
         {multiDaySpan > 0 && (
           <Pill
-            label={`${multiDaySpan + 1}-day event`}
+            label={t('badges.multiDay', { days: multiDaySpan + 1 })}
             color="var(--amber)"
             highlight="var(--amber-highlight)"
             border="var(--amber-border)"
@@ -73,7 +75,7 @@ export function EventDetailContent({ event, locale }: { event: GotovoEvent; loca
       <div className="grid grid-cols-2 gap-2 mb-4">
         <DateTimeSection event={event} locale={locale} />
 
-        <InfoCell label="Location" fullWidth>
+        <InfoCell label={t('detail.location')} fullWidth>
           {event.city ? (
             <p className="cell-value">
               {cityDisplayName(event.city, locale)}
@@ -86,11 +88,11 @@ export function EventDetailContent({ event, locale }: { event: GotovoEvent; loca
           ) : event.location ? (
             <p>{event.location}</p>
           ) : (
-            <p className="text-faint italic">TBA</p>
+            <p className="text-faint italic">{t('detail.tba')}</p>
           )}
         </InfoCell>
 
-        <InfoCell label="Price">
+        <InfoCell label={t('detail.price')}>
           <div className="mt-0.5">
             <Pill
               label={event.price.display}
@@ -102,7 +104,7 @@ export function EventDetailContent({ event, locale }: { event: GotovoEvent; loca
           </div>
         </InfoCell>
 
-        <InfoCell label="Confidence">
+        <InfoCell label={t('detail.confidence')}>
           <div className="flex items-center gap-1.5 mt-1">
             {Array.from({ length: Math.min(sourceCount, 5) }).map((_, i) => (
               <div
@@ -115,7 +117,7 @@ export function EventDetailContent({ event, locale }: { event: GotovoEvent; loca
               />
             ))}
             <span className="font-mono text-[10px] text-muted-foreground ml-0.5">
-              {sourceCount} source{sourceCount !== 1 ? 's' : ''}
+              {t('detail.sources', { count: sourceCount })}
             </span>
           </div>
         </InfoCell>
@@ -124,7 +126,7 @@ export function EventDetailContent({ event, locale }: { event: GotovoEvent; loca
       {event.tags.length > 0 && (
         <>
           <p className="font-mono text-[9px] text-muted-foreground uppercase tracking-widest font-medium mb-2">
-            Tags
+            {t('detail.tags')}
           </p>
           <div className="flex flex-wrap gap-1.5">
             {event.tags.map((tag) => (
@@ -143,6 +145,7 @@ export function EventDetailContent({ event, locale }: { event: GotovoEvent; loca
 }
 
 function DateTimeSection({ event, locale }: { event: GotovoEvent; locale: 'ru' | 'en' }) {
+  const t = useTranslations('event');
   const { startsAt, endsAt, allDay } = event;
   const isMultiDay = !!endsAt;
 
@@ -155,14 +158,14 @@ function DateTimeSection({ event, locale }: { event: GotovoEvent; locale: 'ru' |
       : '';
     return (
       <>
-        <InfoCell label="Starts" fullWidth>
+        <InfoCell label={t('detail.starts')} fullWidth>
           <p className="text-amber font-heading text-[15px]">{startLabel}</p>
         </InfoCell>
-        <InfoCell label="Ends" fullWidth>
+        <InfoCell label={t('detail.ends')} fullWidth>
           {endLabel ? (
             <p className="text-amber font-heading text-[15px]">{endLabel}</p>
           ) : (
-            <p className="text-faint italic">End time TBA</p>
+            <p className="text-faint italic">{t('detail.endTimeTba')}</p>
           )}
         </InfoCell>
       </>
@@ -172,14 +175,14 @@ function DateTimeSection({ event, locale }: { event: GotovoEvent; locale: 'ru' |
   const timeLabel = allDay ? null : formatTime(startsAt, locale);
   return (
     <>
-      <InfoCell label="Date">
+      <InfoCell label={t('detail.date')}>
         <p>{formatDateLong(startsAt, locale)}</p>
       </InfoCell>
-      <InfoCell label="Time">
+      <InfoCell label={t('detail.time')}>
         {timeLabel ? (
           <p className="text-amber font-heading text-[15px]">{timeLabel}</p>
         ) : (
-          <p className="text-faint italic">All day</p>
+          <p className="text-faint italic">{t('badges.allDay')}</p>
         )}
       </InfoCell>
     </>

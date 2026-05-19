@@ -1,6 +1,6 @@
 'use client';
 
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { formatDateLong } from '@/lib/datetime';
 import { groupEventsByDate, groupEventsByRecency } from '@/lib/event-utils';
 import type { GotovoEvent, TabType } from '@/lib/types';
@@ -18,6 +18,7 @@ interface FeedProps {
 }
 
 export function Feed({ events, tab }: FeedProps) {
+  const t = useTranslations('feed');
   const locale = useLocale();
 
   if (events.length === 0) {
@@ -31,8 +32,7 @@ export function Feed({ events, tab }: FeedProps) {
     <div className="pb-6">
       {/* Result summary */}
       <p className="px-3 pt-1.5 pb-0.5 font-mono text-[10px] text-faint md:px-6">
-        {total} event{total !== 1 ? 's' : ''} · {groups.length} day
-        {groups.length !== 1 ? 's' : ''}
+        {t('summary', { events: total, days: groups.length })}
       </p>
 
       {/* Date groups */}

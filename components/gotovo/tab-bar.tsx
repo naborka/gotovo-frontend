@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import type { TabType } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
@@ -13,15 +14,16 @@ interface TabBarProps {
 }
 
 export function TabBar({ activeTab, onTabChange }: TabBarProps) {
+  const t = useTranslations('tabs');
   return (
     <nav className="flex border-b border-divider flex-shrink-0" aria-label="Feed view">
       <TabButton
-        label="Timeline"
+        label={t('timeline')}
         active={activeTab === 'timeline'}
         onClick={() => onTabChange('timeline')}
       />
       <TabButton
-        label="Recently Added"
+        label={t('recent')}
         active={activeTab === 'recent'}
         onClick={() => onTabChange('recent')}
         showDot
