@@ -1,0 +1,8 @@
+{
+  "type": "about:blank",
+  "title": "Malformed cursor",
+  "status": 400,
+  "detail": "base64 decode failed",
+  "instance": "/v1/events?cursor=garbage",
+  "requestId": "rid-abc-123"
+}

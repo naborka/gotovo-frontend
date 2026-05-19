@@ -1,0 +1,28 @@
+{
+  "data": [
+    {
+      "uid": "evt_01HXYZABCDE",
+      "title": "Sunrise Via Ferrata",
+      "description": null,
+      "category": "HIKING",
+      "tags": ["Outdoor"],
+      "city": "novi-sad",
+      "location": null,
+      "startsAt": "2026-04-29T06:30:00+02:00",
+      "endsAt": null,
+      "allDay": false,
+      "timezone": "Europe/Belgrade",
+      "price": { "kind": "free", "amount": null, "currency": null, "display": "Бесплатно" },
+      "source": { "url": null, "count": 1 },
+      "language": "ru",
+      "status": "live",
+      "createdAt": "2026-04-28T14:20:00Z",
+      "updatedAt": "2026-04-28T14:20:00Z"
+    }
+  ],
+  "page": {
+    "nextCursor": "eyJ2IjoxLCJzIjoidGltZWxpbmUi",
+    "hasMore": true,
+    "total": 12
+  }
+}

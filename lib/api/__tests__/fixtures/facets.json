@@ -1,0 +1,10 @@
+{
+  "categories": [{ "value": "HIKING", "count": 5 }, { "value": "CULTURE", "count": 2 }],
+  "cities": [{ "value": "belgrade", "count": 6 }, { "value": "novi-sad", "count": 17 }],
+  "tags": [{ "value": "Outdoor", "count": 7 }, { "value": "Free", "count": 3 }],
+  "truncated": {
+    "categories": false,
+    "cities": false,
+    "tags": false
+  }
+}
