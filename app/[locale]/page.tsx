@@ -1,90 +1,62 @@
-'use client';
+import { ApiError, ContractValidationError, getEvents } from '@/lib/api/client';
+import type { EventsPage } from '@/lib/api/schemas';
+import { EVENTS } from '@/lib/data';
+import { FeedClient } from './_components/FeedClient';
 
-import { useCallback, useMemo, useState } from 'react';
-import { DetailPage, Feed, FilterZone, Header, TabBar } from '@/components/gotovo';
-import { ALL_FILTER, EVENTS } from '@/lib/data';
-import { filterEvents } from '@/lib/event-utils';
-import type { GotovoEvent, TabType } from '@/lib/types';
+type SearchParams = Record<string, string | string[] | undefined>;
+type Props = {
+  params: Promise<{ locale: 'ru' | 'en' }>;
+  searchParams: Promise<SearchParams>;
+};
 
 /**
- * Gotovo - Event Discovery App
+ * Home page — Server Component. Fetches the event feed and hands it off
+ * to the FeedClient island for interactivity.
  *
- * A clean, modern event discovery application for Novi Sad and Belgrade.
- * Features filtering by category, city, and tags with Timeline and Recent views.
+ * Filter state lives in the client island today; Phase 2 (#0043) moves it
+ * into the URL so each filter change re-renders this RSC.
  */
+export default async function HomePage({ params, searchParams }: Props) {
+  const { locale } = await params;
+  const sp = await searchParams;
 
-export default function GotovoApp() {
-  // Navigation state
-  const [activeTab, setActiveTab] = useState<TabType>('timeline');
-  const [detailEvent, setDetailEvent] = useState<GotovoEvent | null>(null);
+  const listParams: Parameters<typeof getEvents>[0] = {
+    tagMode: sp.tagMode === 'all' ? 'all' : 'any',
+    sort: sp.sort === 'recent' ? 'recent' : 'timeline',
+    limit: 30,
+  };
+  if (typeof sp.category === 'string') listParams.category = sp.category;
+  if (typeof sp.city === 'string') listParams.city = sp.city;
+  if (Array.isArray(sp.tag)) listParams.tag = sp.tag;
+  else if (typeof sp.tag === 'string') listParams.tag = [sp.tag];
 
-  // Filter state
-  const [activeCategory, setActiveCategory] = useState(ALL_FILTER);
-  const [activeCity, setActiveCity] = useState(ALL_FILTER);
-  const [activeTags, setActiveTags] = useState<Set<string>>(new Set());
+  const initialPage: EventsPage = await safeFetchEvents(listParams, locale);
 
-  // Derived state
-  const hasFilters =
-    activeCategory !== ALL_FILTER || activeCity !== ALL_FILTER || activeTags.size > 0;
+  return <FeedClient initialPage={initialPage} locale={locale} />;
+}
 
-  // Filtered events - memoized to prevent unnecessary recalculation
-  const filteredEvents = useMemo(
-    () => filterEvents(EVENTS, activeCategory, activeCity, activeTags, ALL_FILTER),
-    [activeCategory, activeCity, activeTags],
-  );
-
-  // Callbacks
-  const toggleTag = useCallback((tag: string) => {
-    setActiveTags((prev) => {
-      const next = new Set(prev);
-      if (next.has(tag)) {
-        next.delete(tag);
-      } else {
-        next.add(tag);
-      }
-      return next;
+/**
+ * Defensive fetch: when the backend is unreachable (local dev without a
+ * running backend) fall back to the lib/data fixtures so the page still
+ * renders. Production swaps live data once the backend is deployed.
+ *
+ * Throws ApiError / ContractValidationError → app/[locale]/error.tsx renders.
+ */
+async function safeFetchEvents(
+  params: Parameters<typeof getEvents>[0],
+  locale: 'ru' | 'en',
+): Promise<EventsPage> {
+  try {
+    return await getEvents(params, {
+      locale,
+      next: { revalidate: 600, tags: ['events:list'] },
     });
-  }, []);
-
-  const clearFilters = useCallback(() => {
-    setActiveCategory(ALL_FILTER);
-    setActiveCity(ALL_FILTER);
-    setActiveTags(new Set());
-  }, []);
-
-  const openDetail = useCallback((event: GotovoEvent) => {
-    setDetailEvent(event);
-  }, []);
-
-  const closeDetail = useCallback(() => {
-    setDetailEvent(null);
-  }, []);
-
-  return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
-      <Header hasFilters={hasFilters} onClearFilters={clearFilters} />
-
-      {/* Tab navigation */}
-      <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
-
-      {/* Filters */}
-      <FilterZone
-        activeCategory={activeCategory}
-        setActiveCategory={setActiveCategory}
-        activeCity={activeCity}
-        setActiveCity={setActiveCity}
-        activeTags={activeTags}
-        toggleTag={toggleTag}
-      />
-
-      {/* Main feed */}
-      <main className="flex-1 overflow-y-auto">
-        <Feed events={filteredEvents} tab={activeTab} onOpenEvent={openDetail} />
-      </main>
-
-      {/* Event detail panel */}
-      <DetailPage event={detailEvent} onClose={closeDetail} />
-    </div>
-  );
+  } catch (err) {
+    // Connection refused / DNS failure → fixtures. Anything else → bubble.
+    if (err instanceof ApiError || err instanceof ContractValidationError) throw err;
+    return {
+      data: EVENTS,
+      page: { nextCursor: null, hasMore: false, total: EVENTS.length },
+    };
+  }
 }
