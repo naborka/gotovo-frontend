@@ -47,8 +47,7 @@ jobs:
           MATCHES=$(grep -RnE '\.(getDay|getMonth|getFullYear|getHours|getMinutes|getDate)\(' \
             app components lib hooks 2>/dev/null \
             | grep -vE '\.(test|spec)\.tsx?:' \
-            | grep -vE 'lib/datetime\.ts:' \
-            | grep -vE 'lib/data\.ts:' || true)
+            | grep -vE 'lib/datetime\.ts:' || true)
           if [ -n "$MATCHES" ]; then
             echo "::error::Bare Date.prototype.* timezone-sensitive calls found. Use lib/datetime.ts helpers."
             echo "$MATCHES"
@@ -60,6 +59,30 @@ jobs:
           pnpm gen:api
           if ! git diff --exit-code lib/api/types.gen.ts; then
             echo "::error::lib/api/types.gen.ts drifted from committed spec. Run 'pnpm gen:api' locally and commit the regenerated types."
+            exit 1
+          fi
+
+      - name: Forbid production imports of __fixtures__
+        run: |
+          set -euo pipefail
+          MATCHES=$(grep -RnE "from ['\"]@/__fixtures__|from ['\"]\\.\\.?/__fixtures__|from ['\"]\\.\\.?/\\.\\.?/__fixtures__" \
+            app components lib hooks 2>/dev/null \
+            | grep -vE '__tests__|__fixtures__|\.test\.tsx?:|\.spec\.tsx?:' || true)
+          if [ -n "$MATCHES" ]; then
+            echo "::error::__fixtures__ must only be imported from tests. Production code reads from lib/api/client.ts."
+            echo "$MATCHES"
+            exit 1
+          fi
+
+      - name: Forbid lib/data.ts production imports
+        run: |
+          set -euo pipefail
+          MATCHES=$(grep -RnE "from ['\"]@/lib/data['\"]|from ['\"]\\.\\.?/data['\"]" \
+            app components lib hooks 2>/dev/null \
+            | grep -vE '__tests__|__fixtures__' || true)
+          if [ -n "$MATCHES" ]; then
+            echo "::error::lib/data.ts has moved to __fixtures__/events.ts. Production code reads from lib/api/client.ts."
+            echo "$MATCHES"
             exit 1
           fi
 

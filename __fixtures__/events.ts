@@ -16,7 +16,7 @@ const paid = (amount: number, display: string): Event['price'] => ({
   display,
 });
 
-export const EVENTS: Event[] = [
+export const sampleEvents: Event[] = [
   {
     uid: 'evt_01',
     title: 'Sunrise Via Ferrata',
@@ -115,15 +115,12 @@ export const EVENTS: Event[] = [
   },
 ];
 
-export const ALL_CATEGORIES: Category[] = [
-  ...new Set(EVENTS.map((e) => e.category)),
+export const sampleCategories: Category[] = [
+  ...new Set(sampleEvents.map((e) => e.category)),
 ].sort() as Category[];
 
-export const ALL_CITIES: City[] = [
-  ...new Set(EVENTS.map((e) => e.city).filter((c): c is City => c != null)),
+export const sampleCities: City[] = [
+  ...new Set(sampleEvents.map((e) => e.city).filter((c): c is City => c != null)),
 ].sort() as City[];
 
-export const ALL_TAGS: string[] = [...new Set(EVENTS.flatMap((e) => e.tags))].sort();
-
-/** Sentinel for "no filter active" — used by the legacy client filter logic. */
-export const ALL_FILTER = 'all';
+export const sampleTags: string[] = [...new Set(sampleEvents.flatMap((e) => e.tags))].sort();
