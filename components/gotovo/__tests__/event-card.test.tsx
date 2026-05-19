@@ -1,27 +1,45 @@
 import { render, screen } from '@testing-library/react';
+import { NextIntlClientProvider } from 'next-intl';
 import { describe, expect, it } from 'vitest';
 import { EventCard } from '@/components/gotovo/event-card';
+import type { GotovoEvent } from '@/lib/types';
+import messages from '../../../messages/ru.json';
 
-const event = {
+const event: GotovoEvent = {
   uid: 'evt_1',
   title: 'Test',
-  startDate: new Date('2026-05-01T00:00:00Z'),
-  startTime: '10:00',
-  cat: 'Adventure' as const,
-  city: 'Novi Sad',
+  description: null,
+  category: 'HIKING',
   tags: [],
-  createdAt: new Date('2026-04-30T00:00:00Z'),
-  sourceCount: 1,
+  city: 'novi-sad',
+  location: null,
+  startsAt: '2026-05-01T10:00:00+02:00',
+  endsAt: null,
+  allDay: false,
+  timezone: 'Europe/Belgrade',
+  price: { kind: 'free', amount: null, currency: null, display: 'Бесплатно' },
+  source: { url: null, count: 1 },
+  language: 'ru',
+  status: 'live',
+  createdAt: '2026-04-30T00:00:00Z',
+  updatedAt: '2026-04-30T00:00:00Z',
 };
+
+const renderCard = () =>
+  render(
+    <NextIntlClientProvider locale="ru" messages={messages}>
+      <EventCard event={event} onOpen={() => {}} />
+    </NextIntlClientProvider>,
+  );
 
 describe('EventCard', () => {
   it('renders the title', () => {
-    render(<EventCard event={event} onOpen={() => {}} />);
+    renderCard();
     expect(screen.getByText('Test')).toBeInTheDocument();
   });
 
   it('reserves a 16:9 placeholder', () => {
-    const { container } = render(<EventCard event={event} onOpen={() => {}} />);
+    const { container } = renderCard();
     expect(container.querySelector('[aria-hidden="true"].aspect-video')).toBeTruthy();
   });
 });

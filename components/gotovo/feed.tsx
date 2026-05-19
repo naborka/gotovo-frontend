@@ -38,11 +38,11 @@ export function Feed({ events, tab, onOpenEvent }: FeedProps) {
 
       {/* Date groups */}
       {groups.map((group) => (
-        <div key={group.date.toISOString()} className="mt-2.5">
+        <div key={group.isoDate} className="mt-2.5">
           {/* Date header */}
           <div className="flex items-baseline gap-2 px-3 py-1.5 border-b border-divider md:px-6">
             <span className="font-heading text-base font-extrabold text-foreground tracking-tight leading-none">
-              {formatDateLong(group.date.toISOString(), locale)}
+              {formatDateLong(group.isoDate, locale)}
             </span>
             <span className="ml-auto font-mono text-[10px] text-faint">
               {group.events.length} event{group.events.length !== 1 ? 's' : ''}
@@ -51,7 +51,12 @@ export function Feed({ events, tab, onOpenEvent }: FeedProps) {
 
           {/* Event cards */}
           {group.events.map((event) => (
-            <EventCard key={event.uid} event={event} onOpen={onOpenEvent} />
+            <EventCard
+              key={event.uid}
+              event={event}
+              onOpen={onOpenEvent}
+              locale={locale as 'ru' | 'en'}
+            />
           ))}
         </div>
       ))}

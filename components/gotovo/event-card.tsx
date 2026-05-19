@@ -1,29 +1,28 @@
 'use client';
 
 import { IconPin } from '@/components/icons';
+import { formatTime } from '@/lib/datetime';
+import { categoryDisplayName, cityDisplayName } from '@/lib/display';
 import { daysBetween, getCategoryStyle, getPriceStyle, isNewEvent } from '@/lib/event-utils';
 import type { GotovoEvent } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { CategoryGradient } from './category-gradient';
 import { Pill } from './pill';
 
-/**
- * Event card component for displaying event summary in the feed.
- * Handles click/keyboard interactions for opening detail view.
- */
-
 interface EventCardProps {
   event: GotovoEvent;
   onOpen: (event: GotovoEvent) => void;
+  locale?: 'ru' | 'en';
 }
 
-export function EventCard({ event, onOpen }: EventCardProps) {
-  const { title, description, startTime, cat, city, price, tags, startDate, endDate } = event;
+export function EventCard({ event, onOpen, locale = 'ru' }: EventCardProps) {
+  const { title, description, category, city, price, tags, startsAt, endsAt, allDay } = event;
 
-  const catStyle = getCategoryStyle(cat);
+  const catStyle = getCategoryStyle(category);
   const priceStyle = getPriceStyle(price);
   const isNew = isNewEvent(event);
-  const multiDaySpan = endDate ? daysBetween(startDate, endDate) : 0;
+  const multiDaySpan = endsAt ? daysBetween(startsAt, endsAt) : 0;
+  const timeLabel = allDay ? null : formatTime(startsAt, locale);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
@@ -47,13 +46,13 @@ export function EventCard({ event, onOpen }: EventCardProps) {
       onKeyDown={handleKeyDown}
       aria-label={title}
     >
-      <CategoryGradient category={event.cat} />
+      <CategoryGradient category={category} />
 
       <div className="p-3">
         {/* Badges row */}
         <div className="flex items-center gap-1.5 flex-wrap mb-1.5">
           <Pill
-            label={cat}
+            label={categoryDisplayName(category, locale)}
             color={catStyle.color}
             highlight={catStyle.highlight}
             border={catStyle.border}
@@ -74,9 +73,9 @@ export function EventCard({ event, onOpen }: EventCardProps) {
               border="var(--amber-border)"
             />
           )}
-          {startTime ? (
+          {timeLabel ? (
             <span className="ml-auto font-mono text-xs font-medium text-amber flex-shrink-0">
-              {startTime}
+              {timeLabel}
             </span>
           ) : (
             <span className="ml-auto text-[10px] text-faint italic">all day</span>
@@ -101,7 +100,7 @@ export function EventCard({ event, onOpen }: EventCardProps) {
             <IconPin size={10} className="text-faint flex-shrink-0" />
             {city && (
               <span className="text-[10px] text-muted-foreground font-medium whitespace-nowrap">
-                {city}
+                {cityDisplayName(city, locale)}
               </span>
             )}
             {city && tags.length > 0 && <span className="text-[10px] text-faint">·</span>}
@@ -112,7 +111,7 @@ export function EventCard({ event, onOpen }: EventCardProps) {
             )}
           </div>
           <Pill
-            label={price ?? 'TBA'}
+            label={price.display}
             color={priceStyle.color}
             highlight={priceStyle.highlight}
             border={priceStyle.border}
