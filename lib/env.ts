@@ -31,6 +31,11 @@ const ClientEnvSchema = z.object({
     .default('false')
     .transform((v) => v === 'true')
     .describe('Feature flag for the q= full-text search input (Decision 0006).'),
+  NEXT_PUBLIC_SITE_URL: z
+    .string()
+    .url()
+    .default('https://gotovo.app')
+    .describe('Canonical site URL used by manifest, sitemap, robots, and OG metadata.'),
 });
 
 type ServerEnv = z.infer<typeof ServerEnvSchema>;
@@ -71,6 +76,7 @@ export const clientEnv: ClientEnv = parse(
   {
     NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
     NEXT_PUBLIC_SEARCH_ENABLED: process.env.NEXT_PUBLIC_SEARCH_ENABLED,
+    NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
   },
   'client',
 );
