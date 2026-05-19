@@ -125,8 +125,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      NEXT_PUBLIC_API_BASE_URL: https://api.gotovo.app/v1
-      NEXT_PUBLIC_SEARCH_ENABLED: 'false'
+      E2E_PROD: '1'
     steps:
       - uses: actions/checkout@v4
 
