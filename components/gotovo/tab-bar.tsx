@@ -16,7 +16,11 @@ interface TabBarProps {
 export function TabBar({ activeTab, onTabChange }: TabBarProps) {
   const t = useTranslations('tabs');
   return (
-    <nav className="flex border-b border-divider flex-shrink-0" aria-label="Feed view">
+    <div
+      className="flex border-b border-divider flex-shrink-0"
+      aria-label="Feed view"
+      role="tablist"
+    >
       <TabButton
         label={t('timeline')}
         active={activeTab === 'timeline'}
@@ -28,7 +32,7 @@ export function TabBar({ activeTab, onTabChange }: TabBarProps) {
         onClick={() => onTabChange('recent')}
         showDot
       />
-    </nav>
+    </div>
   );
 }
 

@@ -120,5 +120,5 @@ const server = createServer((req, res) => {
 
 const port = Number(process.env.MOCK_API_PORT ?? 4000);
 server.listen(port, () => {
-  console.log(`Mock API listening on http://localhost:${port}`);
+  process.stdout.write(`Mock API listening on http://localhost:${port}\n`);
 });
