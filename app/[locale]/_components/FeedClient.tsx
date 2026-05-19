@@ -1,11 +1,11 @@
 'use client';
 
 import { parseAsArrayOf, parseAsString, parseAsStringEnum, useQueryState } from 'nuqs';
-import { useCallback, useMemo, useState } from 'react';
-import { DetailPage, Feed, FilterZone, Header, TabBar } from '@/components/gotovo';
+import { useCallback, useMemo } from 'react';
+import { Feed, FilterZone, Header, TabBar } from '@/components/gotovo';
 import type { EventsPage, Facets } from '@/lib/api/schemas';
 import { ALL_CATEGORIES, ALL_CITIES, ALL_FILTER } from '@/lib/filters';
-import type { GotovoEvent, TabType } from '@/lib/types';
+import type { TabType } from '@/lib/types';
 
 export interface FeedClientProps {
   initialPage: EventsPage;
@@ -53,9 +53,6 @@ export function FeedClient({ initialPage, availableTags }: FeedClientProps) {
   const hasFilters =
     activeCategory !== ALL_FILTER || activeCity !== ALL_FILTER || activeTags.size > 0;
 
-  // Modal state is intentionally local; #0046 moves it to URL via intercepted route.
-  const [detailEvent, setDetailEvent] = useState<GotovoEvent | null>(null);
-
   type CategoryParam = (typeof ALL_CATEGORIES)[number];
   type CityParam = (typeof ALL_CITIES)[number];
 
@@ -85,9 +82,6 @@ export function FeedClient({ initialPage, availableTags }: FeedClientProps) {
     setTagMode(null);
   }, [setCategory, setCity, setTagArr, setTagMode]);
 
-  const openDetail = useCallback((event: GotovoEvent) => setDetailEvent(event), []);
-  const closeDetail = useCallback(() => setDetailEvent(null), []);
-
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Header hasFilters={hasFilters} onClearFilters={clearFilters} />
@@ -102,9 +96,8 @@ export function FeedClient({ initialPage, availableTags }: FeedClientProps) {
         availableTags={availableTags}
       />
       <main className="flex-1 overflow-y-auto">
-        <Feed events={initialPage.data} tab={activeTab} onOpenEvent={openDetail} />
+        <Feed events={initialPage.data} tab={activeTab} />
       </main>
-      <DetailPage event={detailEvent} onClose={closeDetail} />
     </div>
   );
 }

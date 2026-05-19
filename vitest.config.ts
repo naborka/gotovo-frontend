@@ -5,7 +5,11 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   plugins: [react()],
   resolve: {
-    alias: { '@': fileURLToPath(new URL('./', import.meta.url)) },
+    alias: {
+      '@': fileURLToPath(new URL('./', import.meta.url)),
+      // next/navigation isn't resolvable outside a Next runtime; stub for tests.
+      'next/navigation': fileURLToPath(new URL('./__mocks__/next-navigation.ts', import.meta.url)),
+    },
   },
   test: {
     environment: 'happy-dom',
@@ -13,6 +17,12 @@ export default defineConfig({
     setupFiles: ['./vitest.setup.ts'],
     include: ['**/*.{test,spec}.{ts,tsx}'],
     exclude: ['**/node_modules/**', '**/.next/**', '**/tests/e2e/**'],
+    // next-intl's createNavigation imports next/navigation; vitest mocks it
+    // in setup, but the module must be resolvable so the import call succeeds
+    // before the mock interposes.
+    server: {
+      deps: { inline: ['next-intl'] },
+    },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov'],

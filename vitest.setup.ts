@@ -8,6 +8,8 @@ import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
 import { afterEach } from 'vitest';
 
+// next/navigation alias lives in vitest.config.ts (resolve.alias).
+
 afterEach(() => {
   cleanup();
 });
