@@ -4,6 +4,7 @@ import { DM_Mono, DM_Sans, Syne } from 'next/font/google';
 import { notFound } from 'next/navigation';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
+import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import type { ReactNode } from 'react';
 import { ThemeProvider } from '@/components/theme-provider';
 import { type Locale, routing } from '@/i18n/routing';
@@ -87,14 +88,16 @@ export default async function LocaleLayout({ children, params }: Props) {
     >
       <body className="font-sans antialiased bg-background">
         <NextIntlClientProvider messages={messages} locale={locale}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            {children}
-          </ThemeProvider>
+          <NuqsAdapter>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              {children}
+            </ThemeProvider>
+          </NuqsAdapter>
         </NextIntlClientProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
