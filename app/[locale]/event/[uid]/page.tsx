@@ -7,6 +7,8 @@ import { tagEventDetail } from '@/lib/api/tags';
 import { clientEnv } from '@/lib/env';
 import { EventDetailFullPage } from './_components/EventDetailFullPage';
 
+export const dynamic = 'force-dynamic';
+
 const localePath = (locale: 'ru' | 'en', suffix: string) =>
   locale === routing.defaultLocale ? suffix : `/${locale}${suffix}`;
 
@@ -61,7 +63,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       },
     };
   } catch {
-    return { title: 'Event — Gotovo' };
+    return {
+      title: 'Event — Gotovo',
+      description: 'View event details, dates, location, and more on Gotovo.',
+    };
   }
 }
 

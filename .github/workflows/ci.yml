@@ -169,3 +169,38 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 7
+
+  lighthouse:
+    name: Lighthouse CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [quality, e2e]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - run: corepack enable
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.local/share/pnpm/store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-${{ runner.os }}-
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build (Next)
+        run: pnpm build
+        env:
+          NEXT_PUBLIC_API_BASE_URL: http://127.0.0.1:4000/v1
+          NEXT_PUBLIC_SEARCH_ENABLED: 'false'
+          NEXT_PUBLIC_SITE_URL: 'http://localhost:3000'
+
+      - name: Lighthouse CI
+        run: pnpm dlx @lhci/cli@latest autorun
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
