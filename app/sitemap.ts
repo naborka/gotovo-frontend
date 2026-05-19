@@ -22,6 +22,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 1,
   }));
 
+  const legal = routing.locales.flatMap((locale) =>
+    ['/privacy', '/terms'].map((suffix) => ({
+      url: `${base}${localePath(locale, suffix)}`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.3,
+    })),
+  );
+
   const events = eventsPage.data.flatMap((event) =>
     routing.locales.map((locale) => ({
       url: `${base}${localePath(locale, `/event/${event.uid}`)}`,
@@ -31,5 +40,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
   );
 
-  return [...home, ...events];
+  return [...home, ...legal, ...events];
 }

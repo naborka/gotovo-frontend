@@ -8,6 +8,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import type { ReactNode } from 'react';
+import { Footer } from '@/components/gotovo/footer';
 import { UpdateToast } from '@/components/gotovo/update-toast';
 import { ThemeProvider } from '@/components/theme-provider';
 import { type Locale, routing } from '@/i18n/routing';
@@ -127,6 +128,7 @@ export default async function LocaleLayout({ children, modal, params }: Props) {
               >
                 {children}
                 {modal}
+                <Footer />
                 <UpdateToast />
               </ThemeProvider>
             </NuqsAdapter>
