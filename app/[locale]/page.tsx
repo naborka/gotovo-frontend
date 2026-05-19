@@ -1,6 +1,7 @@
 import { getEvents } from '@/lib/api/client';
 import type { EventsPage } from '@/lib/api/schemas';
 import { tagEventList, tagFacets } from '@/lib/api/tags';
+import { sortLocale } from '@/lib/sort';
 import { FeedClient } from './_components/FeedClient';
 
 type SearchParams = Record<string, string | string[] | undefined>;
@@ -34,7 +35,7 @@ export default async function HomePage({ params, searchParams }: Props) {
     locale,
     next: { revalidate: 600, tags: [tagEventList(), tagFacets()] },
   });
-  const availableTags = [...new Set(initialPage.data.flatMap((e) => e.tags))].sort();
+  const availableTags = sortLocale([...new Set(initialPage.data.flatMap((e) => e.tags))], locale);
 
   return <FeedClient initialPage={initialPage} locale={locale} availableTags={availableTags} />;
 }
