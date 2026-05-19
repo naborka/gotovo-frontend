@@ -127,6 +127,15 @@ const request = async <S extends z.ZodTypeAny>(
 
   const res = await fetch(url, init);
 
+  // 410 Gone carries a valid body — typically EventDetail with status='cancelled'.
+  // Per contract §3, served for ≥30 days after withdrawal. Treat as success.
+  if (res.status === 410) {
+    const body = await res.json();
+    const parsed = schema.safeParse(body);
+    if (!parsed.success) throw new ContractValidationError(endpoint, parsed.error.issues);
+    return parsed.data;
+  }
+
   if (!res.ok) {
     const raw = await res.json().catch(() => ({}));
     const parsed = Problem.safeParse(raw);

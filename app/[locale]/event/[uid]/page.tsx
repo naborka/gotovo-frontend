@@ -30,10 +30,8 @@ export default async function EventDetailPage({ params }: Props) {
     });
     return <EventDetailFullPage event={event} locale={locale} />;
   } catch (err) {
-    if (err instanceof ApiError && (err.status === 404 || err.status === 410)) {
-      // 410 handled fully in #0047; for now treat as not-found.
-      notFound();
-    }
+    if (err instanceof ApiError && err.status === 404) notFound();
+    // 410 no longer throws (client returns body); cancelled state renders inline.
     throw err;
   }
 }

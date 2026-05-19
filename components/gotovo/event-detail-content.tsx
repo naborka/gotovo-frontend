@@ -6,6 +6,7 @@ import { daysBetween, getCategoryStyle, getPriceStyle, isNewEvent } from '@/lib/
 import type { GotovoEvent } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Pill } from './pill';
+import { CancelledBanner, PostponedBanner } from './withdrawal-banner';
 
 /**
  * Body of an event-detail view. Shared by:
@@ -19,9 +20,13 @@ export function EventDetailContent({ event, locale }: { event: GotovoEvent; loca
   const isNew = isNewEvent(event);
   const multiDaySpan = event.endsAt ? daysBetween(event.startsAt, event.endsAt) : 0;
   const sourceCount = event.source.count;
+  const isCancelled = event.status === 'cancelled';
+  const isPostponed = event.status === 'postponed';
 
   return (
     <>
+      {isCancelled && <CancelledBanner />}
+      {isPostponed && <PostponedBanner />}
       <div className="flex items-center gap-1.5 flex-wrap mb-3">
         <Pill
           label={categoryDisplayName(event.category, locale)}
@@ -50,7 +55,12 @@ export function EventDetailContent({ event, locale }: { event: GotovoEvent; loca
         )}
       </div>
 
-      <h1 className="font-heading text-2xl font-extrabold tracking-tight leading-tight text-foreground mb-3">
+      <h1
+        className={cn(
+          'font-heading text-2xl font-extrabold tracking-tight leading-tight text-foreground mb-3',
+          isCancelled && 'line-through opacity-60',
+        )}
+      >
         {event.title}
       </h1>
 

@@ -135,15 +135,14 @@ describe('getEvent', () => {
     expect((err as ApiError).status).toBe(404);
   });
 
-  it('throws ApiError with status 410 for cancelled', async () => {
+  it('returns parsed body on 410 cancelled (contract §3)', async () => {
     server.use(
       http.get(`${BASE}/events/evt_gone`, () =>
-        HttpResponse.json({ type: 'about:blank', title: 'Gone', status: 410 }, { status: 410 }),
+        HttpResponse.json({ ...eventDetailFixture, status: 'cancelled' }, { status: 410 }),
       ),
     );
-    const err = await getEvent('evt_gone').catch((e) => e);
-    expect(err).toBeInstanceOf(ApiError);
-    expect((err as ApiError).status).toBe(410);
+    const ev = await getEvent('evt_gone');
+    expect(ev.status).toBe('cancelled');
   });
 
   it('url-encodes the uid', async () => {

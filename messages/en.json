@@ -23,6 +23,14 @@
       "title": "Event not found",
       "description": "The link may be outdated or the event was removed.",
       "home": "Go home"
+    },
+    "cancelled": {
+      "title": "Event cancelled",
+      "description": "The organisers cancelled this event. Information stays available for 30 days."
+    },
+    "postponed": {
+      "title": "Event postponed",
+      "description": "A new date is being announced. Follow the source for updates."
     }
   }
 }
