@@ -28,7 +28,7 @@ const event: GotovoEvent = {
 const renderCard = () =>
   render(
     <NextIntlClientProvider locale="ru" messages={messages}>
-      <EventCard event={event} onOpen={() => {}} />
+      <EventCard event={event} />
     </NextIntlClientProvider>,
   );
 

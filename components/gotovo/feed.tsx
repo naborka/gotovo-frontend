@@ -15,10 +15,9 @@ import { EventCard } from './event-card';
 interface FeedProps {
   events: GotovoEvent[];
   tab: TabType;
-  onOpenEvent: (event: GotovoEvent) => void;
 }
 
-export function Feed({ events, tab, onOpenEvent }: FeedProps) {
+export function Feed({ events, tab }: FeedProps) {
   const locale = useLocale();
 
   if (events.length === 0) {
@@ -51,12 +50,7 @@ export function Feed({ events, tab, onOpenEvent }: FeedProps) {
 
           {/* Event cards */}
           {group.events.map((event) => (
-            <EventCard
-              key={event.uid}
-              event={event}
-              onOpen={onOpenEvent}
-              locale={locale as 'ru' | 'en'}
-            />
+            <EventCard key={event.uid} event={event} locale={locale as 'ru' | 'en'} />
           ))}
         </div>
       ))}
