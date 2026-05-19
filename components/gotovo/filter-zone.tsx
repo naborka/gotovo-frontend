@@ -1,7 +1,9 @@
 'use client';
 
+import { useLocale } from 'next-intl';
 import { IconPin, IconTag } from '@/components/icons';
 import { ALL_CATEGORIES, ALL_CITIES, ALL_FILTER, ALL_TAGS } from '@/lib/data';
+import { categoryDisplayName, cityDisplayName } from '@/lib/display';
 import { getCategoryStyle } from '@/lib/event-utils';
 import type { EventCategory } from '@/lib/types';
 import { Chip } from './chip';
@@ -28,6 +30,7 @@ export function FilterZone({
   activeTags,
   toggleTag,
 }: FilterZoneProps) {
+  const locale = useLocale() as 'ru' | 'en';
   const getCatActiveStyle = (cat: EventCategory) => {
     const style = getCategoryStyle(cat);
     return {
@@ -65,7 +68,7 @@ export function FilterZone({
         {ALL_CATEGORIES.map((cat) => (
           <Chip
             key={cat}
-            label={cat}
+            label={categoryDisplayName(cat, locale)}
             active={activeCategory === cat}
             dotColor={getCategoryStyle(cat).color}
             activeStyle={getCatActiveStyle(cat)}
@@ -90,7 +93,7 @@ export function FilterZone({
         {ALL_CITIES.map((city) => (
           <Chip
             key={city}
-            label={city}
+            label={cityDisplayName(city, locale)}
             active={activeCity === city}
             activeStyle={cityActiveStyle}
             onClick={() => setActiveCity(activeCity === city ? ALL_FILTER : city)}
