@@ -17,5 +17,12 @@
     "switchToLight": "Switch to light theme",
     "switchToDark": "Switch to dark theme",
     "clearFilters": "Clear filters"
+  },
+  "event": {
+    "notFound": {
+      "title": "Event not found",
+      "description": "The link may be outdated or the event was removed.",
+      "home": "Go home"
+    }
   }
 }
