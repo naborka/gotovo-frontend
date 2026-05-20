@@ -38,8 +38,8 @@ describe('EventCard', () => {
     expect(screen.getByText('Test')).toBeInTheDocument();
   });
 
-  it('reserves a 16:9 placeholder', () => {
+  it('reserves a fixed-height placeholder', () => {
     const { container } = renderCard();
-    expect(container.querySelector('[aria-hidden="true"].aspect-video')).toBeTruthy();
+    expect(container.querySelector('[aria-hidden="true"].h-16')).toBeTruthy();
   });
 });

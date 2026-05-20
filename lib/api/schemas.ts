@@ -107,9 +107,12 @@ export const EventDetail = Event.extend({
 });
 
 export const PageMeta = z.object({
-  nextCursor: z.string().nullable(),
+  // nextCursor/total are nullable and not required by the API contract (openapi.yaml
+  // PageMeta) — the backend omits them entirely. Default to null so consumers never
+  // see undefined.
+  nextCursor: z.string().nullable().default(null),
   hasMore: z.boolean(),
-  total: z.number().int().min(0).nullable(),
+  total: z.number().int().min(0).nullable().default(null),
 });
 
 export const EventsPage = z.object({
