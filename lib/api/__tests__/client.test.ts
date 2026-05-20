@@ -59,6 +59,16 @@ describe('getEvents', () => {
     expect(capturedUrl).toContain('tagMode=all');
   });
 
+  it('accepts a page that omits optional nextCursor/total', async () => {
+    server.use(
+      http.get(`${BASE}/events`, () => HttpResponse.json({ data: [], page: { hasMore: false } })),
+    );
+    const page = await getEvents({ city: 'novi-sad', tagMode: 'any' });
+    expect(page.page.hasMore).toBe(false);
+    expect(page.page.nextCursor).toBeNull();
+    expect(page.page.total).toBeNull();
+  });
+
   it('throws ApiError with parsed Problem on 4xx', async () => {
     server.use(
       http.get(`${BASE}/events`, () =>
