@@ -69,7 +69,11 @@
     "empty": {
       "title": "No events match",
       "description": "Try adjusting your filters — new events drop throughout the day."
-    }
+    },
+    "loading": "Loading more events…",
+    "loadError": "Couldn't load more events.",
+    "retry": "Try again",
+    "end": "That's everything for now."
   },
   "tabs": {
     "timeline": "Timeline",

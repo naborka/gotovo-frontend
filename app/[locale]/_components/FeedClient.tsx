@@ -2,9 +2,11 @@
 
 import { parseAsArrayOf, parseAsString, parseAsStringEnum, useQueryState } from 'nuqs';
 import { useCallback, useMemo } from 'react';
-import { Feed, FilterZone, Header, TabBar } from '@/components/gotovo';
+import { Feed, FeedFooter, FilterZone, Header, TabBar } from '@/components/gotovo';
+import { useEventPagination } from '@/hooks/use-event-pagination';
+import type { ListEventsParams } from '@/lib/api/client';
 import type { EventsPage, Facets } from '@/lib/api/schemas';
-import { ALL_CATEGORIES, ALL_CITIES, ALL_FILTER } from '@/lib/filters';
+import { ALL_CATEGORIES, ALL_CITIES, ALL_FILTER, EVENTS_PAGE_LIMIT } from '@/lib/filters';
 import type { TabType } from '@/lib/types';
 import { clearScrollSnapshot, useScrollRestore } from '@/lib/use-scroll-snapshot';
 
@@ -23,7 +25,7 @@ const TAG_MODE_VALUES = ['any', 'all'] as const;
  * URL params (nuqs). Every filter change updates the URL, which the RSC reads
  * to re-fetch — server-driven filtering with shareable links.
  */
-export function FeedClient({ initialPage, availableTags }: FeedClientProps) {
+export function FeedClient({ initialPage, locale, availableTags }: FeedClientProps) {
   useScrollRestore();
   const opts = { shallow: false, scroll: false, clearOnDefault: true } as const;
 
@@ -54,6 +56,25 @@ export function FeedClient({ initialPage, availableTags }: FeedClientProps) {
 
   const hasFilters =
     activeCategory !== ALL_FILTER || activeCity !== ALL_FILTER || activeTags.size > 0;
+
+  // Mirrors the RSC's list query so cursor pages continue the same result set.
+  const listParams = useMemo<ListEventsParams>(() => {
+    const params: ListEventsParams = {
+      tagMode: 'any',
+      sort: activeTab === 'recent' ? 'recent' : 'timeline',
+      limit: EVENTS_PAGE_LIMIT,
+    };
+    if (category) params.category = category;
+    if (city) params.city = city;
+    if (tagArr && tagArr.length > 0) params.tag = tagArr;
+    return params;
+  }, [category, city, tagArr, activeTab]);
+
+  const { events, hasMore, loading, error, sentinelRef, retry } = useEventPagination({
+    initialPage,
+    params: listParams,
+    locale,
+  });
 
   type CategoryParam = (typeof ALL_CATEGORIES)[number];
   type CityParam = (typeof ALL_CITIES)[number];
@@ -100,7 +121,13 @@ export function FeedClient({ initialPage, availableTags }: FeedClientProps) {
         availableTags={availableTags}
       />
       <main className="flex-1 overflow-y-auto">
-        <Feed events={initialPage.data} tab={activeTab} />
+        <Feed events={events} tab={activeTab} />
+        {events.length > 0 && (
+          <>
+            <div ref={sentinelRef} aria-hidden="true" />
+            <FeedFooter loading={loading} hasMore={hasMore} error={error != null} onRetry={retry} />
+          </>
+        )}
       </main>
     </div>
   );
