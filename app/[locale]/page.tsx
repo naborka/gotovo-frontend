@@ -1,6 +1,7 @@
 import { getEvents } from '@/lib/api/client';
 import type { EventsPage } from '@/lib/api/schemas';
 import { tagEventList, tagFacets } from '@/lib/api/tags';
+import { EVENTS_PAGE_LIMIT } from '@/lib/filters';
 import { sortLocale } from '@/lib/sort';
 import { FeedClient } from './_components/FeedClient';
 
@@ -24,7 +25,7 @@ export default async function HomePage({ params, searchParams }: Props) {
   const listParams: Parameters<typeof getEvents>[0] = {
     tagMode: sp.tagMode === 'all' ? 'all' : 'any',
     sort: sp.sort === 'recent' ? 'recent' : 'timeline',
-    limit: 30,
+    limit: EVENTS_PAGE_LIMIT,
   };
   if (typeof sp.category === 'string') listParams.category = sp.category;
   if (typeof sp.city === 'string') listParams.city = sp.city;
