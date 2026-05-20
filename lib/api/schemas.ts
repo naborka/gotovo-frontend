@@ -116,7 +116,10 @@ export const PageMeta = z.object({
 });
 
 export const EventsPage = z.object({
-  data: z.array(Event),
+  // The backend serializer omits empty collections, so an empty result drops
+  // `data` entirely. Default to [] — an absent array and an empty array mean
+  // the same thing here.
+  data: z.array(Event).default([]),
   page: PageMeta,
 });
 

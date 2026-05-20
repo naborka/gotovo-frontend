@@ -69,6 +69,13 @@ describe('getEvents', () => {
     expect(page.page.total).toBeNull();
   });
 
+  it('accepts an empty page that omits the data array', async () => {
+    server.use(http.get(`${BASE}/events`, () => HttpResponse.json({ page: { hasMore: false } })));
+    const page = await getEvents({ city: 'subotica', tagMode: 'any' });
+    expect(page.data).toEqual([]);
+    expect(page.page.hasMore).toBe(false);
+  });
+
   it('throws ApiError with parsed Problem on 4xx', async () => {
     server.use(
       http.get(`${BASE}/events`, () =>
