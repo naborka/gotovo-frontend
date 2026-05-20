@@ -37,7 +37,7 @@ export function Feed({ events, tab }: FeedProps) {
 
       {/* Date groups */}
       {groups.map((group) => (
-        <div key={group.isoDate} className="mt-2.5">
+        <div key={group.isoDate} className="mt-5">
           {/* Date header */}
           <div className="flex items-baseline gap-2 px-3 py-1.5 border-b border-divider md:px-6">
             <span className="font-heading text-base font-extrabold text-foreground tracking-tight leading-none">

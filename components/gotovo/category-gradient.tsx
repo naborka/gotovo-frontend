@@ -13,13 +13,13 @@ export function CategoryGradient({ category, className }: Props) {
   return (
     <div
       aria-hidden="true"
-      className={`relative aspect-video w-full overflow-hidden rounded-t-[inherit] ${className ?? ''}`}
+      className={`relative h-16 w-full overflow-hidden rounded-t-[inherit] ${className ?? ''}`}
       style={{
         backgroundImage: `linear-gradient(135deg, ${style.highlight}, ${style.color})`,
       }}
     >
       <LogoMark
-        className="absolute inset-0 m-auto size-12 opacity-[0.12] text-foreground"
+        className="absolute inset-0 m-auto size-8 opacity-[0.12] text-foreground"
         aria-hidden="true"
       />
     </div>
