@@ -1,17 +1,12 @@
 import type { z } from 'zod';
 import { clientEnv } from '@/lib/env';
-import {
-  EventDetail,
-  type EventDetail as EventDetailT,
-  EventsPage,
-  type EventsPage as EventsPageT,
-  type Event as EventT,
-  Facets,
-  type Facets as FacetsT,
-  Health,
-  type Health as HealthT,
-  Problem,
-  type Problem as ProblemT,
+import type {
+  EventDetail as EventDetailT,
+  EventsPage as EventsPageT,
+  Event as EventT,
+  Facets as FacetsT,
+  Health as HealthT,
+  Problem as ProblemT,
 } from './schemas';
 
 /**
@@ -26,7 +21,14 @@ import {
  *
  * For ISR, pass `next.revalidate` and `next.tags` via FetchOptions — Next.js
  * fetch forwards them to its cache layer.
+ *
+ * Schemas are loaded via dynamic import so the zod runtime stays out of the
+ * first-load client bundle (validation only ever runs after an await anyway).
  */
+
+type Schemas = typeof import('./schemas');
+
+const loadSchemas = (): Promise<Schemas> => import('./schemas');
 
 export interface ListEventsParams {
   /** Repeatable `category=` values (multi-select). */
@@ -112,7 +114,7 @@ interface RequestInitWithNext extends RequestInit {
 
 const request = async <S extends z.ZodTypeAny>(
   endpoint: string,
-  schema: S,
+  pickSchema: (schemas: Schemas) => S,
   options: FetchOptions,
 ): Promise<z.infer<S>> => {
   const url = `${baseUrl()}${endpoint}`;
@@ -127,7 +129,8 @@ const request = async <S extends z.ZodTypeAny>(
     ...(options.next ? { next: options.next } : {}),
   };
 
-  const res = await fetch(url, init);
+  const [res, schemas] = await Promise.all([fetch(url, init), loadSchemas()]);
+  const schema = pickSchema(schemas);
 
   // 410 Gone carries a valid body — typically EventDetail with status='cancelled'.
   // Per contract §3, served for ≥30 days after withdrawal. Treat as success.
@@ -140,7 +143,7 @@ const request = async <S extends z.ZodTypeAny>(
 
   if (!res.ok) {
     const raw = await res.json().catch(() => ({}));
-    const parsed = Problem.safeParse(raw);
+    const parsed = schemas.Problem.safeParse(raw);
     const problem: ProblemT = parsed.success
       ? parsed.data
       : { type: 'about:blank', title: res.statusText || 'Error', status: res.status };
@@ -159,15 +162,15 @@ export const getEvents = (
   params: ListEventsParams,
   options: FetchOptions = {},
 ): Promise<EventsPageT> =>
-  request(`/events${buildQuery(params as Record<string, unknown>)}`, EventsPage, options);
+  request(`/events${buildQuery(params as Record<string, unknown>)}`, (s) => s.EventsPage, options);
 
 export const getEvent = (uid: string, options: FetchOptions = {}): Promise<EventDetailT> =>
-  request(`/events/${encodeURIComponent(uid)}`, EventDetail, options);
+  request(`/events/${encodeURIComponent(uid)}`, (s) => s.EventDetail, options);
 
 export const getFacets = (params: FacetParams, options: FetchOptions = {}): Promise<FacetsT> =>
-  request(`/facets${buildQuery(params as Record<string, unknown>)}`, Facets, options);
+  request(`/facets${buildQuery(params as Record<string, unknown>)}`, (s) => s.Facets, options);
 
 export const getHealth = (options: FetchOptions = {}): Promise<HealthT> =>
-  request('/health', Health, { cache: 'no-store', ...options });
+  request('/health', (s) => s.Health, { cache: 'no-store', ...options });
 
 export type { EventDetailT as EventDetail, EventsPageT as EventsPage, EventT as Event };
