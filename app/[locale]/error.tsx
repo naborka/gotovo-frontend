@@ -2,6 +2,8 @@
 
 import { useTranslations } from 'next-intl';
 import { useEffect } from 'react';
+import { primaryButtonClass } from '@/components/gotovo/ui';
+import { cn } from '@/lib/utils';
 
 type ErrorBoundaryProps = {
   error: Error & { digest?: string };
@@ -23,12 +25,12 @@ export default function GlobalError({ error, reset }: ErrorBoundaryProps) {
         <h1 className="text-2xl font-semibold">{t('somethingWentWrong')}</h1>
         <p className="max-w-md text-muted-foreground">{error.message || t('genericRetry')}</p>
         {error.digest ? (
-          <p className="font-mono text-xs text-faint">{t('errorId', { id: error.digest })}</p>
+          <p className="text-xs text-faint">{t('errorId', { id: error.digest })}</p>
         ) : null}
         <button
           type="button"
           onClick={reset}
-          className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+          className={cn(primaryButtonClass, 'rounded-[10px] px-5 py-2.5 text-sm')}
         >
           {t('tryAgain')}
         </button>

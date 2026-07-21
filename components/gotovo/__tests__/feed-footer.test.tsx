@@ -12,9 +12,11 @@ const renderFooter = (props: Partial<Parameters<typeof FeedFooter>[0]> = {}) =>
   );
 
 describe('FeedFooter', () => {
-  it('shows a loading status while fetching', () => {
+  it('shows skeleton rows while fetching', () => {
     renderFooter({ loading: true });
-    expect(screen.getByRole('status')).toHaveTextContent(messages.feed.loading);
+    const status = screen.getByRole('status');
+    expect(status).toHaveAccessibleName(messages.loading.label);
+    expect(status.querySelectorAll('.animate-skeleton').length).toBeGreaterThan(0);
   });
 
   it('shows an error with a retry button that calls onRetry', () => {

@@ -23,23 +23,12 @@ export type {
 /** Tab options for feed view */
 export type TabType = 'timeline' | 'recent';
 
-/** Grouped events by date (key = YYYY-MM-DD in Europe/Belgrade). */
+/** Grouped events by date. */
 export interface DateGroup {
-  /** ISO datetime of the first event in the group (used for header display). */
-  isoDate: string;
+  /**
+   * YYYY-MM-DD calendar date in Europe/Belgrade — quick-jump anchor key and
+   * the date the header formatters render.
+   */
+  key: string;
   events: import('@/lib/api/schemas').Event[];
-}
-
-/** Category style configuration */
-export interface CategoryStyle {
-  color: string;
-  highlight: string;
-  border: string;
-}
-
-/** Price style configuration */
-export interface PriceStyle {
-  color: string;
-  highlight: string;
-  border: string;
 }

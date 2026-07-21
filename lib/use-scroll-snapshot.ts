@@ -4,12 +4,22 @@ import { useCallback, useEffect } from 'react';
 
 const KEY = 'gotovo.feedScrollY';
 
+/**
+ * The feed scrolls inside a dedicated container (fixed chrome above it), not
+ * the window. Snapshot/restore and quick-jump target it via this id.
+ */
+export const FEED_SCROLL_CONTAINER_ID = 'feed-scroll';
+
+export const getFeedScrollContainer = (): HTMLElement | null =>
+  typeof document === 'undefined' ? null : document.getElementById(FEED_SCROLL_CONTAINER_ID);
+
 /** Snapshot the feed scroll position to sessionStorage. */
 export function useScrollSnapshot(): () => void {
   return useCallback(() => {
-    if (typeof window === 'undefined') return;
+    const container = getFeedScrollContainer();
+    if (!container) return;
     try {
-      sessionStorage.setItem(KEY, String(window.scrollY));
+      sessionStorage.setItem(KEY, String(container.scrollTop));
     } catch {
       // private browsing — no-op
     }
@@ -30,7 +40,9 @@ export function useScrollRestore(): void {
       const y = Number.parseInt(raw, 10);
       if (!Number.isFinite(y)) return;
       // Defer one frame so the page has laid out before scrolling.
-      requestAnimationFrame(() => window.scrollTo({ top: y, behavior: 'instant' }));
+      requestAnimationFrame(() => {
+        getFeedScrollContainer()?.scrollTo({ top: y, behavior: 'instant' });
+      });
     } catch {
       // private browsing — no-op
     }

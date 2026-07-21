@@ -5,7 +5,8 @@ import type { TabType } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 /**
- * Tab bar for switching between Timeline and Recently Added views.
+ * Tab bar for switching between Timeline and Recently added views.
+ * Two full-width halves; the active tab gets a 2px foreground underline.
  */
 
 interface TabBarProps {
@@ -30,7 +31,6 @@ export function TabBar({ activeTab, onTabChange }: TabBarProps) {
         label={t('recent')}
         active={activeTab === 'recent'}
         onClick={() => onTabChange('recent')}
-        showDot
       />
     </div>
   );
@@ -41,36 +41,28 @@ function TabButton({
   label,
   active,
   onClick,
-  showDot = false,
 }: {
   label: string;
   active: boolean;
   onClick: () => void;
-  showDot?: boolean;
 }) {
   return (
     <button
       type="button"
       className={cn(
-        'px-4 py-2 text-xs font-normal text-muted-foreground',
+        'flex-1 h-11 text-sm text-center',
         'border-b-2 border-transparent -mb-px',
-        'flex items-center gap-1.5',
         'transition-colors',
-        'hover:text-foreground',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset',
-        active && 'text-foreground font-semibold border-b-primary',
+        active
+          ? 'text-foreground font-bold border-b-foreground'
+          : 'text-muted-foreground font-medium hover:text-foreground',
       )}
       role="tab"
       aria-selected={active}
       onClick={onClick}
     >
       {label}
-      {showDot && (
-        <span
-          className="w-1.5 h-1.5 rounded-full bg-new-badge animate-pulse-dot"
-          aria-hidden="true"
-        />
-      )}
     </button>
   );
 }

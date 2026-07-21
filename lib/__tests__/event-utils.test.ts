@@ -1,9 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   daysBetween,
-  filterEvents,
-  getCategoryStyle,
-  getPriceStyle,
+  getCategoryColor,
   groupEventsByDate,
   groupEventsByRecency,
   isNewEvent,
@@ -89,7 +87,7 @@ describe('isNewEvent', () => {
   });
 });
 
-describe('getCategoryStyle', () => {
+describe('getCategoryColor', () => {
   const categories: EventCategory[] = [
     'HIKING',
     'SPORTS',
@@ -102,38 +100,14 @@ describe('getCategoryStyle', () => {
     'IT_NETWORKING',
   ];
 
-  it('returns a style for every known category', () => {
+  it('returns a CSS variable for every known category', () => {
     for (const cat of categories) {
-      const s = getCategoryStyle(cat);
-      expect(s).toHaveProperty('color');
-      expect(s).toHaveProperty('highlight');
-      expect(s).toHaveProperty('border');
+      expect(getCategoryColor(cat)).toMatch(/^var\(--[a-z-]+\)$/);
     }
   });
 
-  it('falls back to default for unknown', () => {
-    const s = getCategoryStyle('NOPE' as EventCategory);
-    expect(s.color).toBe('var(--muted-foreground)');
-  });
-});
-
-describe('getPriceStyle', () => {
-  it('green for free', () => {
-    expect(getPriceStyle({ kind: 'free', amount: null, currency: null, display: 'F' }).color).toBe(
-      'var(--green)',
-    );
-  });
-
-  it('muted for paid', () => {
-    expect(
-      getPriceStyle({ kind: 'paid', amount: 1000, currency: 'RSD', display: '1000 RSD' }).color,
-    ).toBe('var(--muted-foreground)');
-  });
-
-  it('faint for unknown', () => {
-    expect(
-      getPriceStyle({ kind: 'unknown', amount: null, currency: null, display: 'TBA' }).color,
-    ).toBe('var(--faint)');
+  it('falls back to muted for unknown', () => {
+    expect(getCategoryColor('NOPE' as EventCategory)).toBe('var(--muted-foreground)');
   });
 });
 
@@ -142,7 +116,7 @@ describe('groupEventsByDate', () => {
     expect(groupEventsByDate([])).toEqual([]);
   });
 
-  it('groups by YYYY-MM-DD slice of startsAt', () => {
+  it('groups by YYYY-MM-DD slice of startsAt and exposes the key', () => {
     const events = [
       makeEvent({ uid: 'a', startsAt: '2026-05-01T10:00:00+02:00' }),
       makeEvent({ uid: 'b', startsAt: '2026-05-01T18:00:00+02:00' }),
@@ -150,7 +124,9 @@ describe('groupEventsByDate', () => {
     ];
     const result = groupEventsByDate(events);
     expect(result).toHaveLength(2);
+    expect(result[0]?.key).toBe('2026-05-01');
     expect(result[0]?.events.map((e) => e.uid)).toEqual(['a', 'b']);
+    expect(result[1]?.key).toBe('2026-05-02');
     expect(result[1]?.events).toHaveLength(1);
   });
 
@@ -172,50 +148,5 @@ describe('groupEventsByRecency', () => {
     ];
     const result = groupEventsByRecency(events);
     expect(result[0]?.events[0]?.uid).toBe('new');
-  });
-});
-
-describe('filterEvents', () => {
-  const ALL = 'all';
-
-  it('returns all events with no filters', () => {
-    const events = [makeEvent({ uid: 'a' }), makeEvent({ uid: 'b' })];
-    expect(filterEvents(events, ALL, ALL, new Set(), ALL)).toHaveLength(2);
-  });
-
-  it('filters by category', () => {
-    const events = [
-      makeEvent({ uid: 'a', category: 'HIKING' }),
-      makeEvent({ uid: 'b', category: 'PARTY' }),
-    ];
-    expect(filterEvents(events, 'PARTY', ALL, new Set(), ALL)).toHaveLength(1);
-  });
-
-  it('filters by city', () => {
-    const events = [
-      makeEvent({ uid: 'a', city: 'belgrade' }),
-      makeEvent({ uid: 'b', city: 'novi-sad' }),
-    ];
-    expect(filterEvents(events, ALL, 'belgrade', new Set(), ALL)).toHaveLength(1);
-  });
-
-  it('filters by tag (OR semantics)', () => {
-    const events = [
-      makeEvent({ uid: 'a', tags: ['Outdoor'] }),
-      makeEvent({ uid: 'b', tags: ['Indoor'] }),
-      makeEvent({ uid: 'c', tags: ['Music'] }),
-    ];
-    const r = filterEvents(events, ALL, ALL, new Set(['Outdoor', 'Music']), ALL);
-    expect(r.map((e) => e.uid).sort()).toEqual(['a', 'c']);
-  });
-
-  it('combines filters (AND)', () => {
-    const events = [
-      makeEvent({ uid: 'a', category: 'HIKING', city: 'novi-sad', tags: ['Outdoor'] }),
-      makeEvent({ uid: 'b', category: 'HIKING', city: 'belgrade', tags: ['Outdoor'] }),
-      makeEvent({ uid: 'c', category: 'HIKING', city: 'novi-sad', tags: ['Indoor'] }),
-    ];
-    const r = filterEvents(events, 'HIKING', 'novi-sad', new Set(['Outdoor']), ALL);
-    expect(r.map((e) => e.uid)).toEqual(['a']);
   });
 });

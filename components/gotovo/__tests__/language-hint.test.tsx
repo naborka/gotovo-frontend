@@ -17,9 +17,9 @@ describe('LanguageHint', () => {
     expect(container.firstChild).toBeNull();
   });
 
-  it('renders "Original: Russian" in English UI for Russian content', () => {
+  it('renders "Original listing in Russian" in English UI for Russian content', () => {
     render(wrap('en', <LanguageHint language="ru" />));
-    expect(screen.getByText(/Original: Russian/)).toBeInTheDocument();
+    expect(screen.getByText(/Original listing in Russian/)).toBeInTheDocument();
   });
 
   it('renders "Оригинал: английский" in Russian UI for English content', () => {
@@ -32,8 +32,8 @@ describe('LanguageHint', () => {
     expect(container.firstChild).toBeNull();
   });
 
-  it('renders "Original: Serbian" in English UI for Serbian content', () => {
+  it('renders "Original listing in Serbian" in English UI for Serbian content', () => {
     render(wrap('en', <LanguageHint language="sr" />));
-    expect(screen.getByText(/Original: Serbian/)).toBeInTheDocument();
+    expect(screen.getByText(/Original listing in Serbian/)).toBeInTheDocument();
   });
 });

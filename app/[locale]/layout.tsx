@@ -1,36 +1,23 @@
 import { SerwistProvider } from '@serwist/turbopack/react';
 import { Analytics } from '@vercel/analytics/next';
 import type { Metadata, Viewport } from 'next';
-import { DM_Mono, DM_Sans, Syne } from 'next/font/google';
+import { Public_Sans } from 'next/font/google';
 import { notFound } from 'next/navigation';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import type { ReactNode } from 'react';
-import { Footer } from '@/components/gotovo/footer';
 import { UpdateToast } from '@/components/gotovo/update-toast';
 import { ThemeProvider } from '@/components/theme-provider';
 import { type Locale, routing } from '@/i18n/routing';
 import '../globals.css';
 
-const dmSans = DM_Sans({
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
-  variable: '--font-dm-sans',
-  display: 'swap',
-});
-
-const dmMono = DM_Mono({
-  subsets: ['latin'],
-  weight: ['400', '500'],
-  variable: '--font-dm-mono',
-  display: 'swap',
-});
-
-const syne = Syne({
-  subsets: ['latin'],
-  weight: ['700', '800'],
-  variable: '--font-syne',
+const publicSans = Public_Sans({
+  // Public Sans ships no Cyrillic subset; ru text falls back to system-ui
+  // (same as the previous DM Sans setup).
+  subsets: ['latin', 'latin-ext'],
+  weight: ['400', '500', '600', '700', '800'],
+  variable: '--font-public-sans',
   display: 'swap',
 });
 
@@ -60,8 +47,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#f4f2ff' },
-    { media: '(prefers-color-scheme: dark)', color: '#0d0c12' },
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#161514' },
   ],
   width: 'device-width',
   initialScale: 1,
@@ -103,11 +90,7 @@ export default async function LocaleLayout({ children, modal, params }: Props) {
   const messages = await getMessages();
 
   return (
-    <html
-      lang={locale}
-      className={`${dmSans.variable} ${dmMono.variable} ${syne.variable}`.trim()}
-      suppressHydrationWarning
-    >
+    <html lang={locale} className={publicSans.variable} suppressHydrationWarning>
       <head>
         {/* biome-ignore lint/security/noDangerouslySetInnerHtml: static inline theme script, no user content */}
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
@@ -124,7 +107,6 @@ export default async function LocaleLayout({ children, modal, params }: Props) {
               >
                 {children}
                 {modal}
-                <Footer />
                 <UpdateToast />
               </ThemeProvider>
             </NuqsAdapter>

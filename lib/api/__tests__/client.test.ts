@@ -52,8 +52,9 @@ describe('getEvents', () => {
         });
       }),
     );
-    await getEvents({ category: 'HIKING', tag: ['Outdoor', 'Free'], tagMode: 'all' });
+    await getEvents({ category: ['HIKING', 'PARTY'], tag: ['Outdoor', 'Free'], tagMode: 'all' });
     expect(capturedUrl).toContain('category=HIKING');
+    expect(capturedUrl).toContain('category=PARTY');
     expect(capturedUrl).toContain('tag=Outdoor');
     expect(capturedUrl).toContain('tag=Free');
     expect(capturedUrl).toContain('tagMode=all');

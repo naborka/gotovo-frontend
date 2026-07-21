@@ -11,6 +11,7 @@ const LANGUAGE_NAMES: Record<Language, Record<'ru' | 'en', string>> = {
   'sr-Cyrl': { ru: 'сербский (кириллица)', en: 'Serbian (Cyrillic)' },
 };
 
+/** Single quiet line in the detail view: "Original listing in {language}". */
 export function LanguageHint({ language }: { language: Language }) {
   const uiLocale = useLocale() as 'ru' | 'en';
   const t = useTranslations('event.detail');
@@ -20,9 +21,5 @@ export function LanguageHint({ language }: { language: Language }) {
   const name = LANGUAGE_NAMES[language]?.[uiLocale];
   if (!name) return null;
 
-  return (
-    <p className="text-[10px] text-faint mt-1 mb-2 font-medium">
-      {t('originalLanguage', { name })}
-    </p>
-  );
+  return <p className="mt-2.5 text-[13px] text-faint">{t('originalLanguage', { name })}</p>;
 }

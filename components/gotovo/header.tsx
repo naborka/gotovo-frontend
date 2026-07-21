@@ -3,15 +3,17 @@
 import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
-import { IconClose, IconMoon, IconSun, LogoMark } from '@/components/icons';
+import { IconClose, IconMoon, IconSun } from '@/components/icons';
 import { cn } from '@/lib/utils';
+import { ghostButtonClass } from './ui';
 
 interface HeaderProps {
-  hasFilters: boolean;
+  /** Count of active filters; 0 hides the Clear button. */
+  activeFilterCount: number;
   onClearFilters: () => void;
 }
 
-export function Header({ hasFilters, onClearFilters }: HeaderProps) {
+export function Header({ activeFilterCount, onClearFilters }: HeaderProps) {
   const t = useTranslations('header');
   const { theme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -24,62 +26,37 @@ export function Header({ hasFilters, onClearFilters }: HeaderProps) {
   const toggle = () => setTheme(current === 'dark' ? 'light' : 'dark');
 
   return (
-    <header className="h-14 px-4 flex items-center bg-background border-b border-divider flex-shrink-0 md:px-6">
-      <div className="flex items-center gap-2">
-        <LogoMark size={22} />
-        <span className="font-heading text-lg font-extrabold text-foreground tracking-tight">
-          Gotovo
-        </span>
-      </div>
+    <header className="h-14 pl-4 pr-2 flex items-center bg-background border-b border-divider flex-shrink-0 md:pl-6 md:pr-4">
+      <span className="text-[19px] font-extrabold tracking-tight text-foreground">Gotovo</span>
 
-      <div className="ml-auto flex items-center gap-1">
-        {hasFilters && (
-          <IconButton
-            icon={<IconClose size={14} />}
-            label={t('clearFilters')}
+      <div className="ml-auto flex items-center">
+        {activeFilterCount > 0 && (
+          <button
+            type="button"
             onClick={onClearFilters}
-          />
+            className={cn(
+              ghostButtonClass,
+              'flex h-11 items-center gap-1.5 px-3 text-[13px] font-semibold',
+            )}
+          >
+            <IconClose size={13} strokeWidth={2.2} aria-hidden="true" />
+            {activeFilterCount > 1 ? t('clearWithCount', { count: activeFilterCount }) : t('clear')}
+          </button>
         )}
-        <IconButton
-          icon={
-            current === 'dark' ? (
-              <IconSun size={14} />
-            ) : current === 'light' ? (
-              <IconMoon size={14} />
-            ) : null
-          }
-          label={current === 'dark' ? t('switchToLight') : t('switchToDark')}
+        <button
+          type="button"
           onClick={toggle}
-        />
+          title={current === 'dark' ? t('switchToLight') : t('switchToDark')}
+          aria-label={current === 'dark' ? t('switchToLight') : t('switchToDark')}
+          className={cn(ghostButtonClass, 'flex h-11 w-11 items-center justify-center')}
+        >
+          {current === 'dark' ? (
+            <IconSun size={17} />
+          ) : current === 'light' ? (
+            <IconMoon size={17} />
+          ) : null}
+        </button>
       </div>
     </header>
-  );
-}
-
-function IconButton({
-  icon,
-  label,
-  onClick,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      className={cn(
-        'w-9 h-9 rounded-lg',
-        'flex items-center justify-center',
-        'text-muted-foreground',
-        'transition-colors hover:bg-offset hover:text-foreground',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-      )}
-      onClick={onClick}
-      title={label}
-      aria-label={label}
-    >
-      {icon}
-    </button>
   );
 }

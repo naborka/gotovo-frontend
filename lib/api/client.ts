@@ -29,7 +29,8 @@ import {
  */
 
 export interface ListEventsParams {
-  category?: string;
+  /** Repeatable `category=` values (multi-select). */
+  category?: string[];
   city?: string;
   tag?: string[];
   tagMode?: 'any' | 'all';
@@ -41,7 +42,8 @@ export interface ListEventsParams {
 }
 
 export interface FacetParams {
-  category?: string;
+  /** Repeatable `category=` values (multi-select). */
+  category?: string[];
   city?: string;
   tag?: string[];
   tagMode?: 'any' | 'all';

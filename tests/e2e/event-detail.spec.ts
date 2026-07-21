@@ -1,10 +1,15 @@
 import { expect, test } from '@playwright/test';
+import { openFeed } from './helpers';
 
-test('clicking an event card opens the intercepted modal', async ({ page }) => {
-  await page.goto('/');
-  await expect(page.getByRole('article').first()).toBeVisible();
+test('clicking an event row opens the intercepted modal', async ({ page }) => {
+  await openFeed(page);
 
-  await page.getByRole('link', { name: /Mock Hike at Fruška Gora/i }).click();
+  // The dev service worker may reload the page right after first paint,
+  // swallowing the click — retry until the navigation sticks.
+  await expect(async () => {
+    await page.getByRole('link', { name: /Mock Hike at Fruška Gora/i }).click();
+    await page.waitForURL(/\/event\/evt-mock-01$/, { timeout: 3000 });
+  }).toPass();
 
   // Modal route shows full content; verify title visible at h1 level.
   await expect(page.getByRole('heading', { name: /Mock Hike at Fruška Gora/i })).toBeVisible();
