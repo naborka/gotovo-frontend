@@ -3,12 +3,10 @@
  * every fetch goes through `.parse(body)` before the rest of the app touches
  * the data.
  *
- * NOTE: codegen types in `types.gen.ts` currently emit incorrect enum values
- * (Kotlin case-sensitive names, CityV1 as object) because the backend's
- * Micronaut OpenAPI annotation processor doesn't read enum @JsonValue.
- * Schemas below match the ACTUAL wire format per BACKEND_API_CONTRACT.md
- * (verified by backend EventsControllerTest). Backend follow-up: annotate
- * v1 enums with proper @Schema(enumAsRef = true) + @JsonValue resolution.
+ * Enum wire values are the lowercase slugs per BACKEND_API_CONTRACT.md
+ * (Decisions 0001/0003/0005); `openapi.yaml` enum lists were corrected
+ * 2026-07-21 after the Rust backend port briefly shipped Kotlin constant
+ * names it had copied from the then-wrong Micronaut-generated spec.
  */
 
 import { z } from 'zod';

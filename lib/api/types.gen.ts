@@ -632,7 +632,7 @@ export interface components {
          * @description v1 event status. Mirrors event.status CHECK constraint.
          * @enum {string}
          */
-        EventStatus: "Live" | "Cancelled" | "Postponed";
+        EventStatus: "live" | "cancelled" | "postponed";
         /** @description Contract §2 paginated response envelope. */
         EventsPage: {
             data: components["schemas"]["Event"][];
@@ -677,7 +677,7 @@ export interface components {
          * @description v1 language tag. Mirrors event.language CHECK constraint. Frontend tolerates a broader BCP 47 set; v1 emits these three.
          * @enum {string}
          */
-        LanguageTag: "Ru" | "En" | "Sr";
+        LanguageTag: "ru" | "en" | "sr";
         MergeRecord: {
             /** Format: uuid */
             winnerEventUid: string;
@@ -726,7 +726,7 @@ export interface components {
          * @description Price kind per contract §2 "price sub-schema".
          * @enum {string}
          */
-        PriceKind: "Free" | "Paid" | "Unknown";
+        PriceKind: "free" | "paid" | "unknown";
         PromptRequest: {
             value: string;
         };

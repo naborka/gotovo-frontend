@@ -46,7 +46,7 @@ Source of truth: [`.env.example`](.env.example). Keep this table in sync.
 
 | Variable | Required | Default | Purpose |
 | --- | --- | --- | --- |
-| `NEXT_PUBLIC_API_BASE_URL` | yes | `https://api.gotovo.app/v1` | Backend base URL; must end at `/v1` |
+| `NEXT_PUBLIC_API_BASE_URL` | yes | `https://gotovo-api.duckdns.org/v1` | Backend base URL; must end at `/v1` |
 | `NEXT_PUBLIC_SITE_URL` | yes | `https://gotovo.app` | Canonical site URL used by manifest, sitemap, robots, OG metadata |
 | `NEXT_PUBLIC_SEARCH_ENABLED` | no | `false` | Feature flag for full-text search UI (Decision 0006) |
 | `REVALIDATE_SECRET` | yes (server) | – | HMAC signing key for `/api/revalidate` webhook |

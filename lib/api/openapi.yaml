@@ -1044,9 +1044,9 @@ components:
       type: string
       description: v1 event status. Mirrors event.status CHECK constraint.
       enum:
-      - Live
-      - Cancelled
-      - Postponed
+      - live
+      - cancelled
+      - postponed
       x-enum-varnames:
       - Live
       - Cancelled
@@ -1156,9 +1156,9 @@ components:
       description: v1 language tag. Mirrors event.language CHECK constraint. Frontend
         tolerates a broader BCP 47 set; v1 emits these three.
       enum:
-      - Ru
-      - En
-      - Sr
+      - ru
+      - en
+      - sr
       x-enum-varnames:
       - Ru
       - En
@@ -1265,9 +1265,9 @@ components:
       type: string
       description: Price kind per contract §2 "price sub-schema".
       enum:
-      - Free
-      - Paid
-      - Unknown
+      - free
+      - paid
+      - unknown
       x-enum-varnames:
       - Free
       - Paid
