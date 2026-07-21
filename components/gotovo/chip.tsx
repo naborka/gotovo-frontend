@@ -1,50 +1,39 @@
-import type { CSSProperties, ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
 /**
- * Chip filter button component.
- * Used for category, city, and tag filters.
- * Follows Open/Closed Principle - extendable via activeStyle prop.
+ * Filter chip. Active state inverts to foreground-on-background; category
+ * chips carry a small colour dot as a scanning aid.
  */
 
 interface ChipProps {
   label: string;
   active?: boolean;
   dotColor?: string;
-  activeStyle?: CSSProperties;
   onClick?: () => void;
   className?: string;
-  children?: ReactNode;
 }
 
-export function Chip({
-  label,
-  active = false,
-  dotColor,
-  activeStyle,
-  onClick,
-  className,
-}: ChipProps) {
+export function Chip({ label, active = false, dotColor, onClick, className }: ChipProps) {
   return (
     <button
       type="button"
       className={cn(
-        'flex-shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-full',
-        'border border-border bg-surface text-muted-foreground',
-        'text-[11px] font-normal whitespace-nowrap',
-        'transition-all duration-150 ease-out',
-        'hover:border-primary hover:text-primary',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+        'flex-shrink-0 inline-flex items-center gap-[7px] h-9 px-[13px] rounded-lg',
+        'text-[13px] whitespace-nowrap transition-colors duration-100 ease-out',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+        active
+          ? 'bg-foreground text-background font-semibold'
+          : 'bg-chip text-chip-foreground font-medium hover:text-foreground',
         className,
       )}
       onClick={onClick}
       aria-pressed={active}
-      style={active ? activeStyle : undefined}
     >
       {dotColor && (
         <span
-          className="w-[5px] h-[5px] rounded-full flex-shrink-0"
-          style={{ backgroundColor: dotColor }}
+          aria-hidden="true"
+          className={cn('w-1.5 h-1.5 rounded-full flex-shrink-0', active && 'opacity-85')}
+          style={{ backgroundColor: active ? 'var(--background)' : dotColor }}
         />
       )}
       {label}

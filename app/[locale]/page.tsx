@@ -2,7 +2,6 @@ import { getEvents } from '@/lib/api/client';
 import type { EventsPage } from '@/lib/api/schemas';
 import { tagEventList, tagFacets } from '@/lib/api/tags';
 import { EVENTS_PAGE_LIMIT } from '@/lib/filters';
-import { sortLocale } from '@/lib/sort';
 import { FeedClient } from './_components/FeedClient';
 
 type SearchParams = Record<string, string | string[] | undefined>;
@@ -12,11 +11,19 @@ type Props = {
 };
 
 /**
+ * Normalizes a multi-value query param to an array. nuqs serializes arrays as
+ * one comma-separated value (`category=HIKING,PARTY`), while direct links may
+ * repeat the key — accept both.
+ */
+const asArray = (value: string | string[] | undefined): string[] => {
+  const raw = Array.isArray(value) ? value : typeof value === 'string' ? [value] : [];
+  return raw.flatMap((v) => v.split(',')).filter(Boolean);
+};
+
+/**
  * Home page — Server Component. Fetches the event feed and hands it off
- * to the FeedClient island for interactivity.
- *
- * Filter state lives in the client island today; Phase 2 (#0043) moves it
- * into the URL so each filter change re-renders this RSC.
+ * to the FeedClient island for interactivity. Filters live in the URL;
+ * each change re-renders this RSC.
  */
 export default async function HomePage({ params, searchParams }: Props) {
   const { locale } = await params;
@@ -27,16 +34,16 @@ export default async function HomePage({ params, searchParams }: Props) {
     sort: sp.sort === 'recent' ? 'recent' : 'timeline',
     limit: EVENTS_PAGE_LIMIT,
   };
-  if (typeof sp.category === 'string') listParams.category = sp.category;
+  const categories = asArray(sp.category);
+  if (categories.length > 0) listParams.category = categories;
   if (typeof sp.city === 'string') listParams.city = sp.city;
-  if (Array.isArray(sp.tag)) listParams.tag = sp.tag;
-  else if (typeof sp.tag === 'string') listParams.tag = [sp.tag];
+  const tags = asArray(sp.tag);
+  if (tags.length > 0) listParams.tag = tags;
 
   const initialPage: EventsPage = await getEvents(listParams, {
     locale,
     next: { revalidate: 600, tags: [tagEventList(), tagFacets()] },
   });
-  const availableTags = sortLocale([...new Set(initialPage.data.flatMap((e) => e.tags))], locale);
 
-  return <FeedClient initialPage={initialPage} locale={locale} availableTags={availableTags} />;
+  return <FeedClient initialPage={initialPage} locale={locale} />;
 }

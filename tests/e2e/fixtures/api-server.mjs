@@ -2,6 +2,28 @@ import { createServer } from 'node:http';
 
 const ISO = (date, time = '10:00') => `${date}T${time}:00+02:00`;
 
+// Dynamic dates so relative labels and the quick-jump strip are exercised:
+// event 1 = today, event 2 = tomorrow, event 3 = next Saturday (Belgrade).
+const belgradeDate = (offsetDays) => {
+  const d = new Date(Date.now() + offsetDays * 86_400_000);
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/Belgrade',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(d);
+};
+const nextWeekendOffset = () => {
+  for (let i = 2; i < 9; i += 1) {
+    const weekday = new Intl.DateTimeFormat('en', {
+      timeZone: 'Europe/Belgrade',
+      weekday: 'short',
+    }).format(new Date(Date.now() + i * 86_400_000));
+    if (weekday === 'Sat' || weekday === 'Sun') return i;
+  }
+  return 5;
+};
+
 const events = [
   {
     uid: 'evt-mock-01',
@@ -11,7 +33,7 @@ const events = [
     tags: ['Outdoor', 'Weekend'],
     city: 'novi-sad',
     location: 'Fruška Gora',
-    startsAt: ISO('2026-06-01', '07:00'),
+    startsAt: ISO(belgradeDate(0), '07:00'),
     endsAt: null,
     allDay: false,
     timezone: 'Europe/Belgrade',
@@ -30,7 +52,7 @@ const events = [
     tags: ['Music', 'Night'],
     city: 'belgrade',
     location: 'Tribute',
-    startsAt: ISO('2026-06-02', '21:00'),
+    startsAt: ISO(belgradeDate(1), '21:00'),
     endsAt: null,
     allDay: false,
     timezone: 'Europe/Belgrade',
@@ -49,7 +71,7 @@ const events = [
     tags: ['Indoor', 'Weekend'],
     city: 'novi-sad',
     location: 'Studio',
-    startsAt: ISO('2026-06-03', '14:00'),
+    startsAt: ISO(belgradeDate(nextWeekendOffset()), '14:00'),
     endsAt: null,
     allDay: false,
     timezone: 'Europe/Belgrade',
@@ -75,10 +97,10 @@ const server = createServer((req, res) => {
   }
 
   if (url.pathname === '/v1/events') {
-    const category = url.searchParams.get('category');
+    const categories = url.searchParams.getAll('category');
     const city = url.searchParams.get('city');
     let items = events;
-    if (category) items = items.filter((e) => e.category === category);
+    if (categories.length > 0) items = items.filter((e) => categories.includes(e.category));
     if (city) items = items.filter((e) => e.city === city);
     return json(res, 200, {
       data: items,

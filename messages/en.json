@@ -13,10 +13,15 @@
   "loading": {
     "label": "Loading"
   },
+  "relativeDay": {
+    "today": "Today",
+    "tomorrow": "Tomorrow"
+  },
   "header": {
     "switchToLight": "Switch to light theme",
     "switchToDark": "Switch to dark theme",
-    "clearFilters": "Clear filters"
+    "clear": "Clear",
+    "clearWithCount": "Clear ({count})"
   },
   "event": {
     "notFound": {
@@ -34,55 +39,59 @@
     },
     "badges": {
       "new": "New",
-      "justAdded": "Just Added",
-      "multiDay": "{days}-day event",
       "allDay": "All day"
     },
+    "status": {
+      "postponed": "Postponed",
+      "cancelled": "Cancelled"
+    },
+    "meta": {
+      "days": "{days, plural, one {# day} other {# days}}"
+    },
     "detail": {
-      "starts": "Starts",
-      "ends": "Ends",
       "date": "Date",
       "time": "Time",
       "location": "Location",
       "price": "Price",
-      "confidence": "Confidence",
-      "tags": "Tags",
-      "sources": "{count, plural, one {# source} other {# sources}}",
-      "endTimeTba": "End time TBA",
       "tba": "TBA",
-      "originalLanguage": "Original: {name}"
+      "opensInMaps": "Opens in Maps",
+      "originalLanguage": "Original listing in {name}"
     },
     "actions": {
       "back": "Back",
-      "directions": "Directions",
       "share": "Share",
-      "viewSource": "View Source",
-      "backToFeed": "Back to feed"
+      "viewSource": "Open source",
+      "addToCalendar": "Add to calendar",
+      "opensInNewTab": "opens in new tab"
     }
   },
   "feed": {
-    "summary": "{events, plural, one {# event} other {# events}} · {days, plural, one {# day} other {# days}}",
     "filters": {
-      "all": "All",
-      "allCities": "All cities"
+      "all": "All"
     },
+    "jump": {
+      "today": "Today",
+      "tomorrow": "Tomorrow",
+      "weekend": "Weekend"
+    },
+    "groupCount": "{count, plural, one {# event} other {# events}}",
     "empty": {
       "title": "No events match",
-      "description": "Try adjusting your filters — new events drop throughout the day."
+      "description": "Try different filters — new events are added throughout the day.",
+      "clear": "Clear filters"
     },
-    "loading": "Loading more events…",
     "loadError": "Couldn't load more events.",
     "retry": "Try again",
     "end": "That's everything for now."
   },
   "tabs": {
     "timeline": "Timeline",
-    "recent": "Recently Added"
+    "recent": "Recently added"
   },
   "offline": {
     "title": "You're offline",
     "description": "Check your connection. Previously loaded events stay available.",
-    "home": "Go home"
+    "tryAgain": "Try again"
   },
   "pwa": {
     "update": {

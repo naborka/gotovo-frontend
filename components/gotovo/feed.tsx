@@ -1,59 +1,61 @@
 'use client';
 
 import { useLocale, useTranslations } from 'next-intl';
-import { formatDateLong } from '@/lib/datetime';
-import { groupEventsByDate, groupEventsByRecency } from '@/lib/event-utils';
-import type { GotovoEvent, TabType } from '@/lib/types';
+import {
+  formatDayMonth,
+  formatWeekdayDayMonth,
+  relativeDayHeading,
+  relativeDayKind,
+} from '@/lib/datetime';
+import type { DateGroup } from '@/lib/types';
 import { EmptyState } from './empty-state';
-import { EventCard } from './event-card';
+import { EventRow } from './event-row';
 
 /**
- * Event feed component displaying grouped event cards.
- * Supports Timeline and Recently Added views.
+ * Event feed: date-grouped schedule rows under sticky date headers.
+ * Groups carry `data-datekey` anchors for the quick-jump strip; grouping
+ * itself happens once in FeedClient.
  */
 
 interface FeedProps {
-  events: GotovoEvent[];
-  tab: TabType;
+  groups: DateGroup[];
+  onClearFilters: () => void;
 }
 
-export function Feed({ events, tab }: FeedProps) {
+export function Feed({ groups, onClearFilters }: FeedProps) {
   const t = useTranslations('feed');
+  const tDay = useTranslations('relativeDay');
   const locale = useLocale();
 
-  if (events.length === 0) {
-    return <EmptyState />;
+  if (groups.length === 0) {
+    return <EmptyState onClearFilters={onClearFilters} />;
   }
-
-  const groups = tab === 'recent' ? groupEventsByRecency(events) : groupEventsByDate(events);
-  const total = events.length;
 
   return (
     <div className="pb-6">
-      {/* Result summary */}
-      <p className="px-3 pt-1.5 pb-0.5 font-mono text-[10px] text-faint md:px-6">
-        {t('summary', { events: total, days: groups.length })}
-      </p>
+      {groups.map((group) => {
+        const heading = relativeDayHeading(group.key, locale, tDay);
+        const detail =
+          relativeDayKind(group.key) === 'other'
+            ? formatDayMonth(group.key, locale)
+            : formatWeekdayDayMonth(group.key, locale);
 
-      {/* Date groups */}
-      {groups.map((group) => (
-        <div key={group.isoDate} className="mt-5">
-          {/* Date header */}
-          <div className="flex items-baseline gap-2 px-3 py-1.5 border-b border-divider md:px-6">
-            <span className="font-heading text-base font-extrabold text-foreground tracking-tight leading-none">
-              {formatDateLong(group.isoDate, locale)}
-            </span>
-            <span className="ml-auto font-mono text-[10px] text-faint">
-              {group.events.length} event{group.events.length !== 1 ? 's' : ''}
-            </span>
-          </div>
-
-          {/* Event cards */}
-          {group.events.map((event) => (
-            <EventCard key={event.uid} event={event} locale={locale as 'ru' | 'en'} />
-          ))}
-        </div>
-      ))}
+        return (
+          <section key={group.key} data-datekey={group.key}>
+            <div className="sticky top-0 z-10 flex items-baseline border-b border-divider bg-background px-4 pb-2.5 pt-4 md:px-6">
+              <h2 className="text-base font-extrabold tracking-tight text-foreground">
+                {heading} <span className="font-semibold text-faint">{detail}</span>
+              </h2>
+              <span className="ml-auto text-xs text-faint">
+                {t('groupCount', { count: group.events.length })}
+              </span>
+            </div>
+            {group.events.map((event) => (
+              <EventRow key={event.uid} event={event} locale={locale as 'ru' | 'en'} />
+            ))}
+          </section>
+        );
+      })}
     </div>
   );
 }

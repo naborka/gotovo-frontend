@@ -4,12 +4,12 @@
  */
 
 export { Chip } from './chip';
-export { DetailPage } from './detail-page';
 export { EmptyState } from './empty-state';
-export { EventCard } from './event-card';
+export { EventRow } from './event-row';
 export { Feed } from './feed';
 export { FeedFooter } from './feed-footer';
+export { FeedSkeleton } from './feed-skeleton';
 export { FilterZone } from './filter-zone';
 export { Header } from './header';
-export { Pill } from './pill';
+export { QuickJump } from './quick-jump';
 export { TabBar } from './tab-bar';

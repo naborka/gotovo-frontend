@@ -13,10 +13,15 @@
   "loading": {
     "label": "Загрузка"
   },
+  "relativeDay": {
+    "today": "Сегодня",
+    "tomorrow": "Завтра"
+  },
   "header": {
     "switchToLight": "Светлая тема",
     "switchToDark": "Тёмная тема",
-    "clearFilters": "Очистить фильтры"
+    "clear": "Сбросить",
+    "clearWithCount": "Сбросить ({count})"
   },
   "event": {
     "notFound": {
@@ -34,43 +39,47 @@
     },
     "badges": {
       "new": "Новое",
-      "justAdded": "Только что",
-      "multiDay": "{days}-дневное событие",
       "allDay": "Весь день"
     },
+    "status": {
+      "postponed": "Перенесено",
+      "cancelled": "Отменено"
+    },
+    "meta": {
+      "days": "{days, plural, one {# день} few {# дня} other {# дней}}"
+    },
     "detail": {
-      "starts": "Начало",
-      "ends": "Конец",
       "date": "Дата",
       "time": "Время",
       "location": "Место",
       "price": "Цена",
-      "confidence": "Уверенность",
-      "tags": "Теги",
-      "sources": "{count, plural, one {# источник} few {# источника} other {# источников}}",
-      "endTimeTba": "Время окончания неизвестно",
       "tba": "Не указано",
+      "opensInMaps": "Откроется в Картах",
       "originalLanguage": "Оригинал: {name}"
     },
     "actions": {
       "back": "Назад",
-      "directions": "Маршрут",
       "share": "Поделиться",
       "viewSource": "Источник",
-      "backToFeed": "К ленте"
+      "addToCalendar": "В календарь",
+      "opensInNewTab": "откроется в новой вкладке"
     }
   },
   "feed": {
-    "summary": "{events, plural, one {# событие} few {# события} other {# событий}} · {days, plural, one {# день} few {# дня} other {# дней}}",
     "filters": {
-      "all": "Все",
-      "allCities": "Все города"
+      "all": "Все"
     },
+    "jump": {
+      "today": "Сегодня",
+      "tomorrow": "Завтра",
+      "weekend": "Выходные"
+    },
+    "groupCount": "{count, plural, one {# событие} few {# события} other {# событий}}",
     "empty": {
       "title": "Событий не найдено",
-      "description": "Попробуйте изменить фильтры — новые события появляются в течение дня."
+      "description": "Попробуйте другие фильтры — новые события появляются в течение дня.",
+      "clear": "Сбросить фильтры"
     },
-    "loading": "Загружаем ещё события…",
     "loadError": "Не удалось загрузить ещё события.",
     "retry": "Повторить",
     "end": "Это всё на данный момент."
@@ -82,7 +91,7 @@
   "offline": {
     "title": "Нет сети",
     "description": "Проверьте подключение. Ранее загруженные события доступны.",
-    "home": "На главную"
+    "tryAgain": "Повторить"
   },
   "pwa": {
     "update": {

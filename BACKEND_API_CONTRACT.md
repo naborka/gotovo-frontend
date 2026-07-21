@@ -223,7 +223,7 @@ The feed. Single most-called endpoint. Everything else is decoration.
 
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
-| `category` | string (enum) | — | Filter by exact category match |
+| `category` | string (enum), repeatable | — | `?category=HIKING&category=PARTY` — events matching ANY listed category. Single value = exact match (backward compatible). |
 | `city` | string | — | Filter by city slug (see Open Q #1 — controlled enum) |
 | `tag` | string, repeatable | — | `?tag=jazz&tag=festival` |
 | `tagMode` | `any` \| `all` | `any` | `any` = OR (default); `all` = AND across listed tags |

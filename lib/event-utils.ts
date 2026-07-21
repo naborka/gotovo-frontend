@@ -1,4 +1,4 @@
-import type { CategoryStyle, DateGroup, EventCategory, GotovoEvent, PriceStyle } from './types';
+import type { DateGroup, EventCategory, GotovoEvent } from './types';
 
 const ONE_DAY_MS = 86_400_000;
 
@@ -16,134 +16,54 @@ export const isNewEvent = (event: GotovoEvent, now: Date | number = Date.now()):
   return diff >= 0 && diff < ONE_DAY_MS;
 };
 
-/** Backend category enum (9-val, Decision 0001) → pill style. */
-const CATEGORY_STYLES: Record<EventCategory, CategoryStyle> = {
-  HIKING: {
-    color: 'var(--teal)',
-    highlight: 'var(--teal-highlight)',
-    border: 'var(--teal-border)',
-  },
-  SPORTS: {
-    color: 'var(--teal)',
-    highlight: 'var(--teal-highlight)',
-    border: 'var(--teal-border)',
-  },
-  PARTY: {
-    color: 'var(--primary)',
-    highlight: 'var(--primary-highlight)',
-    border: 'var(--primary-border)',
-  },
-  WORKSHOP: {
-    color: 'var(--rose)',
-    highlight: 'var(--rose-highlight)',
-    border: 'var(--rose-border)',
-  },
-  EDUCATION: {
-    color: 'var(--blue)',
-    highlight: 'var(--blue-highlight)',
-    border: 'var(--blue-border)',
-  },
-  TRIP: {
-    color: 'var(--teal)',
-    highlight: 'var(--teal-highlight)',
-    border: 'var(--teal-border)',
-  },
-  CULTURE: {
-    color: 'var(--rose)',
-    highlight: 'var(--rose-highlight)',
-    border: 'var(--rose-border)',
-  },
-  ENTERTAINMENT: {
-    color: 'var(--primary)',
-    highlight: 'var(--primary-highlight)',
-    border: 'var(--primary-border)',
-  },
-  IT_NETWORKING: {
-    color: 'var(--blue)',
-    highlight: 'var(--blue-highlight)',
-    border: 'var(--blue-border)',
-  },
+/**
+ * Total calendar days an event spans: 1 for same-day events, `n` when
+ * `endsAt` is set (inclusive of the final day).
+ */
+export const eventDurationDays = (event: GotovoEvent): number =>
+  event.endsAt ? daysBetween(event.startsAt, event.endsAt) + 1 : 1;
+
+/**
+ * Backend category enum (9-val, Decision 0001) → category hue.
+ * The redesign uses colour only as a scanning aid: a bar on feed rows and a
+ * dot on chips — never tinted surfaces.
+ */
+const CATEGORY_COLORS: Record<EventCategory, string> = {
+  HIKING: 'var(--teal)',
+  SPORTS: 'var(--teal)',
+  TRIP: 'var(--teal)',
+  PARTY: 'var(--violet)',
+  ENTERTAINMENT: 'var(--violet)',
+  WORKSHOP: 'var(--rose)',
+  CULTURE: 'var(--rose)',
+  EDUCATION: 'var(--blue)',
+  IT_NETWORKING: 'var(--blue)',
 };
 
-const DEFAULT_CATEGORY_STYLE: CategoryStyle = {
-  color: 'var(--muted-foreground)',
-  highlight: 'var(--offset)',
-  border: 'var(--border)',
-};
-
-export const getCategoryStyle = (category: EventCategory): CategoryStyle =>
-  CATEGORY_STYLES[category] ?? DEFAULT_CATEGORY_STYLE;
-
-/** Pill style for the structured Price object. */
-export const getPriceStyle = (price: GotovoEvent['price']): PriceStyle => {
-  switch (price.kind) {
-    case 'free':
-      return {
-        color: 'var(--green)',
-        highlight: 'var(--green-highlight)',
-        border: 'var(--green-border)',
-      };
-    case 'paid':
-      return {
-        color: 'var(--muted-foreground)',
-        highlight: 'var(--offset)',
-        border: 'var(--border)',
-      };
-    default:
-      return {
-        color: 'var(--faint)',
-        highlight: 'transparent',
-        border: 'var(--divider)',
-      };
-  }
-};
+export const getCategoryColor = (category: EventCategory): string =>
+  CATEGORY_COLORS[category] ?? 'var(--muted-foreground)';
 
 /** YYYY-MM-DD slice of an ISO datetime. Backend composes startsAt in Europe/Belgrade, so the slice is the local calendar date. */
-const isoDateKey = (iso: string): string => iso.slice(0, 10);
+export const isoDateKey = (iso: string): string => iso.slice(0, 10);
+
+const groupByStartDate = (events: GotovoEvent[]): DateGroup[] => {
+  const grouped = new Map<string, DateGroup>();
+  for (const event of events) {
+    const key = isoDateKey(event.startsAt);
+    let group = grouped.get(key);
+    if (!group) {
+      group = { key, events: [] };
+      grouped.set(key, group);
+    }
+    group.events.push(event);
+  }
+  return [...grouped.values()];
+};
 
 /** Group events by start date for the Timeline view. */
-export const groupEventsByDate = (events: GotovoEvent[]): DateGroup[] => {
-  const sorted = [...events].sort((a, b) => a.startsAt.localeCompare(b.startsAt));
-  const grouped = new Map<string, DateGroup>();
-  for (const event of sorted) {
-    const key = isoDateKey(event.startsAt);
-    let group = grouped.get(key);
-    if (!group) {
-      group = { isoDate: event.startsAt, events: [] };
-      grouped.set(key, group);
-    }
-    group.events.push(event);
-  }
-  return [...grouped.values()];
-};
+export const groupEventsByDate = (events: GotovoEvent[]): DateGroup[] =>
+  groupByStartDate([...events].sort((a, b) => a.startsAt.localeCompare(b.startsAt)));
 
-/** Group events by recency (createdAt desc) for the "Recently Added" view. */
-export const groupEventsByRecency = (events: GotovoEvent[]): DateGroup[] => {
-  const sorted = [...events].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-  const grouped = new Map<string, DateGroup>();
-  for (const event of sorted) {
-    const key = isoDateKey(event.startsAt);
-    let group = grouped.get(key);
-    if (!group) {
-      group = { isoDate: event.startsAt, events: [] };
-      grouped.set(key, group);
-    }
-    group.events.push(event);
-  }
-  return [...grouped.values()];
-};
-
-/** Filter events against the (category, city, tags) tuple. */
-export const filterEvents = (
-  events: GotovoEvent[],
-  category: string,
-  city: string,
-  tags: Set<string>,
-  allValue: string,
-): GotovoEvent[] =>
-  events.filter((event) => {
-    if (category !== allValue && event.category !== category) return false;
-    if (city !== allValue && event.city !== city) return false;
-    if (tags.size > 0 && !event.tags.some((t) => tags.has(t))) return false;
-    return true;
-  });
+/** Group events by recency (createdAt desc) for the "Recently added" view. */
+export const groupEventsByRecency = (events: GotovoEvent[]): DateGroup[] =>
+  groupByStartDate([...events].sort((a, b) => b.createdAt.localeCompare(a.createdAt)));
