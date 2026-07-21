@@ -11,6 +11,7 @@ import {
   type SerwistGlobalConfig,
   StaleWhileRevalidate,
 } from 'serwist';
+import { isEventDetailRequest, isEventsListRequest } from '@/lib/sw-matchers';
 
 declare global {
   interface WorkerGlobalScope extends SerwistGlobalConfig {
@@ -26,35 +27,25 @@ const ONE_DAY = 24 * 60 * 60;
 const SEVEN_DAYS = 7 * ONE_DAY;
 
 const appRuntimeCaching = [
+  // API responses arrive via cors-mode fetch, so an opaque response (status 0)
+  // can never legitimately occur here — only 200 is cacheable.
   {
-    matcher: ({ url }: { url: URL }) =>
-      /\/v1\/events\/?(\?|$)/.test(url.pathname + url.search) &&
-      !/\/v1\/events\/[^/?]+/.test(url.pathname),
+    matcher: ({ url }: { url: URL }) => isEventsListRequest(url),
     handler: new StaleWhileRevalidate({
       cacheName: 'api-events-list',
       plugins: [
-        new CacheableResponsePlugin({ statuses: [0, 200] }),
+        new CacheableResponsePlugin({ statuses: [200] }),
         new ExpirationPlugin({ maxAgeSeconds: FIVE_MIN, maxEntries: 32 }),
       ],
     }),
   },
   {
-    matcher: ({ url }: { url: URL }) => /\/v1\/events\/[^/?]+/.test(url.pathname),
+    matcher: ({ url }: { url: URL }) => isEventDetailRequest(url),
     handler: new StaleWhileRevalidate({
       cacheName: 'api-events-detail',
       plugins: [
-        new CacheableResponsePlugin({ statuses: [0, 200] }),
-        new ExpirationPlugin({ maxAgeSeconds: ONE_HOUR, maxEntries: 64 }),
-      ],
-    }),
-  },
-  {
-    matcher: ({ url }: { url: URL }) => /\/v1\/(cities|categories|tags)\/?$/.test(url.pathname),
-    handler: new CacheFirst({
-      cacheName: 'api-reference',
-      plugins: [
         new CacheableResponsePlugin({ statuses: [200] }),
-        new ExpirationPlugin({ maxAgeSeconds: ONE_DAY, maxEntries: 8 }),
+        new ExpirationPlugin({ maxAgeSeconds: ONE_HOUR, maxEntries: 64 }),
       ],
     }),
   },
